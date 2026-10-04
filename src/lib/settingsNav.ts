@@ -3,6 +3,7 @@ import {
 	DatabaseBackup,
 	FileJson,
 	Info,
+	Network,
 	Palette,
 	Scale,
 	Settings2,
@@ -62,6 +63,13 @@ export function settingsSections() {
 			icon: DatabaseBackup,
 			label: m.settings.maintenance,
 			hint: m.settings.maintenanceHint
+		},
+		{
+			href: '/settings/connection',
+			group: 'system',
+			icon: Network,
+			label: m.settings.connection,
+			hint: m.settings.connectionHint
 		},
 		{
 			href: '/settings/about',

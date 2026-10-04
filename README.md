@@ -16,7 +16,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and most settings work; the reverse-proxy settings are still missing. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and the settings work. Still to come before the first version: installing it as an app and a published image. There is no release and no published image. This page grows with the app.
 
 ## 📖 Documentation
 
@@ -35,7 +35,7 @@ Working today:
 - 🎨 **Symbols in two styles** – colourful or plain line icons, your choice.
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts; at present hdpantry does not connect to any outside service at all.
-- 🛡️ **Protected login** – repeated wrong passwords block the address they come from. Change your username or password in the settings and log out your other devices with one tap.
+- 🛡️ **Protected login** – repeated wrong passwords block the address they come from. Behind a reverse proxy, hdpantry tells visitors apart once the proxy is confirmed – with one tap, or with a key where Docker hides the addresses. Change your username or password in the settings and log out your other devices with one tap.
 - 🌍 **English and German** – follows your browser on first start; change it any time in the settings.
 - 🌗 **Light and dark** – follows your device, or pick one.
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
@@ -43,7 +43,7 @@ Working today:
 
 Being built for the first version:
 
-- 🔌 **Reverse proxy settings** – tell hdpantry which proxy to trust, and see whether HTTPS is active.
+- 📲 **Install as an app** – on the home screen of your phone, with its own icon.
 - 📦 **A published image** – so installing no longer means building from source.
 
 ## Shelf life: guide values, not guarantees

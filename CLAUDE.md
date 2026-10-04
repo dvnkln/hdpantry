@@ -11,7 +11,7 @@ Self-hosted Vorrats-Tracker für wiederverwendbare Vakuumbehälter und -beutel m
 
 ## Unverhandelbar
 
-- **`data/` wird nie committet oder gepusht.** Steht komplett in `.gitignore` und `.dockerignore`. Vor jedem Commit prüfen (`git status`, `git diff --cached --name-only`), dass nichts aus `data/` dabei ist. Lokal liegt dort die Datenbank (`DATA_DIR=./data`), Screenshots nur in `data/screenshots/`.
+- **`data/` wird nie committet oder gepusht.** Steht komplett in `.gitignore` und `.dockerignore`. Vor jedem Commit prüfen (`git status`, `git diff --cached --name-only`), dass nichts aus `data/` dabei ist. Lokal liegt dort die Datenbank (`DATA_DIR=./data`), Screenshots nur in `data/screenshots/`. Achtung: Die Regel `data/` in `.gitignore` trifft **jeden** Ordner dieses Namens – ein neuer Ordner `data` im Quellcode braucht dort eine Ausnahme (wie `src/routes/settings/data/`), sonst fehlt er still im Commit.
 - **Null Verbindungen nach außen**, weder Server noch Browser: keine fremden Skripte, Schriften, CDNs, Bilder, Telemetrie, Update-Prüfung. Alles lokal gebündelt (auch die QR-Bibliothek). Server-Code ruft nie `fetch` nach außen auf.
 - **Keine Marken:** keine Hersteller-Begriffe, -Logos, -Farben oder -Texte in Code, Oberfläche, Doku oder Namen. Die App funktioniert mit jedem QR-Code. Screenshots fremder Apps dienen nur für Ablauf und Reihenfolge; Layout und Gestaltung sind eigenständig.
 - `.env` enthält nur `SECRET`, `TZ`, `ORIGIN`. Alles andere wird in der App eingestellt (Tabelle `settings`).
@@ -86,7 +86,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - CSP in `vite.config.ts`: Der Browser lädt und startet nur, was vom eigenen Server kommt. Weitere Kopfzeilen in `hooks.server.ts`; die Kamera ist nur für eigene Seiten freigegeben. Neue Oberflächenteile nutzen deshalb keine eingebetteten Skripte (`<script>` in `app.html`, `onclick="…"`).
 - Ein Konto, angelegt im First-Run-Wizard (`/setup`, nur einmal nutzbar). Ohne Anmeldung erreichbar sind nur `/health`, `/login`, `/setup` (`PUBLIC_PATHS` in `hooks.server.ts`); alles andere leitet zur Anmeldung.
 - Login-Sperre je Adresse: 5 Fehlversuche → 1, dann 5, dann 15 Minuten (im Speicher). Fehlversuche stehen im Log, nie Passwort oder Benutzername.
-- Adresse eines Besuchers immer über `clientAddress(event)` (`auth.ts`) holen, nie `getClientAddress()`: Was ein Reverse Proxy weiterreicht (`X-Forwarded-For`), zählt nur, wenn er sich ausgewiesen hat (`proxy.ts`, Settings `trustedProxies`/`proxyKey`; die Einstellseite dazu kommt mit Punkt 7).
+- Adresse eines Besuchers immer über `clientAddress(event)` (`auth.ts`) holen, nie `getClientAddress()`: Was ein Reverse Proxy weiterreicht (`X-Forwarded-For`), zählt nur, wenn er sich ausgewiesen hat (`proxy.ts`, Settings `trustedProxies`/`proxyKey`, einstellbar unter Einstellungen → Verbindung).
 - Passwort vergessen: `reset-password.js` (im Image). Schreibt dasselbe Hash-Format wie `hashPassword()` in `auth.ts` – beide zusammen ändern.
 - Die Kamera funktioniert im Browser nur über HTTPS (oder `localhost`). Das Projekt bringt kein eigenes HTTPS mit, sondern geht von einem Reverse Proxy aus; Foto und manuelle Eingabe funktionieren immer.
 
@@ -120,16 +120,18 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 4. Haltbarkeit: Kategorie und Symbol aus dem Namen, eingefärbte Lagerorte, berechnetes Datum, Richtwerte mit Quellen – ✅
 5. Inventar: Filter, Hervorhebung, Sortierung, Tabelle am PC – ✅
 6. „Ersetzen“ – ✅
-7. Einstellungen – in Etappen, nach jeder stoppen. Vor dem ersten Release müssen alle fertig sein:
+7. Einstellungen – ✅ alle Etappen fertig:
    - **Gerüst ✅:** Bereiche in `src/lib/settingsNav.ts` (neuer Bereich = eine Zeile dort + Seite unter `src/routes/settings/`); am PC Seitenleiste, am Handy zeigt `/settings` die gruppierte Liste, jeder Bereich hat „← Einstellungen“. Fertig: Aussehen (Symbole), Behälter, Richtwerte, Über.
    - **Allgemein ✅** (Sprache, Vibration beim Scan, Schwelle „läuft bald ab“) und **Aussehen ✅** (Farbschema mit Vorschau, Symbole). Jede Wahl wird sofort gespeichert, ohne „Speichern“-Knopf; die Seite wird dabei nicht neu geladen – `+layout.svelte` zieht Sprache, Schema und Farbe der Browser-Leiste nach.
    - **Konto ✅** (`src/lib/server/account.ts`): Benutzername und Passwort ändern – beides nur mit dem aktuellen Passwort; ein falsches zählt zur Login-Sperre. Eine Passwortänderung meldet alle anderen Geräte ab; dafür gibt es auch einen eigenen Knopf.
    - **Daten ✅:** Export und Import als JSON – nur der Vorrat (Behälter, Inhalte, Verlauf, `food_memory`), **nie** Konto, Anmeldungen oder Einstellungen. Import **ersetzt** den ganzen Vorrat, nur mit Bestätigungswort, in einer Transaktion; davor eine Gegenüberstellung „Jetzt / Danach“. Format und Prüfung in `src/lib/backup.ts` (für Browser-Vorschau und Server gemeinsam), `BACKUP_FORMAT` bei jeder Änderung der Datei anheben – ältere Dateien müssen lesbar bleiben. Neue Spalte in `containers`/`items` = auch dort und in `src/lib/server/backup.ts` ergänzen.
    - **Wartung ✅** (`/settings/maintenance`, `src/lib/server/backups.ts`, Zeitplan in `src/lib/schedule.ts`): automatische Kopie der ganzen Datenbank nach `DATA_DIR/backups`, **standardmäßig aus**; täglich/wöchentlich/monatlich, Anzahl behalten, „Jetzt sichern“, Herunterladen, Löschen. Zeitplaner in der App (kein Cron, Start in `hooks.server.ts`), Verpasstes wird nach dem Start einmal nachgeholt. Einstellungen und letzter Lauf stehen in `settings` (`backup…`). Zurückspielen nur außerhalb der App (Wiki „Backups and restore“).
-   - Verbindung: Reverse Proxy bestätigen (`trustedProxies`/`proxyKey`, per Adresse oder Schlüssel), Anzeige ob HTTPS aktiv ist
+   - **Verbindung ✅** (`/settings/connection`): zeigt, ob HTTPS aktiv ist und welche Adressen in `ORIGIN` stehen; Reverse Proxy bestätigen per Adresse (ein Knopf) oder – wenn Docker die Adressen verbirgt – per Schlüssel mit fertiger Zeile für gängige Proxys (`src/lib/proxySnippets.ts`). Was die App von einer Anfrage sieht: `connectionOf()` in `auth.ts`.
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
 Außerdem vor dem Release:
+
+- **Als App installierbar** (Handy-Startbildschirm und PC): Web-App-Manifest mit Name, Farben und eigenen Symbolen in allen nötigen Größen (auch für iPhone), öffnet ohne Browser-Leiste; alles lokal, ohne Verbindung nach außen. Wiki-Seite „HTTPS“ um „Installing as an app“ ergänzen.
 
 - README straffen: Der Abschnitt zur Haltbarkeit wird ein kurzer Hinweis („Schätzung anhand von Quellen, keine Garantie“) mit Link auf die Wiki-Seite „Shelf life guide values“; die Details und die Quellenliste stehen nur noch dort.
 - README bekommt eine Screenshot-Tabelle (Handy-Screenshots der wichtigsten Seiten, drei pro Zeile, Bilder unter `docs/screenshots/`), sobald die App release-fertig ist.

@@ -60,7 +60,11 @@
 	<p class="mt-1 text-sm text-muted">{m.settings.dataExportText}</p>
 	<p class="mt-2 text-sm">{m.settings.dataNow(data.counts.containers, data.counts.filled)}</p>
 	<!-- A plain download from the own server -->
-	<a href="/settings/data/export" download class="mt-3 inline-flex items-center gap-2 btn-secondary">
+	<a
+		href="/settings/data/export"
+		download
+		class="mt-3 inline-flex items-center gap-2 btn-secondary"
+	>
 		<Download size={18} />{m.settings.dataExportButton}
 	</a>
 </section>
