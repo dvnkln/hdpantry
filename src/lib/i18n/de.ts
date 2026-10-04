@@ -17,6 +17,12 @@ export const de = {
 		hidePassword: 'Passwort verbergen'
 	},
 
+	// What the browser shows when hdpantry is installed as an app
+	app: {
+		description: 'Vorrats-Tracker für wiederverwendbare Vakuumbehälter und -beutel',
+		scan: 'Scannen'
+	},
+
 	languages: { de: 'Deutsch', en: 'English' },
 
 	auth: {

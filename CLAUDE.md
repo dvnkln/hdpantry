@@ -90,6 +90,11 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Passwort vergessen: `reset-password.js` (im Image). Schreibt dasselbe Hash-Format wie `hashPassword()` in `auth.ts` – beide zusammen ändern.
 - Die Kamera funktioniert im Browser nur über HTTPS (oder `localhost`). Das Projekt bringt kein eigenes HTTPS mit, sondern geht von einem Reverse Proxy aus; Foto und manuelle Eingabe funktionieren immer.
 
+## Als App installierbar
+
+- Manifest unter `/manifest.webmanifest` (`src/routes/manifest.webmanifest/+server.ts`, ohne Anmeldung erreichbar, Texte in der Sprache der App, Kurzbefehl „Scannen“), Angaben fürs iPhone in `app.html`. Symbole unter `static/icons/` und `static/apple-touch-icon.png`, erzeugt mit `scripts/app-icons.mjs` aus dem Logo (`src/lib/assets/favicon.svg`).
+- `src/service-worker.ts` hält **nur die Programmdateien** der App vor (Skripte, Stile, Schrift; Lebensmittel-Symbole und die wasm-Datei erst bei Benutzung). Seiten und Daten kommen immer vom Server – nichts aus dem Vorrat wird im Browser gespeichert, ohne Server gibt es keine App. Nie Seiten oder Antworten mit Daten in den Zwischenspeicher legen.
+
 ## Tests
 
 - `npm test` (vitest): Jede Testdatei bekommt eine leere, echte Datenbank in einem Temp-Ordner und **kein Netz** (`src/tests/setup.ts`). Tests liegen neben dem Code (`*.test.ts`).
@@ -130,8 +135,6 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
 Außerdem vor dem Release:
-
-- **Als App installierbar** (Handy-Startbildschirm und PC): Web-App-Manifest mit Name, Farben und eigenen Symbolen in allen nötigen Größen (auch für iPhone), öffnet ohne Browser-Leiste; alles lokal, ohne Verbindung nach außen. Wiki-Seite „HTTPS“ um „Installing as an app“ ergänzen.
 
 - README straffen: Der Abschnitt zur Haltbarkeit wird ein kurzer Hinweis („Schätzung anhand von Quellen, keine Garantie“) mit Link auf die Wiki-Seite „Shelf life guide values“; die Details und die Quellenliste stehen nur noch dort.
 - README bekommt eine Screenshot-Tabelle (Handy-Screenshots der wichtigsten Seiten, drei pro Zeile, Bilder unter `docs/screenshots/`), sobald die App release-fertig ist.

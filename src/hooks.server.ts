@@ -28,7 +28,7 @@ export const init: ServerInit = () => {
 };
 
 // Pages reachable without being logged in.
-const PUBLIC_PATHS = ['/health', '/login', '/setup'];
+const PUBLIC_PATHS = ['/health', '/login', '/setup', '/manifest.webmanifest'];
 
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
@@ -97,6 +97,8 @@ const respond: Handle = async ({ event, resolve }) => {
 	};
 
 	// No account yet: everything leads to the first-run wizard.
+	// (the browser asks for the app manifest on every page, also before the account exists)
+	if (path === '/manifest.webmanifest') return render();
 	if (!hasAnyUser()) return path === '/setup' ? render() : redirectTo('/setup');
 	if (path === '/setup') return redirectTo('/');
 

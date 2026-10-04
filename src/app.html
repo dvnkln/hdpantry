@@ -6,6 +6,13 @@
 		<!-- Colour of the browser's bar; the second one applies on devices set to dark -->
 		<meta name="theme-color" content="%themeColor%" />
 		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="%themeColorDark%" />
+		<!-- Installing as an app: what the browser needs to know, and the same for iPhone/iPad -->
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="apple-mobile-web-app-title" content="hdpantry" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

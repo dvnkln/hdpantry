@@ -16,6 +16,12 @@ export const en: Messages = {
 		hidePassword: 'Hide password'
 	},
 
+	// What the browser shows when hdpantry is installed as an app
+	app: {
+		description: 'Pantry tracker for reusable vacuum containers and bags',
+		scan: 'Scan'
+	},
+
 	languages: { de: 'Deutsch', en: 'English' },
 
 	auth: {
