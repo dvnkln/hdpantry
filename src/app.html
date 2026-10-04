@@ -3,8 +3,10 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-		<!-- Colour of the browser's bar; the second one applies on devices set to dark -->
-		<meta name="theme-color" content="%themeColor%" />
+		<!-- Colour of the browser's bar (and of the top bar of the installed app), one for devices
+		     set to light and one for dark. Both need "media": the browser takes the first one
+		     that fits, and one without "media" always fits. -->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="%themeColor%" />
 		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="%themeColorDark%" />
 		<!-- Installing as an app: what the browser needs to know, and the same for iPhone/iPad -->
 		<link rel="manifest" href="/manifest.webmanifest" />
