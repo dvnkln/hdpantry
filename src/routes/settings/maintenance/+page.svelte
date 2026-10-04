@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
 	import { m } from '$lib/i18n/index.svelte';
 	import { FREQUENCIES, KEEP_CHOICES } from '$lib/schedule';
-	import { Download, LoaderCircle, Trash2 } from '@lucide/svelte';
+	import { Archive, DatabaseBackup, Download, LoaderCircle, Trash2 } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -36,10 +37,10 @@
 
 <svelte:head><title>{m.settings.maintenance} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.settings.maintenance}</h1>
+<h1 class={ui.pageTitle}>{m.settings.maintenance}</h1>
 
-<section class="mt-4 max-w-xl">
-	<h2 class="font-medium">{m.settings.backup}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><DatabaseBackup size={20} class="text-muted" />{m.settings.backup}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.backupText}</p>
 
 	<form method="POST" action="?/toggle" use:enhance class="mt-3">
@@ -164,8 +165,8 @@
 	</form>
 </section>
 
-<section class="mt-8 max-w-xl">
-	<h2 class="font-medium">{m.settings.backupFiles}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><Archive size={20} class="text-muted" />{m.settings.backupFiles}</h2>
 	<p class="mt-1 text-sm text-muted">
 		{m.settings.backupSizes(size(data.databaseSize), size(total))}
 	</p>
@@ -218,5 +219,10 @@
 	{:else}
 		<p class="mt-3 text-sm text-muted">{m.settings.backupNone}</p>
 	{/if}
-	<p class="mt-3 text-sm text-muted">{m.settings.backupRestore}</p>
+	<p class="mt-3 text-sm text-muted">
+		{m.settings.backupRestore}
+		<a href="{WIKI}/Backups-and-restore" target="_blank" rel="noopener noreferrer" class={ui.link}
+			>{m.settings.backupRestoreLink}</a
+		>
+	</p>
 </section>

@@ -16,7 +16,7 @@
 
 <svelte:head><title>{m.guide.title} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.guide.title}</h1>
+<h1 class="text-xl font-bold">{m.guide.title}</h1>
 
 <p class="mt-4 notice" role="note">
 	<TriangleAlert size={18} class="mt-0.5 shrink-0" />
@@ -107,6 +107,3 @@
 		</li>
 	{/each}
 </ol>
-
-<h2 class="mt-8 font-semibold">{m.guide.symbols}</h2>
-<p class="mt-2 text-sm">{m.guide.symbolsText}</p>

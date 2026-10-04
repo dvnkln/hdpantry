@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ui } from '$lib/ui';
+	import { CalendarClock, Languages, ScanLine } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import { LOCALES, m } from '$lib/i18n/index.svelte';
 	import { SOON_CHOICES } from '$lib/stock';
@@ -12,11 +14,11 @@
 
 <svelte:head><title>{m.settings.general} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.settings.general}</h1>
+<h1 class={ui.pageTitle}>{m.settings.general}</h1>
 
 <!-- Every choice is saved as soon as it is made -->
-<section class="mt-4">
-	<h2 class="font-medium">{m.settings.language}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><Languages size={20} class="text-muted" />{m.settings.language}</h2>
 	<form method="POST" action="?/language" use:enhance class="mt-2 grid max-w-md grid-cols-2 gap-2">
 		{#each LOCALES as locale (locale)}
 			<button
@@ -31,8 +33,8 @@
 	</form>
 </section>
 
-<section class="mt-8">
-	<h2 class="font-medium">{m.settings.scanning}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><ScanLine size={20} class="text-muted" />{m.settings.scanning}</h2>
 	<form method="POST" action="?/vibration" use:enhance class="mt-2 max-w-md">
 		<button
 			name="vibration"
@@ -60,8 +62,8 @@
 	</form>
 </section>
 
-<section class="mt-8">
-	<h2 class="font-medium">{m.settings.soon}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><CalendarClock size={20} class="text-muted" />{m.settings.soon}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.soonHint}</p>
 	<form method="POST" action="?/soon" use:enhance class="mt-2 flex max-w-md flex-wrap gap-2">
 		{#each SOON_CHOICES as days (days)}

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
 	import { MAX_BACKUP_BYTES, backupCounts, parseBackup, type BackupResult } from '$lib/backup';
 	import { m } from '$lib/i18n/index.svelte';
-	import { Download, LoaderCircle, TriangleAlert, Upload } from '@lucide/svelte';
+	import { Download, FileDown, FileUp, LoaderCircle, TriangleAlert, Upload } from '@lucide/svelte';
 
 	let { data, form } = $props();
 
@@ -53,10 +54,10 @@
 
 <svelte:head><title>{m.settings.data} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.settings.data}</h1>
+<h1 class={ui.pageTitle}>{m.settings.data}</h1>
 
-<section class="mt-4 max-w-xl">
-	<h2 class="font-medium">{m.settings.dataExport}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><FileDown size={20} class="text-muted" />{m.settings.dataExport}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.dataExportText}</p>
 	<p class="mt-2 text-sm">{m.settings.dataNow(data.counts.containers, data.counts.filled)}</p>
 	<!-- A plain download from the own server -->
@@ -69,9 +70,14 @@
 	</a>
 </section>
 
-<section class="mt-8 max-w-xl">
-	<h2 class="font-medium">{m.settings.dataImport}</h2>
-	<p class="mt-1 text-sm text-muted">{m.settings.dataImportText}</p>
+<section class={ui.card}>
+	<h2 class={ui.heading}><FileUp size={20} class="text-muted" />{m.settings.dataImport}</h2>
+	<p class="mt-1 text-sm text-muted">
+		{m.settings.dataImportText}
+		<a href="{WIKI}/Export-and-import" target="_blank" rel="noopener noreferrer" class={ui.link}
+			>{m.settings.learnMore}</a
+		>
+	</p>
 
 	{#if form?.imported && !chosen}
 		<p class="mt-3 text-sm text-good" role="status">

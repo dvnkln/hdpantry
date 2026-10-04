@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
 	import { m } from '$lib/i18n/index.svelte';
 	import { proxySnippets } from '$lib/proxySnippets';
@@ -11,6 +12,7 @@
 		Info,
 		LockKeyhole,
 		LockKeyholeOpen,
+		Network,
 		TriangleAlert
 	} from '@lucide/svelte';
 
@@ -154,10 +156,10 @@
 	</div>
 {/snippet}
 
-<h1 class="text-lg font-semibold">{m.settings.connection}</h1>
+<h1 class={ui.pageTitle}>{m.settings.connection}</h1>
 
-<section class="mt-4 max-w-xl">
-	<h2 class="font-medium">{m.settings.https}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><LockKeyhole size={20} class="text-muted" />{m.settings.https}</h2>
 	<p class="mt-2 flex items-center gap-2 font-medium {data.https ? 'text-good' : 'text-caution'}">
 		{#if data.https}<LockKeyhole size={18} class="shrink-0" />{:else}<LockKeyholeOpen
 				size={18}
@@ -178,8 +180,8 @@
 	{/if}
 </section>
 
-<section class="mt-8 max-w-xl">
-	<h2 class="font-medium">{m.settings.proxy}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><Network size={20} class="text-muted" />{m.settings.proxy}</h2>
 
 	<!-- Status at a glance -->
 	<p
@@ -269,5 +271,9 @@
 		</details>
 	{/if}
 
-	<p class="mt-4 text-sm text-muted">{m.settings.connectionGuide}</p>
+	<p class="mt-4 text-sm text-muted">
+		<a href="{WIKI}/HTTPS" target="_blank" rel="noopener noreferrer" class={ui.link}
+			>{m.settings.learnMore}</a
+		>
+	</p>
 </section>

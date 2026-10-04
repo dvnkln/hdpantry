@@ -35,7 +35,7 @@
 <svelte:head><title>{m.settings.containers} · hdpantry</title></svelte:head>
 
 <section>
-	<h1 class="text-lg font-semibold">{m.settings.containers}</h1>
+	<h1 class="text-xl font-bold">{m.settings.containers}</h1>
 	<p class="mt-1 text-sm text-muted">{m.settings.containersHint}</p>
 
 	{#if data.containers.length === 0}

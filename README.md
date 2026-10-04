@@ -45,15 +45,11 @@ Working today:
 - 🥡 **Containers and bags** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten – or replace it in one go – and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
 - 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
 - 📅 **Shelf life** – the kind of food and a symbol are suggested from its name (German and English; your corrections are remembered). Suitable places of storage are marked, unsuitable ones locked, and a best-before date is suggested from the kind of food, the place and whether it is vacuum-sealed – [guide values, not a guarantee](#-shelf-life).
-- 🎨 **Symbols in two styles** – colourful or plain line icons, your choice.
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
-- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts; at present hdpantry does not connect to any outside service at all.
-- 🛡️ **Protected login** – repeated wrong passwords block the address they come from. Behind a reverse proxy, hdpantry tells visitors apart once the proxy is confirmed – with one tap, or with a key where Docker hides the addresses. Change your username or password in the settings and log out your other devices with one tap.
-- 📲 **Install as an app** – on the home screen of your phone or on your computer, with its own icon and without the browser's bars. Long-press the icon to go straight to the scanner.
-- 🌍 **English and German** – follows your browser on first start; change it any time in the settings.
-- 🌗 **Light and dark** – follows your device, or pick one.
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
-- 💾 **Automatic backups** – optional copies of the database on a schedule, kept inside the data folder and downloadable in the app. Off until you switch it on.
+- 🛠️ **Maintenance built in** – optional scheduled backups of the database that you can download.
+- 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.
+- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts: hdpantry does not connect to any outside service at all – [what stays where](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
 
 Being built for the first version:
 

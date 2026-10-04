@@ -1,13 +1,13 @@
 import {
 	Boxes,
-	DatabaseBackup,
-	FileJson,
+	Database,
 	Info,
 	Network,
 	Palette,
 	Scale,
 	Settings2,
-	UserRound
+	UserRound,
+	Wrench
 } from '@lucide/svelte';
 import { m } from '$lib/i18n/index.svelte';
 
@@ -37,6 +37,13 @@ export function settingsSections() {
 			hint: m.settings.accountHint
 		},
 		{
+			href: '/settings/data',
+			group: 'personal',
+			icon: Database,
+			label: m.settings.data,
+			hint: m.settings.dataHint
+		},
+		{
 			href: '/settings/containers',
 			group: 'stock',
 			icon: Boxes,
@@ -51,25 +58,18 @@ export function settingsSections() {
 			hint: m.settings.guideShort
 		},
 		{
-			href: '/settings/data',
-			group: 'stock',
-			icon: FileJson,
-			label: m.settings.data,
-			hint: m.settings.dataHint
-		},
-		{
-			href: '/settings/maintenance',
-			group: 'system',
-			icon: DatabaseBackup,
-			label: m.settings.maintenance,
-			hint: m.settings.maintenanceHint
-		},
-		{
 			href: '/settings/connection',
-			group: 'system',
+			group: 'admin',
 			icon: Network,
 			label: m.settings.connection,
 			hint: m.settings.connectionHint
+		},
+		{
+			href: '/settings/maintenance',
+			group: 'admin',
+			icon: Wrench,
+			label: m.settings.maintenance,
+			hint: m.settings.maintenanceHint
 		},
 		{
 			href: '/settings/about',
@@ -87,7 +87,7 @@ export function settingsGroups() {
 	return [
 		{ title: m.settings.groupPersonal, items: sections.filter((s) => s.group === 'personal') },
 		{ title: m.settings.groupStock, items: sections.filter((s) => s.group === 'stock') },
-		{ title: m.settings.groupSystem, items: sections.filter((s) => s.group === 'system') },
+		{ title: m.settings.groupAdmin, items: sections.filter((s) => s.group === 'admin') },
 		{ title: null, items: sections.filter((s) => s.group === 'about') }
 	].filter((group) => group.items.length);
 }

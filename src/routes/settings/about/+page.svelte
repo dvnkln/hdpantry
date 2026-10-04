@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ui } from '$lib/ui';
 	import { m } from '$lib/i18n/index.svelte';
 	import { BookOpen, Bug, ExternalLink, Link, ListChecks, Package, Scale } from '@lucide/svelte';
 
@@ -20,13 +21,13 @@
 		{ name: 'Outfit', href: 'https://github.com/Outfitio/Outfit-Fonts', text: () => m.about.outfit }
 	];
 
-	const card = 'mt-4 rounded-xl border border-line bg-surface p-4';
-	const heading = 'flex items-center gap-2 font-medium';
+	const card = ui.card;
+	const heading = ui.heading;
 </script>
 
 <svelte:head><title>{m.about.title} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.about.title}</h1>
+<h1 class="text-xl font-bold">{m.about.title}</h1>
 
 <!-- Name, version and what it is -->
 <section class={card}>

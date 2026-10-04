@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ui } from '$lib/ui';
+	import { Palette, Utensils } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
 	import ThemePreview from '$lib/components/ThemePreview.svelte';
@@ -10,10 +12,10 @@
 
 <svelte:head><title>{m.settings.appearance} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.settings.appearance}</h1>
+<h1 class={ui.pageTitle}>{m.settings.appearance}</h1>
 
-<section class="mt-4">
-	<h2 class="font-medium">{m.settings.theme}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><Palette size={20} class="text-muted" />{m.settings.theme}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.themeHint}</p>
 	<!-- Saved as soon as one is chosen; the root layout then switches the colours of the page -->
 	<form method="POST" action="?/theme" use:enhance class="mt-3 grid max-w-xl grid-cols-3 gap-2">
@@ -34,8 +36,8 @@
 	</form>
 </section>
 
-<section class="mt-8">
-	<h2 class="font-medium">{m.settings.icons}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><Utensils size={20} class="text-muted" />{m.settings.icons}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.iconsHint}</p>
 	<!-- Saved as soon as one is chosen -->
 	<form method="POST" action="?/iconStyle" use:enhance class="mt-3 grid max-w-md grid-cols-2 gap-2">

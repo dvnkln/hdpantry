@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ui } from '$lib/ui';
+	import { AtSign, KeyRound, MonitorSmartphone } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
 	import { m } from '$lib/i18n/index.svelte';
@@ -9,10 +11,10 @@
 
 <svelte:head><title>{m.settings.account} · hdpantry</title></svelte:head>
 
-<h1 class="text-lg font-semibold">{m.settings.account}</h1>
+<h1 class={ui.pageTitle}>{m.settings.account}</h1>
 
-<section class="mt-4">
-	<h2 class="font-medium">{m.settings.accountName}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><AtSign size={20} class="text-muted" />{m.settings.accountName}</h2>
 	<!-- The typed name stays in the field, the password is emptied -->
 	<form
 		method="POST"
@@ -36,7 +38,7 @@
 			/>
 		</label>
 		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountPasswordCurrent}</span>
+			<span class="text-sm font-medium">{m.settings.accountPasswordConfirm}</span>
 			<PasswordInput name="password" autocomplete="current-password" required />
 		</label>
 		{#if form?.nameError}
@@ -48,8 +50,8 @@
 	</form>
 </section>
 
-<section class="mt-8">
-	<h2 class="font-medium">{m.settings.accountPassword}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}><KeyRound size={20} class="text-muted" />{m.settings.accountPassword}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.accountPasswordHint}</p>
 	<form method="POST" action="?/password" use:enhance class="mt-3 flex max-w-md flex-col gap-3">
 		<label class="flex flex-col gap-1">
@@ -83,8 +85,10 @@
 	</form>
 </section>
 
-<section class="mt-8">
-	<h2 class="font-medium">{m.settings.accountDevices}</h2>
+<section class={ui.card}>
+	<h2 class={ui.heading}>
+		<MonitorSmartphone size={20} class="text-muted" />{m.settings.accountDevices}
+	</h2>
 	<!-- The button is only there while another device is logged in -->
 	{#if data.otherDevices > 0}
 		<p class="mt-1 text-sm text-muted">{m.settings.accountDevicesCount(data.otherDevices)}</p>
