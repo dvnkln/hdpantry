@@ -44,6 +44,10 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Start über `start.js`: `ORIGIN` darf mehrere Adressen (kommagetrennt) enthalten. Die eigene Origin-Prüfung in `hooks.server.ts` ersetzt SvelteKits CSRF-Check. Ohne `ORIGIN` scheitern Formulare im Container mit 403 – deshalb Pflicht.
 - Login-Cookie ist nur bei HTTPS „secure“ (`isHttps()` in `origins.ts`), damit die Anmeldung auch im LAN ohne HTTPS geht.
 - CSP in `vite.config.ts`: Der Browser lädt und startet nur, was vom eigenen Server kommt. Weitere Kopfzeilen in `hooks.server.ts`; die Kamera ist nur für eigene Seiten freigegeben. Neue Oberflächenteile nutzen deshalb keine eingebetteten Skripte (`<script>` in `app.html`, `onclick="…"`).
+- Ein Konto, angelegt im First-Run-Wizard (`/setup`, nur einmal nutzbar). Ohne Anmeldung erreichbar sind nur `/health`, `/login`, `/setup` (`PUBLIC_PATHS` in `hooks.server.ts`); alles andere leitet zur Anmeldung.
+- Login-Sperre je Adresse: 5 Fehlversuche → 1, dann 5, dann 15 Minuten (im Speicher). Fehlversuche stehen im Log, nie Passwort oder Benutzername.
+- Adresse eines Besuchers immer über `clientAddress(event)` (`auth.ts`) holen, nie `getClientAddress()`: Was ein Reverse Proxy weiterreicht (`X-Forwarded-For`), zählt nur, wenn er sich ausgewiesen hat (`proxy.ts`, Settings `trustedProxies`/`proxyKey`; die Einstellseite dazu kommt mit Punkt 7).
+- Passwort vergessen: `reset-password.js` (im Image). Schreibt dasselbe Hash-Format wie `hashPassword()` in `auth.ts` – beide zusammen ändern.
 - Die Kamera funktioniert im Browser nur über HTTPS (oder `localhost`). Das Projekt bringt kein eigenes HTTPS mit, sondern geht von einem Reverse Proxy aus; Foto und manuelle Eingabe funktionieren immer.
 
 ## Tests
@@ -59,10 +63,11 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - `npm test` – automatische Tests
 - `npm run build` / `npm start` – Production-Build bauen und starten
 - `npm run db:generate` – nach Schema-Änderung neue Migration erzeugen
+- `docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build` – Testcontainer aus dem Quellcode (Port 3001, eigener Datenspeicher)
 
 ## MVP
 
-1. Scaffold + Infrastruktur, First-Run-Wizard, Login – **1a Grundgerüst ✅**, 1b Einrichtung/Anmeldung, 1c Docker/Release
+1. Scaffold + Infrastruktur, First-Run-Wizard, Login – **1a Grundgerüst ✅, 1b Einrichtung/Anmeldung ✅**, 1c Docker ✅ / GitHub Actions + Changelog offen
 2. Scanner-Testseite (zeigt den Rohinhalt eines Codes), dann Behälterverwaltung
 3. Erfassung
 4. Scan-Ablauf (bekannt/aktiv/leer, gegessen, ersetzen, Verlauf je Behälter)

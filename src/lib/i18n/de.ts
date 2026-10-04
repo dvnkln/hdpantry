@@ -4,12 +4,38 @@ export const de = {
 	locale: 'de-DE',
 
 	common: {
-		home: 'Startseite'
+		home: 'Startseite',
+		logout: 'Abmelden',
+		showPassword: 'Passwort anzeigen',
+		hidePassword: 'Passwort verbergen'
+	},
+
+	languages: { de: 'Deutsch', en: 'English' },
+
+	auth: {
+		loginTitle: 'Anmelden',
+		setupTitle: 'Einrichtung',
+		welcome: 'Willkommen! Lege dein Konto an – es ist das einzige dieser Installation.',
+		language: 'Sprache',
+		username: 'Benutzername',
+		password: 'Passwort',
+		passwordMin: (n: number) => `Passwort (min. ${n} Zeichen)`,
+		passwordRepeat: 'Passwort wiederholen',
+		login: 'Anmelden',
+		createAccount: 'Konto anlegen',
+		wrongCredentials: 'Benutzername oder Passwort falsch',
+		tooManyAttempts: (seconds: number) =>
+			`Zu viele Fehlversuche. Bitte ${seconds >= 120 ? `${Math.ceil(seconds / 60)} min` : `${seconds} s`} warten.`,
+		usernameRule: 'Benutzername: 3–32 Zeichen, nur Buchstaben, Zahlen, _ . -',
+		passwordTooShort: (n: number) => `Passwort muss mindestens ${n} Zeichen lang sein`,
+		passwordsDiffer: 'Passwörter stimmen nicht überein'
 	},
 
 	home: {
-		running: 'hdpantry läuft.',
-		next: 'Als Nächstes kommen Einrichtung und Anmeldung.'
+		empty: 'Noch nichts im Vorrat',
+		emptyHint: 'Scanne einen Behälter oder Beutel, um den ersten Inhalt zu erfassen.',
+		scan: 'Scannen',
+		scanSoon: 'Der Scanner kommt mit dem nächsten Schritt.'
 	},
 
 	errorPage: {

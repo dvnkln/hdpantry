@@ -1,8 +1,16 @@
 import type { Handle, ServerInit } from '@sveltejs/kit';
+import {
+	SESSION_COOKIE,
+	clearSessionCookie,
+	deleteExpiredSessions,
+	hasAnyUser,
+	setSessionCookie,
+	validateSession
+} from '$lib/server/auth';
 import { getSecret } from '$lib/server/config';
 import { runMigrations } from '$lib/server/db';
 import { localeFor } from '$lib/server/i18n';
-import { allowedOrigins, isAllowedOrigin } from '$lib/server/origins';
+import { allowedOrigins, isAllowedOrigin, isHttps } from '$lib/server/origins';
 
 // Runs once when the server starts, before the first request is handled.
 export const init: ServerInit = () => {
@@ -12,9 +20,17 @@ export const init: ServerInit = () => {
 	}
 	runMigrations();
 	console.log('Database migrations applied');
+	deleteExpiredSessions();
 };
 
+// Pages reachable without being logged in.
+const PUBLIC_PATHS = ['/health', '/login', '/setup'];
+
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
+function redirectTo(location: string) {
+	return new Response(null, { status: 303, headers: { location } });
+}
 
 // Sent with every answer: no embedding in other pages, no guessing of file types, the address
 // of a page is not passed on to other sites, and of the device's sensors only the camera may
@@ -33,10 +49,12 @@ export const handle: Handle = async (input) => {
 	return response;
 };
 
-// Runs for every request: checks the origin of form posts and sets the interface language.
+// Runs for every request: checks the origin of form posts, loads the logged-in user and
+// redirects to /setup or /login if needed.
 const respond: Handle = async ({ event, resolve }) => {
 	const { url, request } = event;
-	if (url.pathname === '/health') return resolve(event);
+	const path = url.pathname;
+	if (path === '/health') return resolve(event);
 
 	if (!SAFE_METHODS.includes(request.method)) {
 		if (!isAllowedOrigin(request.headers.get('origin'), url)) {
@@ -44,9 +62,33 @@ const respond: Handle = async ({ event, resolve }) => {
 		}
 	}
 
+	event.locals.user = null;
+	const token = event.cookies.get(SESSION_COOKIE);
+	if (token) {
+		const session = validateSession(token);
+		if (session) {
+			event.locals.user = session.user;
+			if (session.renewedUntil) {
+				setSessionCookie(event.cookies, isHttps(request, url), token, session.renewedUntil);
+			}
+		} else {
+			clearSessionCookie(event.cookies);
+		}
+	}
+
 	event.locals.locale = localeFor(request);
 	// Fills in the placeholder of app.html
-	return resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('%lang%', event.locals.locale)
-	});
+	const render = () =>
+		resolve(event, {
+			transformPageChunk: ({ html }) => html.replace('%lang%', event.locals.locale)
+		});
+
+	// No account yet: everything leads to the first-run wizard.
+	if (!hasAnyUser()) return path === '/setup' ? render() : redirectTo('/setup');
+	if (path === '/setup') return redirectTo('/');
+
+	if (!event.locals.user && !PUBLIC_PATHS.includes(path)) return redirectTo('/login');
+	if (event.locals.user && path === '/login') return redirectTo('/');
+
+	return render();
 };

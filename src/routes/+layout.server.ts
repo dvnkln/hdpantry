@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 
-// Makes the interface language available to all pages.
+// Makes the logged-in user and the interface language available to all pages.
 export const load: LayoutServerLoad = ({ locals }) => {
-	return { locale: locals.locale };
+	return { user: locals.user, locale: locals.locale };
 };

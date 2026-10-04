@@ -5,12 +5,38 @@ export const en: Messages = {
 	locale: 'en-US',
 
 	common: {
-		home: 'Home'
+		home: 'Home',
+		logout: 'Log out',
+		showPassword: 'Show password',
+		hidePassword: 'Hide password'
+	},
+
+	languages: { de: 'Deutsch', en: 'English' },
+
+	auth: {
+		loginTitle: 'Log in',
+		setupTitle: 'Set-up',
+		welcome: 'Welcome! Create your account – it is the only one of this installation.',
+		language: 'Language',
+		username: 'Username',
+		password: 'Password',
+		passwordMin: (n: number) => `Password (min. ${n} characters)`,
+		passwordRepeat: 'Repeat password',
+		login: 'Log in',
+		createAccount: 'Create account',
+		wrongCredentials: 'Wrong username or password',
+		tooManyAttempts: (seconds: number) =>
+			`Too many failed attempts. Please wait ${seconds >= 120 ? `${Math.ceil(seconds / 60)} min` : `${seconds} s`}.`,
+		usernameRule: 'Username: 3–32 characters, only letters, digits, _ . -',
+		passwordTooShort: (n: number) => `Password must be at least ${n} characters long`,
+		passwordsDiffer: 'Passwords do not match'
 	},
 
 	home: {
-		running: 'hdpantry is running.',
-		next: 'Set-up and login come next.'
+		empty: 'Nothing in stock yet',
+		emptyHint: 'Scan a container or bag to record its first content.',
+		scan: 'Scan',
+		scanSoon: 'The scanner comes with the next step.'
 	},
 
 	errorPage: {
