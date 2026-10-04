@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FillGauge from '$lib/components/FillGauge.svelte';
+	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import { suggestIcon } from '$lib/food/dictionary';
 	import { codeLabel } from '$lib/containers';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
@@ -17,7 +19,8 @@
 <main class="mx-auto max-w-md px-4 py-6">
 	{#if item}
 		{@const Icon = LOCATION_ICONS[item.location]}
-		<div class="flex items-start gap-2">
+		<div class="flex items-center gap-3">
+			<FoodIcon icon={item.icon ?? suggestIcon(item.name, item.category ?? 'other')} size={40} />
 			<h1 class="min-w-0 flex-1 text-2xl font-bold break-words">{item.name}</h1>
 			<a
 				href="/containers/{container.id}/edit"

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import FillGauge from '$lib/components/FillGauge.svelte';
+	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import { suggestIcon } from '$lib/food/dictionary';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
 	import { PackageOpen } from '@lucide/svelte';
@@ -27,7 +29,10 @@
 						href="/containers/{item.containerId}"
 						class="flex items-center gap-3 rounded-xl border border-line bg-surface p-3 transition-colors hover:border-accent"
 					>
-						<FillGauge level={item.fill} source={item.source} size={44} />
+						<FoodIcon
+							icon={item.icon ?? suggestIcon(item.name, item.category ?? 'other')}
+							size={36}
+						/>
 						<span class="min-w-0 flex-1">
 							<span class="block truncate font-semibold">{item.name}</span>
 							<span class="flex items-center gap-1.5 text-sm text-muted">
@@ -46,6 +51,7 @@
 							<span class="block text-xs text-muted">{m.item.bestBefore}</span>
 							{item.bestBefore ? formatDate(item.bestBefore) : '–'}
 						</span>
+						<FillGauge level={item.fill} source={item.source} size={30} />
 					</a>
 				</li>
 			{/each}

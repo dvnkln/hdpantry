@@ -205,6 +205,9 @@ export const de = {
 		bestBeforeSuggested: 'Haltbar bis',
 		category: 'Kategorie',
 		chooseCategory: 'Kategorie wählen',
+		chooseIcon: 'Symbol wählen',
+		iconAutomatic: 'Symbol wieder automatisch wählen',
+		guideLink: 'Richtwerte und Quellen ansehen',
 		days: (n: number) => (n === 1 ? '≈ 1 Tag' : `≈ ${n} Tage`),
 		useSuggestion: 'Vorschlag übernehmen',
 		guideHint: 'Richtwert, keine Garantie – vor dem Essen immer selbst prüfen.',
@@ -234,6 +237,13 @@ export const de = {
 
 	settings: {
 		title: 'Einstellungen',
+		icons: 'Symbole',
+		iconsHint: 'Wie Lebensmittel in Listen und Formularen dargestellt werden.',
+		iconStyles: { color: 'Farbig', line: 'Schlicht' },
+		guide: 'Richtwerte',
+		guideHint:
+			'Wie lange hdpantry welches Lebensmittel für haltbar hält, je nach Lagerort – mit Quellen.',
+		guideOpen: 'Richtwerte und Quellen ansehen',
 		containers: 'Behälter',
 		containersHint:
 			'Alle Behälter, die hdpantry kennt – auch leere. Löschen entfernt einen Behälter samt seinem Verlauf; beim nächsten Scan seines Codes wird er neu angelegt.',
@@ -278,6 +288,31 @@ export const de = {
 		typeToConfirm: (word: string) => `Zum Bestätigen ${word} eintippen`,
 		deleteAllConfirm: 'Alles endgültig löschen',
 		wrongWord: 'Zum Löschen bitte das Bestätigungswort eintippen.'
+	},
+
+	guide: {
+		title: 'Richtwerte zur Haltbarkeit',
+		warning:
+			'Das sind Schätzungen, keine Garantien. hdpantry schlägt ein Datum vor, damit du den Überblick behältst – ob etwas noch gut ist, musst du immer selbst prüfen: ansehen, riechen, und im Zweifel wegwerfen. Das gilt besonders für rohen Fisch, rohes Fleisch und Hackfleisch.',
+		how: 'So kommen die Werte zustande',
+		howText: [
+			'Zuerst gelten Angaben deutscher öffentlicher Stellen; wo es keine gibt, die Daten des US-Landwirtschaftsministeriums.',
+			'Nennt eine Quelle eine Spanne, gilt ihr unteres Ende; bei zwei Angaben die vorsichtigere.',
+			'Für die Null-Grad-Zone und für zu Hause vakuumierte Lebensmittel veröffentlicht keine dieser Stellen Zahlen. Diese Werte sind eigene vorsichtige Schätzungen.',
+			'Roher Fisch, Meeresfrüchte, Geflügel und Hackfleisch bekommen gekühlt keinen Aufschlag fürs Vakuumieren – nur im Gefrierschrank.'
+		],
+		table: 'Tabelle',
+		tableHint: 'Tage offen / vakuumiert. Ein Strich bedeutet: dort nicht lagern.',
+		food: 'Lebensmittel',
+		noValue: 'kein Richtwert',
+		sources: 'Quellen',
+		ownEstimate: 'Eigene vorsichtige Schätzung, abgeleitet vom Wert für den Kühlschrank',
+		ownVacuum:
+			'Eigene vorsichtige Schätzung für vakuumierte Lebensmittel (keine öffentliche Stelle veröffentlicht dazu Zahlen)',
+		symbols: 'Symbole',
+		symbolsText:
+			'Farbige Symbole: Twemoji, © Twitter, Inc. und weitere Mitwirkende, Lizenz CC BY 4.0. Schlichte Symbole: Lucide (ISC-Lizenz) und Tabler Icons (MIT-Lizenz).',
+		back: 'Einstellungen'
 	},
 
 	errorPage: {

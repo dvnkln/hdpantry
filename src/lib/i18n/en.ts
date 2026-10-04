@@ -204,6 +204,9 @@ export const en: Messages = {
 		bestBeforeSuggested: 'Best before',
 		category: 'Kind of food',
 		chooseCategory: 'Choose the kind of food',
+		chooseIcon: 'Choose a symbol',
+		iconAutomatic: 'Choose the symbol automatically again',
+		guideLink: 'See guide values and sources',
 		days: (n: number) => (n === 1 ? '≈ 1 day' : `≈ ${n} days`),
 		useSuggestion: 'Use the suggestion',
 		guideHint: 'A guide value, not a guarantee – always check before eating.',
@@ -232,6 +235,12 @@ export const en: Messages = {
 
 	settings: {
 		title: 'Settings',
+		icons: 'Symbols',
+		iconsHint: 'How food is shown in lists and forms.',
+		iconStyles: { color: 'Colourful', line: 'Plain' },
+		guide: 'Guide values',
+		guideHint: 'How long hdpantry assumes which food keeps, by place of storage – with sources.',
+		guideOpen: 'See guide values and sources',
 		containers: 'Containers',
 		containersHint:
 			'All containers hdpantry knows – empty ones too. Deleting removes a container with its history; it is added again the next time its code is scanned.',
@@ -276,6 +285,31 @@ export const en: Messages = {
 		typeToConfirm: (word: string) => `Type ${word} to confirm`,
 		deleteAllConfirm: 'Delete everything for good',
 		wrongWord: 'To delete, please type the confirmation word.'
+	},
+
+	guide: {
+		title: 'Shelf-life guide values',
+		warning:
+			'These are estimates, not guarantees. hdpantry suggests a date so you keep track – whether something is still good is always yours to check: look at it, smell it, and if in doubt throw it away. This holds above all for raw fish, raw meat and minced meat.',
+		how: 'How the values were chosen',
+		howText: [
+			'Figures of German public bodies come first; where there are none, the data of the U.S. Department of Agriculture.',
+			'Where a source gives a range, its lower end is used; of two figures the more cautious one.',
+			'None of these bodies publishes figures for the zero-degree zone or for food vacuum-sealed at home. Those values are our own cautious estimates.',
+			'Raw fish, seafood, poultry and minced meat get no extra time from vacuum-sealing while chilled – only in the freezer.'
+		],
+		table: 'Table',
+		tableHint: 'Days open / vacuum-sealed. A dash means: do not store it there.',
+		food: 'Food',
+		noValue: 'no guide value',
+		sources: 'Sources',
+		ownEstimate: 'Own cautious estimate, derived from the value for the fridge',
+		ownVacuum:
+			'Own cautious estimate for vacuum-sealed food (no public body publishes such figures)',
+		symbols: 'Symbols',
+		symbolsText:
+			'Colourful symbols: Twemoji, © Twitter, Inc and other contributors, licensed under CC BY 4.0. Plain symbols: Lucide (ISC License) and Tabler Icons (MIT License).',
+		back: 'Settings'
 	},
 
 	errorPage: {

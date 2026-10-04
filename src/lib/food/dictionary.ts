@@ -6,6 +6,7 @@
 // something was prepared come first: a dish is a dish whatever is in it ("Linsensuppe"),
 // smoked fish is not raw fish ("Räucherlachs"), fried chicken is cooked meat.
 import type { Category } from './categories';
+import { CATEGORY_ICONS, type IconKey } from './icons';
 
 // "Käse" -> "kase", "Soße" -> "sosse": the same is done to the lists, so both sides match
 export function simplify(text: string) {
@@ -192,4 +193,105 @@ export function suggestCategory(name: string): Category {
 	}
 	if (best.category === 'veg_raw' && cooked) return 'veg_cooked';
 	return best.category;
+}
+
+// Foods that have a symbol of their own; everything else gets the symbol of its kind.
+const ICON_WORDS: [IconKey, string][] = [
+	['banana', 'banane,banana'],
+	['red-apple', 'apfel,apple'],
+	['pear', 'birne,pear'],
+	['peach', 'pfirsich,nektarine,aprikose,pflaume,zwetschge,peach,apricot,plum'],
+	['lemon', 'zitrone,lemon'],
+	['lime', 'limette,lime'],
+	['tangerine', 'orange,apfelsine,mandarine,clementine,tangerine'],
+	['grapes', 'traube,weintraube,grape'],
+	['cherries', 'kirsche,cherry'],
+	['strawberry', 'erdbeere,himbeere,strawberry,raspberry'],
+	['blueberries', 'heidelbeere,blaubeere,brombeere,johannisbeere,blueberry,blackberry,currant'],
+	['mango', 'mango'],
+	['pineapple', 'ananas,pineapple'],
+	['kiwi-fruit', 'kiwi'],
+	['watermelon', 'wassermelone,watermelon'],
+	['melon', 'melone,melon'],
+	['avocado', 'avocado'],
+	['coconut', 'kokos,coconut'],
+	['carrot', 'mohre,karotte,carrot'],
+	['broccoli', 'brokkoli,blumenkohl,rosenkohl,broccoli,cauliflower'],
+	['bell-pepper', 'paprika,bell pepper'],
+	['hot-pepper', 'peperoni,chilischote,jalapeno'],
+	['tomato', 'tomate,tomato'],
+	['cucumber', 'gurke,zucchini,cucumber,courgette'],
+	['eggplant', 'aubergine,eggplant'],
+	['potato', 'kartoffel,potato'],
+	['onion', 'zwiebel,lauch,porree,onion,leek'],
+	['garlic', 'knoblauch,garlic'],
+	['ginger-root', 'ingwer,ginger'],
+	['ear-of-corn', 'mais,corn'],
+	['pea-pod', 'erbse,zuckerschote,pea'],
+	['beans', 'bohne,linsen,kichererbsen,bean,lentils,chickpeas'],
+	['brown-mushroom', 'pilz,champignon,pfifferling,steinpilz,mushroom'],
+	['green-salad', 'salat,salad'],
+	['olive', 'olive'],
+	['baguette-bread', 'baguette,ciabatta'],
+	['croissant', 'croissant,plunder,teilchen'],
+	['pretzel', 'brezel,laugen,pretzel'],
+	['bagel', 'bagel'],
+	['flatbread', 'fladenbrot,pita,tortilla,wrap,flatbread'],
+	['pancakes', 'pfannkuchen,pancake'],
+	['waffle', 'waffel,waffle'],
+	['cookie', 'keks,platzchen,cookie,biscuit'],
+	['doughnut', 'donut,berliner,krapfen'],
+	['cupcake', 'muffin,cupcake'],
+	['pie', 'quiche,tarte,pie'],
+	['birthday-cake', 'torte'],
+	['chocolate-bar', 'schokolade,chocolate,brownie'],
+	['pizza', 'pizza'],
+	['hamburger', 'burger,patty'],
+	['sandwich', 'sandwich,belegtes'],
+	['spaghetti', 'nudeln,pasta,spaghetti,bolognese,lasagne,spatzle,noodles'],
+	['cooked-rice', 'reis,risotto,rice'],
+	['curry-rice', 'curry'],
+	['steaming-bowl', 'suppe,bruhe,fond,eintopf,soup,broth,stew'],
+	['french-fries', 'pommes,fries'],
+	['dumpling', 'knodel,klosse,maultasche,dumpling,gnocchi'],
+	['falafel', 'falafel,frikadelle,bulette,meatball'],
+	['sushi', 'sushi'],
+	['shrimp', 'garnele,krabbe,scampi,gamba,shrimp,prawn'],
+	['lobster', 'hummer,lobster'],
+	['squid', 'tintenfisch,calamari,oktopus,squid,octopus'],
+	['oyster', 'auster,muschel,oyster,mussel,clam,scallop'],
+	['bacon', 'speck,bacon,pancetta'],
+	['meat-on-bone', 'keule,haxe,braten,rippchen,spareribs,ribs,roast'],
+	['poultry-leg', 'hahnchen,huhn,pute,ente,gans,chicken,turkey,duck'],
+	['egg', 'ei,eier,egg,eggs'],
+	['glass-of-milk', 'milch,drink,milk'],
+	['butter', 'butter,margarine'],
+	['custard', 'pudding,joghurt,quark,skyr,yogurt,yoghurt,custard'],
+	['honey-pot', 'honig,honey'],
+	['jar', 'marmelade,konfiture,pesto,aufstrich,hummus,jam'],
+	['peanuts', 'erdnuss,erdnusse,peanut'],
+	['chestnut', 'nuss,nusse,mandel,walnuss,haselnuss,cashew,marone,nut,nuts,almond'],
+	['popcorn', 'popcorn'],
+	['hot-beverage', 'kaffee,tee,coffee,tea'],
+	['salt', 'salz,gewurz,zucker,mehl,salt,spice,sugar,flour'],
+	['ice-cream', 'eis,eiscreme,ice cream']
+];
+const ICON_LISTS = ICON_WORDS.map(([icon, list]) => ({ icon, words: words(list) }));
+
+// The symbol for a name: its own if the name says so ("Banane"), else that of its kind of food.
+export function suggestIcon(name: string, category: Category): IconKey {
+	const text = simplify(name);
+	// "Zwiebelkuchen" is a cake: when the name ends in a food word, words inside it say nothing
+	// about the symbol ("Apfelmus" has no such ending, so the apple counts)
+	const endsInFood = LISTS.some(({ words: list }) => list.some((w) => find(text, w) === 'end'));
+	let best: { icon: IconKey; score: number } | null = null;
+	for (const { icon, words: list } of ICON_LISTS) {
+		for (const word of list) {
+			const where = find(text, word);
+			if (!where || (where === 'inside' && endsInFood)) continue;
+			const score = (where === 'end' ? 1000 : 0) + word.length;
+			if (!best || score > best.score) best = { icon, score };
+		}
+	}
+	return best?.icon ?? CATEGORY_ICONS[category];
 }

@@ -17,7 +17,9 @@
 		type Unit
 	} from '$lib/items';
 	import { CATEGORIES, bestLocation, rating, type Category } from '$lib/food/categories';
-	import { simplify, suggestCategory } from '$lib/food/dictionary';
+	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import { simplify, suggestCategory, suggestIcon } from '$lib/food/dictionary';
+	import { ICONS } from '$lib/food/icons';
 	import { shelfLife, suggestDate } from '$lib/food/shelfLife';
 	import { LOCATION_ICONS } from '$lib/locations';
 	import { ChevronDown, Plus } from '@lucide/svelte';
@@ -87,6 +89,9 @@
 	// svelte-ignore state_referenced_locally
 	let bestBefore = $state(initial.bestBefore ?? '');
 	let choosing = $state(false);
+	let pickingIcon = $state(false);
+	// The symbol shown: the one picked by hand, else what name and kind of food suggest
+	let shownIcon = $derived(icon ?? suggestIcon(name, category));
 
 	let suggested = $derived(suggestDate(category, location, vacuumed, from));
 	let guide = $derived(shelfLife(category, location, vacuumed));
@@ -238,18 +243,71 @@
 			</section>
 		{/if}
 	{:else}
-		<!-- Kind of food: suggested from the name, one tap to change -->
+		<!-- Symbol and kind of food: suggested from the name, one tap to change either -->
 		<div>
-			<button
-				type="button"
-				class="flex w-full items-center gap-2 rounded-lg border border-line bg-surface p-3 text-left transition-colors hover:border-accent"
-				aria-expanded={choosing}
-				onclick={() => (choosing = !choosing)}
-			>
-				<span class="text-sm text-muted">{m.item.category}</span>
-				<span class="min-w-0 flex-1 truncate font-medium">{m.categories[category]}</span>
-				<ChevronDown size={18} class="shrink-0 text-muted {choosing ? 'rotate-180' : ''}" />
-			</button>
+			<div class="flex gap-2">
+				<button
+					type="button"
+					class="flex shrink-0 items-center justify-center rounded-lg border border-line bg-surface p-2 transition-colors hover:border-accent"
+					aria-label={m.item.chooseIcon}
+					title={m.item.chooseIcon}
+					aria-expanded={pickingIcon}
+					onclick={() => {
+						pickingIcon = !pickingIcon;
+						choosing = false;
+					}}
+				>
+					<FoodIcon icon={shownIcon} size={30} />
+				</button>
+				<button
+					type="button"
+					class="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-line bg-surface p-3 text-left transition-colors hover:border-accent"
+					aria-expanded={choosing}
+					onclick={() => {
+						choosing = !choosing;
+						pickingIcon = false;
+					}}
+				>
+					<span class="text-sm text-muted">{m.item.category}</span>
+					<span class="min-w-0 flex-1 truncate font-medium">{m.categories[category]}</span>
+					<ChevronDown size={18} class="shrink-0 text-muted {choosing ? 'rotate-180' : ''}" />
+				</button>
+			</div>
+			{#if pickingIcon}
+				<div class="mt-2 rounded-xl border border-line bg-surface p-2">
+					<div class="grid max-h-64 grid-cols-6 gap-1 overflow-y-auto sm:grid-cols-8">
+						{#each ICONS as key (key)}
+							<button
+								type="button"
+								class="flex items-center justify-center rounded-lg p-1.5 transition-colors hover:bg-bg {key ===
+								shownIcon
+									? 'ring-2 ring-accent'
+									: ''}"
+								aria-label={key}
+								aria-pressed={key === shownIcon}
+								onclick={() => {
+									icon = key;
+									pickingIcon = false;
+								}}
+							>
+								<FoodIcon icon={key} size={30} />
+							</button>
+						{/each}
+					</div>
+					{#if icon}
+						<button
+							type="button"
+							class="mt-1 btn-quiet"
+							onclick={() => {
+								icon = null;
+								pickingIcon = false;
+							}}
+						>
+							{m.item.iconAutomatic}
+						</button>
+					{/if}
+				</div>
+			{/if}
 			{#if choosing}
 				<ul
 					class="mt-2 max-h-80 overflow-y-auto rounded-xl border border-line bg-surface"
@@ -348,6 +406,7 @@
 			<p class="text-xs text-muted">
 				{#if guide}
 					{vacuumed ? m.item.guideHintVacuum : m.item.guideHint}
+					<a href="/settings/guide" class="underline hover:text-text">{m.item.guideLink}</a>
 				{:else}
 					{m.item.noGuide}
 				{/if}

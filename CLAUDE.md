@@ -74,6 +74,8 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Wörterbuch: Gerichte gehen vor („Linsensuppe“), der letzte Wortteil entscheidet („Zwiebelkuchen“), Teilstücke zählen nur ohne Tier („Putenschnitzel“). Korrekturen des Users je Name landen in `food_memory` und gehen dem Wörterbuch vor.
 - Formular: Kategorie aus dem Namen (antippbar, Auswahl mit Beispielzeile), Lagerorte eingefärbt, gesperrte nicht wählbar (prüft auch der Server), bester vorausgewählt. Das Datum folgt Kategorie, Lagerort und Vakuum, bis es von Hand gesetzt wird (`date_manual`); dann „Vorschlag übernehmen“.
 - **Überall, wo ein Datum vorgeschlagen wird, steht der Hinweis „Richtwert, keine Garantie – immer selbst prüfen“.**
+- Symbole (`src/lib/food/icons.ts`, `FoodIcon.svelte`): zwei Stile, umschaltbar in den Einstellungen (`iconStyle`) – farbig = Twemoji (CC BY 4.0, Namensnennung in README und App Pflicht), schlicht = Lucide/Tabler als Maske in Textfarbe. Die Dateien liegen fertig unter `static/food/` und werden mit `scripts/food-icons.mjs` aus der Liste erzeugt (Pakete dafür nur vorübergehend installieren, keine Projekt-Abhängigkeit). Symbol je Inhalt: von Hand gewählt (`items.icon`) oder aus Name und Kategorie (`suggestIcon()`).
+- Seite `/settings/guide` zeigt Tabelle, Quellen und Hinweis; README hat denselben Hinweis samt Quellenliste. Ändern sich Werte oder Quellen: `shelfLife.ts`, README und Wiki-Seite „Shelf life guide values“ zusammen anpassen.
 
 ## Sicherheit
 
@@ -113,10 +115,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 1. Scaffold + Infrastruktur, First-Run-Wizard, Login – ✅
 2. Scanner, Code-Parser, Behälterverwaltung – ✅
 3. Erfassung (alle Felder von Hand), Bearbeiten, „Gegessen“, Verlauf je Behälter als Vorlage, einfache Vorratsliste – ✅
-4. **Als Nächstes, vor dem Scan-Ablauf:** Haltbarkeit – Kategorie aus dem Namen vorschlagen (änderbar, Korrekturen je Name merken), schematisches Symbol aus dem Namen (aus dem vorhandenen Symbolsatz, per Antippen änderbar, kein Foto-Upload), Lagerorte je Kategorie einfärben (gut = grün, schlecht = rot, „auf keinen Fall“ = ausgegraut und gesperrt) und den besten vorauswählen, Datum aus Kategorie × Lagerort × vakuumiert berechnen (von Hand änderbar)
-   - Richtwerte: deutsche Stellen zuerst (BVL, Bundeszentrum für Ernährung, BMEL), USDA FoodKeeper für Lücken, bei zwei Angaben die vorsichtigere; Vakuum nur als zurückhaltender Aufschlag. Jeder Wert trägt seine Quelle (eigene Datei, einsehbar unter Einstellungen → „Richtwerte“).
-   - **Deutlicher Hinweis überall, wo ein Datum vorgeschlagen wird, und gut sichtbar in der README:** Schätzung auf Grundlage der genannten Quellen, keine Garantie – man muss immer selbst prüfen (sehen, riechen, im Zweifel wegwerfen). Quellen in README und App auflisten.
-   - Symbole in zwei Stilen, umschaltbar in den Einstellungen: schlicht (Strich-Symbole, Lucide + Tabler) und farbig (eine gebündelte Emoji-Bibliothek, überall gleich).
+4. Haltbarkeit: Kategorie und Symbol aus dem Namen, eingefärbte Lagerorte, berechnetes Datum, Richtwerte mit Quellen – ✅
 5. Scan-Ablauf, Rest: „ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
 6. Inventar
 7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste). Dazu gehören vor dem ersten Release:

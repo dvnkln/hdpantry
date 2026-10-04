@@ -5,6 +5,7 @@ import { settings } from './db/schema';
 // Default values, used until the user changes them.
 const DEFAULTS = {
 	uiLanguage: 'en', // interface language: 'en' | 'de' (chosen in the first-run wizard)
+	iconStyle: 'color', // food symbols: 'color' (Twemoji) | 'line' (line icons)
 	// Reverse proxies whose X-Forwarded-For header is believed (see proxy.ts): addresses or
 	// ranges, comma-separated. Empty = none.
 	trustedProxies: '',

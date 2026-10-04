@@ -1,7 +1,9 @@
+import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { LOCATIONS } from '$lib/items';
 import { CATEGORIES, RATINGS, bestLocation, rating } from './categories';
-import { simplify, suggestCategory } from './dictionary';
+import { simplify, suggestCategory, suggestIcon } from './dictionary';
+import { CATEGORY_ICONS, ICONS, isIcon, lineFile } from './icons';
 import { SHELF_LIFE, SOURCES, addDays, shelfLife, suggestDate } from './shelfLife';
 
 describe('guessing the kind of food from its name', () => {
@@ -194,5 +196,30 @@ describe('guide values', () => {
 	it('counts days across months and years', () => {
 		expect(addDays('2026-12-30', 3)).toBe('2027-01-02');
 		expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
+	});
+});
+
+describe('symbols', () => {
+	const icon = (name: string) => suggestIcon(name, suggestCategory(name));
+	it('a food with a symbol of its own gets it, others that of their kind', () => {
+		expect(icon('Bananen')).toBe('banana');
+		expect(icon('Provolone')).toBe('cheese-wedge');
+		expect(icon('Lachsfilet')).toBe('fish');
+		expect(icon('Linsensuppe')).toBe('steaming-bowl');
+		expect(icon('Zwiebelkuchen')).toBe('shortcake'); // a cake, not an onion
+		expect(icon('Bananenbrot')).toBe('bread');
+		expect(icon('Apfelmus')).toBe('red-apple');
+		expect(icon('Hähnchenbrust')).toBe('poultry-leg');
+		expect(icon('Butter')).toBe('butter'); // has a symbol although its kind is unknown
+		expect(icon('Dingsbums')).toBe('fork-and-knife-with-plate');
+	});
+	it('every kind of food has a symbol from the list', () => {
+		for (const key of Object.values(CATEGORY_ICONS)) expect(isIcon(key)).toBe(true);
+	});
+	it('every symbol has its file in both styles (made by scripts/food-icons.mjs)', () => {
+		for (const key of ICONS) {
+			expect(existsSync(`static/food/color/${key}.svg`), key).toBe(true);
+			expect(existsSync(`static/food/line/${lineFile(key)}.svg`), key).toBe(true);
+		}
 	});
 });

@@ -15,6 +15,7 @@ export const load: PageServerLoad = ({ params, locals }) => {
 					location: item.location,
 					bestBefore: item.bestBefore,
 					category: item.category,
+					icon: item.icon,
 					fill: item.fill,
 					amount: item.amount,
 					unit: item.unit,

@@ -1,0 +1,8 @@
+Symbols in this folder
+
+color/  Twemoji – Copyright Twitter, Inc and other contributors.
+        Graphics licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+        https://github.com/jdecked/twemoji
+
+line/   lucide-*  Lucide – ISC License, Copyright Lucide Contributors. https://lucide.dev
+        tabler-*  Tabler Icons – MIT License, Copyright Paweł Kuna. https://tabler.io/icons
