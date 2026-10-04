@@ -57,6 +57,11 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - GitHub prüft bei jedem Push auf `main` und bei Pull Requests: `check`, `lint`, `test` (`.github/workflows/check.yml`).
 - Keine Browser-Tests (Playwright) – bewusst, wegen der großen Abhängigkeit. Erst nachziehen, wenn der Scan-Ablauf steht und der Nutzen klar ist.
 
+## Dokumentation
+
+- README (Englisch) ist das Schaufenster: Name, Kurzbeschreibung, Hinweis „Early development“ (bis zum ersten Release), Links ins Wiki, Features – ehrlich getrennt in „funktioniert heute“ und „in Arbeit“, nur was hdpantry auszeichnet –, Quick start, **Built with AI** und License. Screenshots kommen, sobald es etwas zu zeigen gibt. Mit jedem MVP-Punkt die Feature-Liste nachziehen.
+- Anleitungen für Nutzer gehören ins GitHub-Wiki (eigenes Git-Repo, Englisch), nicht in die README. Ändert sich etwas an Installation, `.env`, Update oder Rettungswegen: Wiki-Seite mit anpassen. Die Seite „Privacy and security“ hält fest, dass es keine Verbindung nach außen gibt und wie Daten gespeichert sind.
+
 ## Befehle
 
 - `npm run dev` – Dev-Server (http://localhost:5173); braucht `.env` mit `SECRET`
