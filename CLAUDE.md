@@ -36,7 +36,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - DB wird erst bei Bedarf über `getDb()` geöffnet; Migrationen laufen automatisch beim Start (`src/hooks.server.ts`).
 - **Migrationen:** Schema ändern → `npm run db:generate` → Migration mit committen. Bis zum ersten Release (v0.1.0) darf alles in `drizzle/0000_init.sql` zusammengefasst werden. **Ab v0.1.0** nur noch neue Migrationen, die bestehende Daten erhalten – nie alte ändern oder löschen.
 - **Texte:** Alle sichtbaren Texte in `src/lib/i18n/de.ts` + `en.ts` (gleiche Struktur, TypeScript prüft das). Im Browser `m.xyz` aus `$lib/i18n/index.svelte`, auf dem Server `serverMessages(locale)`. Der Server liefert Werte (ISO-Datum, Zahlen), formatiert wird in der Oberfläche. Sprache einer Anfrage: `event.locals.locale`.
-- **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt hell/dunkel des Geräts; kein Theme-System. Systemschrift, keine eigene Schrift.
+- **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt bisher hell/dunkel des Geräts; mit Punkt 7 wird das wählbar (System, Dunkel, Hell – siehe MVP). Weitere Farbschemata sind nicht geplant. Systemschrift, keine eigene Schrift.
 - Hover-Effekte für alles Klickbare, kurze Übergänge.
 - Seitentitel, die sich von selbst erklären (Vorrat, Einstellungen), sind nur für Screenreader da (`sr-only`), nicht sichtbar.
 
@@ -106,7 +106,12 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 4. **Als Nächstes, vor dem Scan-Ablauf:** Haltbarkeit – Kategorie aus dem Namen vorschlagen (änderbar, Korrekturen je Name merken), schematisches Symbol aus dem Namen (aus dem vorhandenen Symbolsatz, per Antippen änderbar, kein Foto-Upload), Lagerorte je Kategorie einfärben (gut = grün, schlecht = rot, „auf keinen Fall“ = ausgegraut und gesperrt) und den besten vorauswählen, Datum aus Kategorie × Lagerort × vakuumiert berechnen (von Hand änderbar)
 5. Scan-Ablauf, Rest: „ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
 6. Inventar
-7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste), Export/Import als JSON, Vibration beim Scan abschaltbar
+7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste). Dazu gehören vor dem ersten Release:
+   - Sprache der Oberfläche nachträglich ändern (Deutsch/Englisch; bisher nur im Einrichtungs-Wizard wählbar)
+   - Farbschema wählen: System (folgt dem Gerät, Standard), Dunkel, Hell – mit kleiner Vorschau je Schema. Technik: Attribut `data-theme` am `<html>`, vom Server direkt ins HTML geschrieben (kein Aufblitzen), die Login-Seite merkt sich das Schema des Geräts per Cookie; die Farbwerte in `layout.css` dafür auf `[data-theme]`-Blöcke umstellen
+   - Vibration beim Scan abschaltbar
+   - Passwort ändern, Reverse Proxy bestätigen (`trustedProxies`/`proxyKey`)
+   - Export/Import als JSON
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
 
