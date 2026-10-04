@@ -1,3 +1,4 @@
+import type { Unit } from '$lib/items';
 import { de, type Messages } from './de';
 import { en } from './en';
 
@@ -21,6 +22,12 @@ export function setLocale(locale: Locale) {
 export const m = new Proxy({} as Messages, {
 	get: (_, key) => MESSAGES[current.locale][key as keyof Messages]
 });
+
+// 1.5, 'kg' -> "1,5 kg" / "1.5 kg"; 2, 'servings' -> "2 Portionen"
+export function formatAmount(amount: number, unit: Unit) {
+	const number = new Intl.NumberFormat(m.locale, { maximumFractionDigits: 2 }).format(amount);
+	return `${number} ${m.units[unit](amount)}`;
+}
 
 // "2026-10-03" -> "03.10.2026" / "10/03/2026"
 export function formatDate(iso: string) {

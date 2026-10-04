@@ -1,37 +1,40 @@
-import { error, redirect } from '@sveltejs/kit';
-import { deleteContainer, getContainer, renameContainer } from '$lib/server/containers';
-import { serverMessages } from '$lib/server/i18n';
+import { redirect } from '@sveltejs/kit';
+import { containerOf } from '$lib/server/containers';
+import { activeItem, removeActiveItem } from '$lib/server/items';
 import type { Actions, PageServerLoad } from './$types';
 
-function containerOf(params: { id: string }, notFound: string) {
-	const container = /^\d+$/.test(params.id) ? getContainer(Number(params.id)) : undefined;
-	if (!container) error(404, notFound);
-	return container;
-}
-
 export const load: PageServerLoad = ({ params, locals }) => {
-	const c = containerOf(params, serverMessages(locals.locale).containers.notFound);
+	const c = containerOf(params.id, locals.locale);
+	const item = activeItem(c.id);
 	return {
+		item: item
+			? {
+					name: item.name,
+					note: item.note,
+					vacuumed: item.vacuumed,
+					location: item.location,
+					bestBefore: item.bestBefore,
+					fill: item.fill,
+					amount: item.amount,
+					unit: item.unit,
+					createdAt: item.createdAt.toISOString()
+				}
+			: null,
 		container: {
 			id: c.id,
 			code: c.code,
 			size: c.size,
-			name: c.name,
-			rawContent: c.rawContent,
-			createdAt: c.createdAt.toISOString()
+			source: c.source,
+			manual: c.manual
 		}
 	};
 };
 
 export const actions: Actions = {
-	rename: async ({ params, request, locals }) => {
-		const c = containerOf(params, serverMessages(locals.locale).containers.notFound);
-		renameContainer(c.id, String((await request.formData()).get('name') ?? ''));
-		return { saved: true };
-	},
-	delete: ({ params, locals }) => {
-		const c = containerOf(params, serverMessages(locals.locale).containers.notFound);
-		deleteContainer(c.id);
-		redirect(303, '/containers');
+	// Eaten: the container is empty again
+	eaten: ({ params, locals }) => {
+		const c = containerOf(params.id, locals.locale);
+		removeActiveItem(c.id);
+		redirect(303, '/');
 	}
 };

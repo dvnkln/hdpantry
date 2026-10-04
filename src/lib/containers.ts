@@ -1,14 +1,15 @@
 // Rules for containers shared by browser and server.
-export const MAX_CONTAINER_NAME = 60;
 
-type Coded = { code: string; size: string | null };
-type Labelled = Coded & { name: string | null };
+// How a container was first read: by the camera, from a photo, or typed by hand
+export const CODE_SOURCES = ['camera', 'photo', 'manual'] as const;
+export type CodeSource = (typeof CODE_SOURCES)[number];
 
-// "S · AB12" – how a container is called when it has no name of its own.
-export function codeLabel(container: Coded) {
-	return container.size ? `${container.size.toUpperCase()} · ${container.code}` : container.code;
+export function isCodeSource(value: unknown): value is CodeSource {
+	return (CODE_SOURCES as readonly unknown[]).includes(value);
 }
 
-export function containerLabel(container: Labelled) {
-	return container.name || codeLabel(container);
+// "S · AB12" – how a container is called. It has no name of its own: the name a user types
+// belongs to what is inside.
+export function codeLabel(container: { code: string; size: string | null }) {
+	return container.size ? `${container.size.toUpperCase()} · ${container.code}` : container.code;
 }

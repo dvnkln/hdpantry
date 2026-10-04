@@ -38,17 +38,33 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - **Texte:** Alle sichtbaren Texte in `src/lib/i18n/de.ts` + `en.ts` (gleiche Struktur, TypeScript prüft das). Im Browser `m.xyz` aus `$lib/i18n/index.svelte`, auf dem Server `serverMessages(locale)`. Der Server liefert Werte (ISO-Datum, Zahlen), formatiert wird in der Oberfläche. Sprache einer Anfrage: `event.locals.locale`.
 - **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt hell/dunkel des Geräts; kein Theme-System. Systemschrift, keine eigene Schrift.
 - Hover-Effekte für alles Klickbare, kurze Übergänge.
+- Seitentitel, die sich von selbst erklären (Vorrat, Einstellungen), sind nur für Screenreader da (`sr-only`), nicht sichtbar.
 
 ## Scanner
 
 - Codes werden nur im Browser gelesen (`src/lib/scanner.ts`): eingebauter Scanner des Browsers (`BarcodeDetector`, z. B. Chrome auf Android – lädt nichts nach), sonst `zxing-wasm` hinter derselben Schnittstelle (Paket `barcode-detector`), erst bei Bedarf geladen. Die wasm-Datei ist gebündelt; die Bibliothek würde sie sonst von einem fremden Server holen – `locateFile` nie entfernen. Dafür steht `'wasm-unsafe-eval'` in der CSP.
-- Drei Wege, immer alle anbieten: Kamera (`CameraScanner.svelte`), Foto (wird im Browser gelesen, nie hochgeladen), Eintippen. Am Handy startet die Kamera sofort, am PC (`pointer: fine`) erst per Knopf.
+- **Scannen steht im Mittelpunkt:** Die Scan-Seite zeigt nur die Kamera (`CameraScanner.svelte`; am Handy startet sie sofort, am PC – `pointer: fine` – per Knopf). Eintippen und Foto (wird im Browser gelesen, nie hochgeladen) erscheinen erst über den Knopf „Ohne Kamera erfassen“ – nie als direkt sichtbares Eingabefeld.
 - Eine Web-Adresse in einem Code wird nur angezeigt oder gespeichert, nie geöffnet oder abgerufen.
 - Gelesen werden QR, Data Matrix, EAN-13/8, Code 128 (`FORMATS`).
-- **Sobald ein Code erkannt ist, geht es ohne Bestätigung weiter** (`/scan`): bekannter Behälter → seine Seite, unbekannter → Formular „Neuer Behälter“ mit optionalem Namen. Kein Zwischenschritt, kein „Foto bestätigen“.
+- **Sobald ein Code erkannt ist, geht es ohne Rückfrage weiter** (`/scan`): Ein voller Behälter zeigt seinen Inhalt; ein leerer – auch ein zum ersten Mal gesehener, der dabei still angelegt wird – fragt sofort nach dem Namen des Inhalts. Kein Zwischenschritt, kein „Foto bestätigen“.
 - Code-Parser `src/lib/codes.ts`: zieht die ID eines Behälters aus dem Rohinhalt. Regeln als Tabelle (`PARAMETER_RULES`): Bei Codes mit Parametern ist der Kurzcode-Parameter die ID (er steht auch aufgedruckt auf dem Behälter – eingetippt muss er denselben Behälter finden), Größe und Typ-Code werden mitgenommen; die Adresse davor ist egal. Jeder andere Code zählt als Ganzes. Kurzcodes werden großgeschrieben. Neue Code-Form = neue Regel + Test, mit erfundenen Beispielwerten.
-- Behälter (`containers`, `src/lib/server/containers.ts`): Rohinhalt wird immer mitgespeichert. Kein pflegbares Feld für die Art (Beutel/Box); der Typ-Code wird nur gespeichert, nicht gedeutet. Ohne Namen heißt ein Behälter „Größe · Kurzcode“ (`containerLabel()` in `src/lib/containers.ts`).
+- Behälter (`containers`, `src/lib/server/containers.ts`): Rohinhalt und Herkunft des Codes (`source`: Kamera, Foto, eingetippt) werden mitgespeichert. Kein pflegbares Feld für die Art (Beutel/Box); der Typ-Code wird nur gespeichert, nicht gedeutet. **Es gibt keine Behälter-Übersicht:** Leere Behälter interessieren nicht, gefüllte stehen im Vorrat. Auf der Detailseite steht der Behälter nur in zwei leisen Zeilen: Bezeichnung, darunter „manuell erfasst“ oder „gescannt“. Der Inhalt des Codes interessiert im Alltag nicht; er steht nur in den Einstellungen hinter dem Info-Symbol des Behälters.
+- **Manuell erfasste und gescannte Behälter sind getrennte Gruppen** (`manual`; derselbe Code darf in jeder Gruppe einmal vorkommen). Eingetippt wird zuerst der gescannte Behälter gesucht (der Kurzcode steht aufgedruckt), dann der manuelle, sonst ein manueller angelegt. Wird ein Code gescannt, den es nur manuell gibt, fragt die App „Zusammenführen?“: Ja = der manuelle wird zum gescannten (Inhalt und Verlauf bleiben), Nein = eigener gescannter Behälter; später zusammenführen geht in den Einstellungen (nicht, solange beide gefüllt sind). Nur bei manuellen lässt sich der Code ändern.
+- Einstellungen (`/settings`): Liste aller Behälter. Einzelnen löschen = doppelte Bestätigung; **„Alle Behälter löschen“ nur nach Eintippen des Bestätigungsworts** (prüft auch der Server).
+- Rückmeldung beim Erkennen: nur eine kurze Vibration (wirkt nur, wenn das Handy haptisches Feedback erlaubt – von einer Webseite nicht zu umgehen). Bewusst kein Ton und kein optischer Effekt: Das Ergebnis erscheint ohnehin sofort.
 - `/scan/check` („Code prüfen“) zeigt Rohinhalte, ohne zu speichern – bleibt dauerhaft in der App, für neue Behälter-Systeme und Fehlermeldungen.
+
+## Inhalte
+
+- **Es gibt genau einen Namen: den des Inhalts** (z. B. „Provolone“). Er wird nach dem Scan abgefragt, steht in der Vorratsübersicht und steuert die Automatik (Kategorie, Symbol, Lagerort, Datum). Ein Behälter hat keinen eigenen Namen; er heißt „Größe · Kurzcode“ (`codeLabel()`) und steht nur bei den Details. Nie ein zweites Namensfeld einführen.
+- Tabelle `items`: was in einem Behälter ist oder war. „Gegessen“ (immer mit Rückfrage) löscht nicht, sondern setzt `removed_at`; danach ist der Behälter leer und fragt beim nächsten Scan nach einem neuen Namen. Darunter steht der Verlauf dieses Behälters, das Neueste zuerst; Antippen übernimmt den Eintrag als Vorlage (alles außer dem Datum). Höchstens ein aktiver Inhalt je Behälter – das sichert auch ein Index in der Datenbank.
+- Felder, Grenzen und die Prüfung des Formulars stehen in `src/lib/items.ts` (`readItemForm()`), für Browser und Server gemeinsam. Lagerorte: `pantry`, `fridge`, `zero`, `freezer`; Füllstand: `low`, `medium`, `full`. Menge optional als Zahl + Einheit (`g`, `kg`, `ml`, `l`, `pcs`, `servings`). **Die Menge folgt dem Füllstand-Regler in Dritteln** (voll = 3/3, mittel = 2/3, niedrig = 1/3; `scaleAmount()`), gerechnet ab der zuletzt eingetippten Menge und der Stufe, bei der sie eingetippt wurde.
+- Ein Formular für Neu und Bearbeiten (`ItemForm.svelte`). Neu (`/containers/[id]/add`): erst nur der Name (Fokus sofort, Enter = weiter), dann der Rest – dort ist nichts fokussiert, damit die Handy-Tastatur zugeht. Bearbeiten (`/containers/[id]/edit`) über das Stift-Symbol neben dem Namen – Bearbeiten immer per Stift, nicht über Extra-Felder auf der Detailseite.
+- Füllstand wird als Zeichnung gezeigt (`FillGauge.svelte`), im Formular über dem Regler, auf Detailseite und in der Vorratsliste: gescannte Behälter als Vakuumbeutel (eckig, Verschlussleiste, rundes Ventil – eigene Zeichnung), manuell erfasste als Glas, damit man sie unterscheiden kann. Der Regler hat drei Markierungen statt Beschriftung; die gewählte Stufe steht unter der Zeichnung.
+- Kein Foto-Upload. Optionale Notiz je Inhalt: im Formular eine unauffällige Zeile direkt unter dem Namen, ohne Rahmen und Überschrift. Optionales bleibt dezent: Die Menge erscheint erst über „Menge hinzufügen“.
+- Knöpfe nur zeigen, wenn die Aktion gerade möglich ist; sonst gleich den Grund nennen (Beispiel: Zusammenführen bei zwei gefüllten Behältern).
+- Der große Scan-Knopf steht nur auf der Startseite (Vorrat), nicht auf den anderen Seiten.
+- Startseite: einfache Vorratsliste, sortiert nach Datum (ohne Datum zuletzt). Filter, Hervorhebung und Tabellenansicht folgen mit dem Inventar-Punkt.
 
 ## Sicherheit
 
@@ -86,11 +102,11 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 1. Scaffold + Infrastruktur, First-Run-Wizard, Login – ✅
 2. Scanner, Code-Parser, Behälterverwaltung – ✅
-3. Erfassung
-4. Scan-Ablauf (bekannt/aktiv/leer, gegessen, ersetzen, Verlauf je Behälter)
-5. Haltbarkeit: Kategorien, Namensvorschlag, Lagerempfehlung, Berechnung
+3. Erfassung (alle Felder von Hand), Bearbeiten, „Gegessen“, Verlauf je Behälter als Vorlage, einfache Vorratsliste – ✅
+4. **Als Nächstes, vor dem Scan-Ablauf:** Haltbarkeit – Kategorie aus dem Namen vorschlagen (änderbar, Korrekturen je Name merken), schematisches Symbol aus dem Namen (aus dem vorhandenen Symbolsatz, per Antippen änderbar, kein Foto-Upload), Lagerorte je Kategorie einfärben (gut = grün, schlecht = rot, „auf keinen Fall“ = ausgegraut und gesperrt) und den besten vorauswählen, Datum aus Kategorie × Lagerort × vakuumiert berechnen (von Hand änderbar)
+5. Scan-Ablauf, Rest: „ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
 6. Inventar
-7. Einstellungen, Export/Import als JSON
+7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste), Export/Import als JSON, Vibration beim Scan abschaltbar
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
 

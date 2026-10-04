@@ -15,6 +15,34 @@
       "when": 1791109109474,
       "tag": "0001_containers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791113478232,
+      "tag": "0002_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791117359778,
+      "tag": "0003_one_name",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791121590939,
+      "tag": "0004_amounts_and_manual",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791121601462,
+      "tag": "0005_drop_grams",
+      "breakpoints": true
     }
   ]
 }

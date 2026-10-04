@@ -4,7 +4,7 @@
 	import { page } from '$app/state';
 	import Brand from '$lib/components/Brand.svelte';
 	import { m, setLocale } from '$lib/i18n/index.svelte';
-	import { Boxes, LogOut, ScanLine } from '@lucide/svelte';
+	import { LogOut, ScanLine, Settings } from '@lucide/svelte';
 
 	let { data, children } = $props();
 
@@ -16,6 +16,8 @@
 
 	// First part of the address, e.g. "containers" for /containers/3
 	let section = $derived(page.url.pathname.split('/')[1]);
+	// The big scan button belongs to the stock list only
+	let scanButton = $derived(page.url.pathname === '/');
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -28,17 +30,16 @@
 				><Brand /></a
 			>
 			<a
-				href="/containers"
-				class="flex items-center gap-1.5 rounded-lg p-2 text-sm transition-colors hover:bg-surface hover:text-text {section ===
-				'containers'
+				href="/settings"
+				class="rounded-lg p-2 transition-colors hover:bg-surface hover:text-text {section ===
+				'settings'
 					? 'text-text'
 					: 'text-muted'}"
-				aria-current={section === 'containers' ? 'page' : undefined}
-				aria-label={m.containers.title}
-				title={m.containers.title}
+				aria-current={section === 'settings' ? 'page' : undefined}
+				aria-label={m.settings.title}
+				title={m.settings.title}
 			>
-				<Boxes size={20} />
-				<span class="hidden sm:inline">{m.containers.title}</span>
+				<Settings size={20} />
 			</a>
 			<!-- -mr-2: the icon itself (not its hover area) lines up with the content edge -->
 			<form method="POST" action="/logout" class="-mr-2">
@@ -54,12 +55,11 @@
 	</header>
 
 	<!-- pb-28 keeps content clear of the scan button -->
-	<div class={section === 'scan' ? '' : 'pb-28'}>
+	<div class={scanButton ? 'pb-28' : ''}>
 		{@render children()}
 	</div>
 
-	<!-- Always within reach, except while scanning -->
-	{#if section !== 'scan'}
+	{#if scanButton}
 		<a
 			href="/scan"
 			class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-10 flex items-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent shadow-lg transition-transform hover:scale-105 active:scale-95"

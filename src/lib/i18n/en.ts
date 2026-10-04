@@ -8,8 +8,10 @@ export const en: Messages = {
 		home: 'Home',
 		logout: 'Log out',
 		cancel: 'Cancel',
+		next: 'Next',
+		yes: 'Yes',
+		no: 'No',
 		save: 'Save',
-		saved: 'Saved',
 		showPassword: 'Show password',
 		hidePassword: 'Hide password'
 	},
@@ -38,7 +40,8 @@ export const en: Messages = {
 	home: {
 		empty: 'Nothing in stock yet',
 		emptyHint: 'Scan a container or bag to record its first content.',
-		scan: 'Scan'
+		scan: 'Scan',
+		title: 'In stock'
 	},
 
 	scan: {
@@ -51,13 +54,19 @@ export const en: Messages = {
 		photoNoCode: 'No code was found in the photo.',
 		photoFailed: 'The photo could not be read.',
 		manual: 'Type a code',
+		manualHint: 'The short code is usually printed below the QR code on the container.',
+		other: 'Record without camera',
 		open: 'Open',
 		failed: 'That did not work. Please try again.',
 		unreadable: 'hdpantry cannot use this code (empty or too long).',
-		newTitle: 'New container',
-		newHint: 'hdpantry does not know this code yet.',
-		addContainer: 'Add container',
 		checkLink: 'Check a code (show raw content)',
+		twinTitle: 'Already recorded by hand',
+		twinText: (label: string, content: string | null, history: number) =>
+			`This code already exists as container ${label}, recorded by hand (${[content ? `content: ${content}` : 'empty', history ? (history === 1 ? '1 earlier content' : `${history} earlier contents`) : ''].filter(Boolean).join(', ')}).`,
+		twinHint:
+			'Is it the same container? Then merge the two: content and history are kept. Merging is also possible later in the settings.',
+		twinMerge: 'Merge',
+		twinSeparate: 'Keep separate',
 		problems: {
 			noHttps:
 				'The camera only works over a secure connection (https). Photo and typing still work.',
@@ -92,21 +101,113 @@ export const en: Messages = {
 	},
 
 	containers: {
-		title: 'Containers',
-		empty: 'No containers yet. Scan a code to add the first one.',
-		count: (n: number) => (n === 1 ? '1 container' : `${n} containers`),
-		nameOptional: 'Name (optional)',
-		namePlaceholder: 'e.g. Bag L 3',
-		emptyContainer: 'This container is empty.',
-		code: 'Code',
-		size: 'Size',
-		added: 'Added on',
-		rawContent: 'Content of the code',
-		delete: 'Delete container',
-		deleteQuestion:
-			'Really delete this container? It can be added again the next time its code is scanned.',
-		deleteConfirm: 'Delete',
+		typed: 'recorded by hand',
+		scanned: 'scanned',
+		emptyTitle: 'Empty container',
+		container: 'Container',
+		fill: 'Record content',
 		notFound: 'This container does not exist (any more).'
+	},
+
+	locations: {
+		pantry: 'Pantry',
+		fridge: 'Fridge',
+		zero: 'Zero-degree zone',
+		freezer: 'Freezer'
+	},
+
+	fillLevels: { low: 'Low', medium: 'Medium', full: 'Full' },
+
+	// Units of an amount: with the number ("2 servings") and as a choice in the form
+	units: {
+		g: () => 'g',
+		kg: () => 'kg',
+		ml: () => 'ml',
+		l: () => 'l',
+		pcs: (n: number) => (n === 1 ? 'piece' : 'pieces'),
+		servings: (n: number) => (n === 1 ? 'serving' : 'servings')
+	},
+	unitNames: { g: 'g', kg: 'kg', ml: 'ml', l: 'l', pcs: 'pieces', servings: 'servings' },
+
+	item: {
+		addTitle: 'New content',
+		editTitle: 'Edit content',
+		edit: 'Edit',
+		eaten: 'Eaten',
+		eatenQuestion: (name: string) => `“${name}” is eaten? The container will be empty.`,
+		eatenConfirm: 'Yes, eaten',
+		history: 'Last in this container',
+		name: 'Name',
+		namePlaceholder: 'e.g. provolone',
+		note: 'Note',
+		notePlaceholder: 'Add a note (optional)',
+		vacuumed: 'Vacuum-sealed',
+		location: 'Stored in',
+		bestBeforeOptional: 'Best before (optional)',
+		fill: 'Fill level',
+		amount: 'Amount',
+		addAmount: 'Add an amount',
+		unit: 'Unit',
+		add: 'Add',
+		alreadyFull: 'There is already something in this container.',
+		bestBefore: 'Best before',
+		noDate: 'No date',
+		since: 'Since',
+		problems: {
+			name: 'Please enter a name.',
+			location: 'Please choose where it is stored.',
+			date: 'The date is not valid.',
+			fill: 'Please choose a fill level.',
+			amount: 'Amount: please enter a number above 0 (99999 at most) and a unit.'
+		}
+	},
+
+	settings: {
+		title: 'Settings',
+		containers: 'Containers',
+		containersHint:
+			'All containers hdpantry knows – empty ones too. Deleting removes a container with its history; it is added again the next time its code is scanned.',
+		noContainers: 'No containers yet.',
+		empty: 'empty',
+		typed: 'recorded by hand',
+		history: (n: number) => (n === 1 ? '1 earlier content' : `${n} earlier contents`),
+		delete: 'Delete',
+		deleteQuestion: (label: string, content: string | null, history: number) => {
+			const lost = [
+				content ? `“${content}”` : '',
+				history ? (history === 1 ? '1 earlier content' : `${history} earlier contents`) : ''
+			].filter(Boolean);
+			return `Really delete container ${label}?${lost.length ? ` Also deleted: ${lost.join(' and ')}.` : ''} This cannot be undone.`;
+		},
+		deleteConfirm: 'Yes, delete',
+		showCode: 'Show the content of the code',
+		codeContent: 'Content of the scanned code',
+		changeCode: 'Change code',
+		newCode: 'New code',
+		codeProblems: {
+			invalid: 'Please enter a code.',
+			taken: 'Another container recorded by hand already has this code.',
+			notManual: 'Only containers recorded by hand can get another code.'
+		},
+		open: 'Open container',
+		merge: 'Merge',
+		mergeQuestion: (label: string) =>
+			`There is a scanned container with the same code (${label}). Merge them? Content and history move to the scanned container, the one recorded by hand disappears.`,
+		mergeConfirm: 'Yes, merge',
+		mergeProblems: {
+			bothFull:
+				'Both containers are full. A container holds one thing at a time – mark one as eaten first.',
+			noTwin: 'There is no scanned container with the same code.'
+		},
+		deleteAll: 'Delete all containers',
+		deleteAllHint:
+			'Removes every container, the whole stock and all history. hdpantry is then as empty as on the first day; your account stays.',
+		deleteAllQuestion: (n: number) =>
+			`Really delete ${n === 1 ? 'the one container' : `all ${n} containers`} with stock and history? This cannot be undone.`,
+		deleteWord: 'DELETE',
+		typeToConfirm: (word: string) => `Type ${word} to confirm`,
+		deleteAllConfirm: 'Delete everything for good',
+		wrongWord: 'To delete, please type the confirmation word.'
 	},
 
 	errorPage: {

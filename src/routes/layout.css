@@ -49,7 +49,7 @@ body {
 
 /* Text fields look the same everywhere. 16px keeps phones from zooming in on focus. */
 @layer base {
-	input:where([type='text'], [type='password'], :not([type])) {
+	input:where([type='text'], [type='password'], [type='date'], [type='number'], :not([type])) {
 		border: 1px solid var(--line);
 		border-radius: 0.5rem;
 		background: var(--surface);
@@ -63,6 +63,29 @@ body {
 }
 
 /* Main button (filled) and error box of forms */
+/* Note under a name: plain text line, a thin line appears only while typing */
+@utility note-line {
+	border: 0;
+	border-bottom: 1px solid transparent;
+	border-radius: 0;
+	background: transparent;
+	padding: 0.25rem 0.125rem;
+	font-size: 0.9375rem;
+	color: var(--muted);
+	&:focus-visible {
+		outline: none;
+		border-bottom-color: var(--accent);
+		color: var(--text);
+	}
+}
+/* Small fields for the optional amount */
+@utility amount-field {
+	border: 1px solid var(--line);
+	border-radius: 0.5rem;
+	background: var(--surface);
+	padding: 0.375rem 0.5rem;
+	font-size: 1rem;
+}
 @utility btn-primary {
 	border-radius: 0.5rem;
 	background: var(--accent);
@@ -113,6 +136,16 @@ body {
 	&:hover {
 		opacity: 0.9;
 	}
+}
+/* A hint: why something is not possible right now */
+@utility notice {
+	display: flex;
+	gap: 0.5rem;
+	border: 1px solid var(--warn);
+	border-radius: 0.5rem;
+	background: color-mix(in srgb, var(--warn) 10%, transparent);
+	padding: 0.75rem;
+	font-size: 0.875rem;
 }
 @utility form-error {
 	border: 1px solid var(--danger);

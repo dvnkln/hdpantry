@@ -10,7 +10,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** hdpantry cannot track food yet: so far there is the foundation – set-up, login, scanning codes and managing containers. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** Scanning, recording what is inside and a simple stock list work; shelf-life suggestions and the full inventory are still missing. There is no release and no published image. This page grows with the app.
 
 ## 📖 Documentation
 
@@ -22,8 +22,10 @@ What's planned for later: [Roadmap](ROADMAP.md).
 
 Working today:
 
-- 📷 **Scan** – hold a code in front of the camera and hdpantry opens the container right away; no button, no confirmation. A photo of the code or typing it works too. Any QR code will do.
-- 🥡 **Containers and bags** – every code is one container; give it a name if you like.
+- 📷 **Scan** – hold a code in front of the camera and hdpantry leads on right away, without a button or a question: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too. Any QR code will do.
+- 🥡 **Containers and bags** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
+- 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
+- 📋 **In stock** – everything you have, what expires first at the top.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts; at present hdpantry does not connect to any outside service at all.
 - 🛡️ **Protected login** – repeated wrong passwords block the address they come from.
 - 🌍 **English and German** – follows your browser on first start, chosen during set-up.
@@ -31,9 +33,8 @@ Working today:
 
 Being built for the first version:
 
-- 📝 **Quick entry** – what is inside, vacuum-sealed or not, where it is stored, how full it is.
-- 📅 **Shelf life** – a suggested date from the kind of food, the place of storage and whether it is vacuum-sealed. Guide values, not a guarantee – and always yours to change.
-- 📋 **Inventory** – everything in stock, sorted by date, with what expires soon highlighted.
+- 📅 **Shelf life** – the kind of food and a matching symbol are suggested from its name; suitable places of storage are marked, and a date is suggested from the kind of food, the place and whether it is vacuum-sealed. Guide values, not a guarantee – and always yours to change.
+- 📋 **Inventory** – filter by place of storage, what expires soon highlighted, a wide table on computers.
 - 📤 **Export and import** – your data as a file.
 
 ## 🐳 Quick start
