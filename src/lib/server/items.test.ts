@@ -19,6 +19,9 @@ const lentils: ItemValues = {
 	vacuumed: true,
 	location: 'freezer',
 	bestBefore: '2027-01-15',
+	dateManual: false,
+	category: 'other',
+	icon: null,
 	fill: 'medium',
 	amount: null,
 	unit: null

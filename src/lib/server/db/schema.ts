@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import type { CodeSource } from '../../containers';
+import type { Category } from '../../food/categories';
 import type { FillLevel, Location, Unit } from '../../items';
 
 // Simple key/value store for app settings (interface language, ...).
@@ -65,6 +66,12 @@ export const items = sqliteTable(
 		location: text('location').$type<Location>().notNull(),
 		// Best before, YYYY-MM-DD; empty = no date
 		bestBefore: text('best_before'),
+		// The date was typed by hand (true) or is the suggestion from kind of food, place and
+		// vacuum (false) – a suggestion follows when those change, a typed date stays
+		dateManual: integer('date_manual', { mode: 'boolean' }).notNull().default(false),
+		// Kind of food (see src/lib/food/categories.ts) and its symbol; empty = not known
+		category: text('category').$type<Category>(),
+		icon: text('icon'),
 		fill: text('fill').$type<FillLevel>().notNull(),
 		// How much is inside, optional: a number and its unit
 		amount: real('amount'),
@@ -83,3 +90,11 @@ export const items = sqliteTable(
 			.where(sql`${table.removedAt} is null`)
 	]
 );
+
+// What the user corrected: kind of food and symbol for a name (simplified, see
+// src/lib/food/dictionary.ts). Next time that name is suggested this way.
+export const foodMemory = sqliteTable('food_memory', {
+	name: text('name').primaryKey(),
+	category: text('category').$type<Category>().notNull(),
+	icon: text('icon')
+});

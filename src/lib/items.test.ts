@@ -28,6 +28,9 @@ describe('reading the form', () => {
 			vacuumed: true,
 			location: 'freezer',
 			bestBefore: '2027-01-15',
+			dateManual: false,
+			category: 'other',
+			icon: null,
 			fill: 'medium',
 			amount: 450,
 			unit: 'g'
@@ -41,6 +44,27 @@ describe('reading the form', () => {
 			amount: null,
 			unit: null // a unit without an amount means nothing
 		});
+	});
+	it('takes kind of food, symbol and whether the date was typed by hand', () => {
+		const { values } = readItemForm(
+			form({
+				...base,
+				category: 'fish_raw',
+				icon: 'fish',
+				dateManual: '1',
+				bestBefore: '2027-01-15'
+			})
+		);
+		expect(values).toMatchObject({ category: 'fish_raw', icon: 'fish', dateManual: true });
+		expect(readItemForm(form({ ...base, category: 'nonsense' })).values?.category).toBe('other');
+	});
+	it('refuses a place that must not be used for the kind of food', () => {
+		expect(readItemForm(form({ ...base, category: 'fish_raw', location: 'pantry' })).problem).toBe(
+			'location'
+		);
+		expect(
+			readItemForm(form({ ...base, category: 'bread', location: 'pantry' })).values
+		).toBeTruthy();
 	});
 	it('accepts decimals with comma or point', () => {
 		expect(readItemForm(form({ ...base, amount: '1,5', unit: 'kg' })).values).toMatchObject({

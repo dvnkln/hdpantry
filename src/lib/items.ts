@@ -1,5 +1,6 @@
 // What can be recorded about the content of a container – shared by the form in the browser
 // and the checks on the server.
+import { isCategory, rating, type Category } from './food/categories';
 
 export const LOCATIONS = ['pantry', 'fridge', 'zero', 'freezer'] as const;
 export type Location = (typeof LOCATIONS)[number];
@@ -13,6 +14,7 @@ export type Unit = (typeof UNITS)[number];
 export const MAX_ITEM_NAME = 80;
 export const MAX_ITEM_NOTE = 300;
 export const MAX_AMOUNT = 99999;
+export const MAX_ICON_NAME = 40;
 
 export type ItemValues = {
 	name: string;
@@ -21,6 +23,11 @@ export type ItemValues = {
 	location: Location;
 	// Best before, YYYY-MM-DD; null = no date
 	bestBefore: string | null;
+	// The date was typed by hand, not suggested
+	dateManual: boolean;
+	// Kind of food ('other' = not known) and its symbol
+	category: Category;
+	icon: string | null;
 	fill: FillLevel;
 	// How much is inside, optional. Both are set or both are null.
 	amount: number | null;
@@ -74,8 +81,13 @@ export function readItemForm(
 	const name = oneLine(data.get('name'), MAX_ITEM_NAME);
 	if (!name) return { problem: 'name' };
 
+	const categoryText = String(data.get('category') ?? '');
+	const category: Category = isCategory(categoryText) ? categoryText : 'other';
+
 	const location = String(data.get('location') ?? '');
 	if (!(LOCATIONS as readonly string[]).includes(location)) return { problem: 'location' };
+	// A place that must not be used for this kind of food
+	if (rating(category, location as Location) === 'never') return { problem: 'location' };
 
 	const date = String(data.get('bestBefore') ?? '').trim();
 	if (date && !isDate(date)) return { problem: 'date' };
@@ -105,6 +117,9 @@ export function readItemForm(
 			vacuumed: data.get('vacuumed') !== null,
 			location: location as Location,
 			bestBefore: date || null,
+			dateManual: data.get('dateManual') === '1',
+			category,
+			icon: oneLine(data.get('icon'), MAX_ICON_NAME) || null,
 			fill: fill as FillLevel,
 			amount,
 			unit

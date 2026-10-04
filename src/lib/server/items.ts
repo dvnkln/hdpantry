@@ -36,6 +36,8 @@ export function listStock() {
 			vacuumed: items.vacuumed,
 			location: items.location,
 			bestBefore: items.bestBefore,
+			category: items.category,
+			icon: items.icon,
 			fill: items.fill,
 			amount: items.amount,
 			unit: items.unit,

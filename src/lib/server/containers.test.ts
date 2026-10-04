@@ -22,6 +22,9 @@ const food = (name: string): ItemValues => ({
 	vacuumed: true,
 	location: 'fridge',
 	bestBefore: null,
+	dateManual: false,
+	category: 'other',
+	icon: null,
 	fill: 'full',
 	amount: null,
 	unit: null

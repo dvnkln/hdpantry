@@ -16,15 +16,21 @@
 		type ItemValues,
 		type Unit
 	} from '$lib/items';
+	import { CATEGORIES, bestLocation, rating, type Category } from '$lib/food/categories';
+	import { simplify, suggestCategory } from '$lib/food/dictionary';
+	import { shelfLife, suggestDate } from '$lib/food/shelfLife';
 	import { LOCATION_ICONS } from '$lib/locations';
-	import { Plus } from '@lucide/svelte';
+	import { ChevronDown, Plus } from '@lucide/svelte';
 
-	type Template = Omit<ItemValues, 'bestBefore'> & { id: number; createdAt: string };
+	type Template = Omit<ItemValues, 'bestBefore' | 'dateManual'> & { id: number; createdAt: string };
+	type Memory = Record<string, { category: Category; icon: string | null }>;
 
 	let {
 		initial,
 		source = null,
 		nameFirst = false,
+		from,
+		memory = {},
 		history = [],
 		submitLabel,
 		cancelHref,
@@ -36,6 +42,10 @@
 		source?: CodeSource | null;
 		// Ask only for the name first; the rest appears after Enter (new content)
 		nameFirst?: boolean;
+		// The day the content went in (YYYY-MM-DD): suggested dates count from here
+		from: string;
+		// What the user corrected earlier: kind of food and symbol by simplified name
+		memory?: Memory;
 		// Earlier contents of this container, the latest first: tapping one takes it as a template
 		history?: Template[];
 		submitLabel: string;
@@ -60,6 +70,56 @@
 	// svelte-ignore state_referenced_locally
 	let fillIndex = $state(FILL_LEVELS.indexOf(initial.fill));
 	let fill = $derived(FILL_LEVELS[fillIndex]);
+
+	// ---- Kind of food, suitable places, suggested date ----
+	// The kind of food is guessed from the name until the user picks one. For content that
+	// already has a kind (editing), the stored one stands.
+	// svelte-ignore state_referenced_locally
+	let category = $state<Category>(initial.category);
+	// svelte-ignore state_referenced_locally
+	let icon = $state(initial.icon);
+	// svelte-ignore state_referenced_locally
+	let categoryChosen = $state(!nameFirst && initial.category !== 'other');
+	// svelte-ignore state_referenced_locally
+	let locationChosen = $state(!nameFirst);
+	// svelte-ignore state_referenced_locally
+	let dateManual = $state(initial.dateManual);
+	// svelte-ignore state_referenced_locally
+	let bestBefore = $state(initial.bestBefore ?? '');
+	let choosing = $state(false);
+
+	let suggested = $derived(suggestDate(category, location, vacuumed, from));
+	let guide = $derived(shelfLife(category, location, vacuumed));
+	// The suggested date follows kind of food, place and vacuum – a date typed by hand stays
+	$effect(() => {
+		if (!dateManual) bestBefore = suggested ?? '';
+	});
+	let days = $derived(
+		bestBefore ? Math.round((Date.parse(bestBefore) - Date.parse(from)) / 86_400_000) : null
+	);
+
+	function setCategory(next: Category, byUser: boolean) {
+		category = next;
+		if (byUser) categoryChosen = true;
+		// Move to the best place for it, unless the user chose one that may be used
+		// (nothing known about it: the place the form started with, i.e. the one used last)
+		if (!locationChosen || rating(next, location) === 'never') {
+			location =
+				bestLocation(next) ??
+				[initial.location, ...LOCATIONS].find((l) => rating(next, l) !== 'never') ??
+				location;
+		}
+	}
+	// Called when the name is settled or changes: what was corrected earlier comes first
+	function guess() {
+		if (categoryChosen) return;
+		const known = memory[simplify(name)];
+		icon = known?.icon ?? null;
+		setCategory(known?.category ?? suggestCategory(name), false);
+	}
+	// Content recorded before kinds of food existed gets one when it is edited
+	// svelte-ignore state_referenced_locally
+	if (!nameFirst) guess();
 
 	// The amount follows the slider in thirds, counted from the amount last typed in and the
 	// level it was typed at. Typing a new amount makes that the new starting point.
@@ -90,9 +150,15 @@
 		unit = template.unit ?? 'g';
 		showAmount = template.amount !== null;
 		vacuumed = template.vacuumed;
+		category = template.category;
+		icon = template.icon;
+		categoryChosen = template.category !== 'other';
 		location = template.location;
+		locationChosen = true;
+		dateManual = false;
 		fillIndex = FILL_LEVELS.indexOf(template.fill);
 		typed = template.amount === null ? null : { amount: template.amount, level: template.fill };
+		guess(); // old entries without a kind of food get one now
 		step = 2;
 	}
 </script>
@@ -105,6 +171,7 @@
 		if (step === 1) {
 			cancel();
 			if (name.trim()) {
+				guess();
 				step = 2;
 				// Nothing is focused in the second step, so the phone's keyboard goes away
 				(document.activeElement as HTMLElement | null)?.blur();
@@ -125,6 +192,7 @@
 			id="name"
 			name="name"
 			bind:value={name}
+			oninput={() => step === 2 && guess()}
 			maxlength={MAX_ITEM_NAME}
 			placeholder={m.item.namePlaceholder}
 			autocomplete="off"
@@ -170,6 +238,48 @@
 			</section>
 		{/if}
 	{:else}
+		<!-- Kind of food: suggested from the name, one tap to change -->
+		<div>
+			<button
+				type="button"
+				class="flex w-full items-center gap-2 rounded-lg border border-line bg-surface p-3 text-left transition-colors hover:border-accent"
+				aria-expanded={choosing}
+				onclick={() => (choosing = !choosing)}
+			>
+				<span class="text-sm text-muted">{m.item.category}</span>
+				<span class="min-w-0 flex-1 truncate font-medium">{m.categories[category]}</span>
+				<ChevronDown size={18} class="shrink-0 text-muted {choosing ? 'rotate-180' : ''}" />
+			</button>
+			{#if choosing}
+				<ul
+					class="mt-2 max-h-80 overflow-y-auto rounded-xl border border-line bg-surface"
+					aria-label={m.item.chooseCategory}
+				>
+					{#each CATEGORIES as key (key)}
+						<li class="border-b border-line last:border-b-0">
+							<button
+								type="button"
+								class="block w-full px-3 py-2 text-left transition-colors hover:bg-bg {key ===
+								category
+									? 'text-accent'
+									: ''}"
+								aria-pressed={key === category}
+								onclick={() => {
+									setCategory(key, true);
+									choosing = false;
+								}}
+							>
+								<span class="block font-medium">{m.categories[key]}</span>
+								<span class="block text-xs text-muted">{m.categoryExamples[key]}</span>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+			<input type="hidden" name="category" value={category} />
+			<input type="hidden" name="icon" value={icon ?? ''} />
+		</div>
+
 		<Switch name="vacuumed" bind:checked={vacuumed} label={m.item.vacuumed} />
 
 		<fieldset>
@@ -177,21 +287,72 @@
 			<div class="grid grid-cols-2 gap-2">
 				{#each LOCATIONS as key (key)}
 					{@const Icon = LOCATION_ICONS[key]}
+					{@const rated = rating(category, key)}
+					<!-- Tinted by how well the place suits the kind of food; unsuitable ones are locked -->
 					<label
-						class="flex cursor-pointer items-center gap-2 rounded-lg border border-line bg-surface p-3 text-sm transition-colors hover:border-accent has-checked:border-accent has-checked:font-semibold has-checked:text-accent has-focus-visible:outline-2 has-focus-visible:outline-accent"
+						class="flex items-center gap-2 rounded-lg border p-3 text-sm transition-colors has-checked:font-semibold has-checked:ring-2 has-checked:ring-accent has-focus-visible:outline-2 has-focus-visible:outline-accent {rated ===
+						'never'
+							? 'cursor-not-allowed border-line bg-bg text-muted opacity-50'
+							: rated === 'good'
+								? 'cursor-pointer border-good bg-good/10 hover:bg-good/20'
+								: rated === 'bad'
+									? 'cursor-pointer border-danger bg-danger/10 hover:bg-danger/20'
+									: 'cursor-pointer border-line bg-surface hover:border-accent'}"
+						title={category === 'other' ? undefined : m.ratings[rated]}
 					>
-						<input type="radio" name="location" value={key} bind:group={location} class="sr-only" />
+						<input
+							type="radio"
+							name="location"
+							value={key}
+							bind:group={location}
+							onchange={() => (locationChosen = true)}
+							disabled={rated === 'never'}
+							class="sr-only"
+						/>
 						<Icon size={18} class="shrink-0" />
 						{m.locations[key]}
+						{#if category !== 'other'}<span class="sr-only">({m.ratings[rated]})</span>{/if}
 					</label>
 				{/each}
 			</div>
+			{#if category !== 'other'}
+				<p class="mt-1.5 text-xs text-muted">{m.item.locationLegend}</p>
+			{/if}
 		</fieldset>
 
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.item.bestBeforeOptional}</span>
-			<input type="date" name="bestBefore" value={initial.bestBefore ?? ''} />
-		</label>
+		<div class="flex flex-col gap-1">
+			<label for="bestBefore" class="flex items-baseline justify-between text-sm font-medium">
+				{guide ? m.item.bestBeforeSuggested : m.item.bestBeforeOptional}
+				{#if days !== null && days >= 0}<span class="font-normal text-muted"
+						>{m.item.days(days)}</span
+					>{/if}
+			</label>
+			<input
+				id="bestBefore"
+				type="date"
+				name="bestBefore"
+				bind:value={bestBefore}
+				oninput={() => (dateManual = true)}
+			/>
+			<input type="hidden" name="dateManual" value={dateManual ? '1' : ''} />
+			{#if dateManual && suggested && suggested !== bestBefore}
+				<button
+					type="button"
+					class="-ml-2 self-start btn-quiet"
+					onclick={() => (dateManual = false)}
+				>
+					{m.item.useSuggestion} ({formatDate(suggested)})
+				</button>
+			{/if}
+			<!-- Wherever a date is suggested, say what it is worth -->
+			<p class="text-xs text-muted">
+				{#if guide}
+					{vacuumed ? m.item.guideHintVacuum : m.item.guideHint}
+				{:else}
+					{m.item.noGuide}
+				{/if}
+			</p>
+		</div>
 
 		<div>
 			<label for="fill" class="text-sm font-medium">{m.item.fill}</label>

@@ -66,6 +66,15 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Der große Scan-Knopf steht nur auf der Startseite (Vorrat), nicht auf den anderen Seiten.
 - Startseite: einfache Vorratsliste, sortiert nach Datum (ohne Datum zuletzt). Filter, Hervorhebung und Tabellenansicht folgen mit dem Inventar-Punkt.
 
+## Haltbarkeit
+
+- Alles unter `src/lib/food/`: `categories.ts` (25 Kategorien, Einstufung der Lagerorte: gut / möglich / schlecht / gesperrt), `shelfLife.ts` (Richtwerte in Tagen je Kategorie × Lagerort × offen/vakuumiert, **jeder Wert mit Quelle**), `dictionary.ts` (Name → Kategorie, de/en).
+- **Die Richtwerte sind bewusst vorsichtig und mit dem User abgestimmt – nicht ohne Rückfrage lockern.** Reihenfolge der Quellen: deutsche Stellen (BVL, BfR, BZfE, BMEL, Verbraucherzentrale), USDA FoodKeeper für Lücken, unteres Ende einer Spanne, bei zwei Angaben die vorsichtigere. Null-Grad-Zone und Vakuum sind eigene Schätzungen (`est`, `vac`).
+- **Roher Fisch, Meeresfrüchte, Geflügel und Hackfleisch bekommen gekühlt keinen Vakuum-Aufschlag** (nur im Gefrierschrank); Verderbliches im Kühlschrank auch vakuumiert höchstens 10 Tage. Tests sichern das ab.
+- Wörterbuch: Gerichte gehen vor („Linsensuppe“), der letzte Wortteil entscheidet („Zwiebelkuchen“), Teilstücke zählen nur ohne Tier („Putenschnitzel“). Korrekturen des Users je Name landen in `food_memory` und gehen dem Wörterbuch vor.
+- Formular: Kategorie aus dem Namen (antippbar, Auswahl mit Beispielzeile), Lagerorte eingefärbt, gesperrte nicht wählbar (prüft auch der Server), bester vorausgewählt. Das Datum folgt Kategorie, Lagerort und Vakuum, bis es von Hand gesetzt wird (`date_manual`); dann „Vorschlag übernehmen“.
+- **Überall, wo ein Datum vorgeschlagen wird, steht der Hinweis „Richtwert, keine Garantie – immer selbst prüfen“.**
+
 ## Sicherheit
 
 - Start über `start.js`: `ORIGIN` darf mehrere Adressen (kommagetrennt) enthalten. Die eigene Origin-Prüfung in `hooks.server.ts` ersetzt SvelteKits CSRF-Check. Ohne `ORIGIN` scheitern Formulare im Container mit 403 – deshalb Pflicht.

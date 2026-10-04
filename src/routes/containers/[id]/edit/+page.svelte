@@ -12,6 +12,8 @@
 	<ItemForm
 		initial={data.item}
 		source={data.container.source}
+		from={data.from}
+		memory={data.memory}
 		submitLabel={m.common.save}
 		cancelHref="/containers/{data.container.id}"
 		error={form?.error}

@@ -13,6 +13,7 @@
 	--on-accent: #ffffff;
 	--danger: #b3261e;
 	--warn: #8a5a00;
+	--good: #2c8a4b;
 	/* Gradient of the "hd" in the wordmark – the same in light and dark */
 	--brand-from: #149a6b;
 	--brand-to: #b3d94d;
@@ -28,6 +29,7 @@
 		--on-accent: #0c1a14;
 		--danger: #ff8a80;
 		--warn: #f2c14e;
+		--good: #6fd08c;
 	}
 }
 
@@ -47,6 +49,7 @@
 	--color-on-accent: var(--on-accent);
 	--color-danger: var(--danger);
 	--color-warn: var(--warn);
+	--color-good: var(--good);
 }
 
 body {

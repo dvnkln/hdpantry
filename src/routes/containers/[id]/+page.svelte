@@ -33,6 +33,10 @@
 		<section class="mt-4 flex items-center gap-4 rounded-xl border border-line bg-surface p-4">
 			<FillGauge level={item.fill} source={container.source} size={64} />
 			<dl class="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
+				{#if item.category && item.category !== 'other'}
+					<dt class="text-muted">{m.item.category}</dt>
+					<dd>{m.categories[item.category]}</dd>
+				{/if}
 				<dt class="text-muted">{m.item.location}</dt>
 				<dd class="flex items-center gap-1.5">
 					<Icon size={16} class="shrink-0 text-muted" />

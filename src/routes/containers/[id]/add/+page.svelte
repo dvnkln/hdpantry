@@ -17,11 +17,16 @@
 			vacuumed: true,
 			location: data.location,
 			bestBefore: null,
+			dateManual: false,
+			category: 'other',
+			icon: null,
 			fill: 'full',
 			amount: null,
 			unit: null
 		}}
 		source={data.container.source}
+		from={data.today}
+		memory={data.memory}
 		history={data.history}
 		submitLabel={m.item.add}
 		cancelHref="/"
