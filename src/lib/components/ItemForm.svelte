@@ -16,7 +16,13 @@
 		type ItemValues,
 		type Unit
 	} from '$lib/items';
-	import { CATEGORIES, bestLocation, rating, type Category } from '$lib/food/categories';
+	import {
+		CATEGORIES,
+		bestLocation,
+		rating,
+		type Category,
+		type Rating
+	} from '$lib/food/categories';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
 	import { simplify, suggestCategory, suggestIcon } from '$lib/food/dictionary';
 	import { ICONS } from '$lib/food/icons';
@@ -88,6 +94,14 @@
 	let dateManual = $state(initial.dateManual);
 	// svelte-ignore state_referenced_locally
 	let bestBefore = $state(initial.bestBefore ?? '');
+	// Patches of the legend under the places of storage, in this order
+	const RATING_ORDER: Rating[] = ['good', 'ok', 'bad', 'never'];
+	const SWATCH: Record<Rating, string> = {
+		good: 'border-good bg-good/25',
+		ok: 'border-line bg-surface',
+		bad: 'border-caution bg-caution/25',
+		never: 'border-dashed border-muted/60 bg-bg'
+	};
 	let choosing = $state(false);
 	let pickingIcon = $state(false);
 	// The symbol shown: the one picked by hand, else what name and kind of food suggest
@@ -350,11 +364,11 @@
 					<label
 						class="flex items-center gap-2 rounded-lg border p-3 text-sm transition-colors has-checked:font-semibold has-checked:ring-2 has-checked:ring-accent has-focus-visible:outline-2 has-focus-visible:outline-accent {rated ===
 						'never'
-							? 'cursor-not-allowed border-line bg-bg text-muted opacity-50'
+							? 'cursor-not-allowed border-dashed border-muted/60 bg-bg text-muted/70'
 							: rated === 'good'
 								? 'cursor-pointer border-good bg-good/10 hover:bg-good/20'
 								: rated === 'bad'
-									? 'cursor-pointer border-danger bg-danger/10 hover:bg-danger/20'
+									? 'cursor-pointer border-caution bg-caution/10 hover:bg-caution/20'
 									: 'cursor-pointer border-line bg-surface hover:border-accent'}"
 						title={category === 'other' ? undefined : m.ratings[rated]}
 					>
@@ -374,7 +388,16 @@
 				{/each}
 			</div>
 			{#if category !== 'other'}
-				<p class="mt-1.5 text-xs text-muted">{m.item.locationLegend}</p>
+				<!-- What the colours mean: a small patch per rating that occurs for this kind of food -->
+				<ul class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+					{#each RATING_ORDER.filter( (r) => LOCATIONS.some((l) => rating(category, l) === r) ) as rated (rated)}
+						<li class="flex items-center gap-1.5">
+							<span class="size-3.5 shrink-0 rounded border {SWATCH[rated]}" aria-hidden="true"
+							></span>
+							{m.ratings[rated]}
+						</li>
+					{/each}
+				</ul>
 			{/if}
 		</fieldset>
 

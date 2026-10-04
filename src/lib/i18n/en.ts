@@ -41,7 +41,36 @@ export const en: Messages = {
 		empty: 'Nothing in stock yet',
 		emptyHint: 'Scan a container or bag to record its first content.',
 		scan: 'Scan',
-		title: 'In stock'
+		title: 'In stock',
+		all: 'All',
+		filter: 'Filter by place of storage',
+		nothingHere: 'Nothing is stored here.',
+		summary: (total: number, soon: number, expired: number) =>
+			[
+				total === 1 ? '1 item' : `${total} items`,
+				soon ? (soon === 1 ? '1 expires soon' : `${soon} expire soon`) : '',
+				expired ? `${expired} expired` : ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		// How far away a best-before date is, in words
+		relative: (days: number) =>
+			days === 0
+				? 'today'
+				: days === 1
+					? 'tomorrow'
+					: days > 60
+						? `in ${Math.round(days / 30)} months`
+						: days > 1
+							? `in ${days} days`
+							: days === -1
+								? 'expired yesterday'
+								: `expired ${-days} days ago`,
+		expired: 'expired',
+		sortBy: 'Sort by',
+		sortKeys: { date: 'Best before', name: 'Name', location: 'Stored in' },
+		reverse: 'Reverse the order',
+		columns: { amount: 'Fill level', container: 'Container' }
 	},
 
 	scan: {
@@ -184,7 +213,7 @@ export const en: Messages = {
 		dry_goods: 'rice, pasta, flour, lentils, nuts, coffee',
 		other: 'anything without a guide value – no date is suggested'
 	},
-	ratings: { good: 'recommended', ok: 'possible', bad: 'not recommended', never: 'not suitable' },
+	ratings: { good: 'recommended', ok: 'possible', bad: 'not recommended', never: 'not possible' },
 
 	item: {
 		addTitle: 'New content',
@@ -213,8 +242,6 @@ export const en: Messages = {
 		guideHintVacuum:
 			'A guide value, not a guarantee – always check before eating. The extra time for vacuum-sealing is a cautious estimate.',
 		noGuide: 'There is no guide value for this kind of food – enter a date if you know one.',
-		locationLegend:
-			'Green: recommended · Red: not recommended · Grey: not suitable for this kind of food',
 		fill: 'Fill level',
 		amount: 'Amount',
 		addAmount: 'Add an amount',

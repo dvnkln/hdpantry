@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import EatenIcon from '$lib/components/EatenIcon.svelte';
 	import FillGauge from '$lib/components/FillGauge.svelte';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
 	import { suggestIcon } from '$lib/food/dictionary';
 	import { codeLabel } from '$lib/containers';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
-	import { Pencil, Utensils } from '@lucide/svelte';
+	import { Pencil } from '@lucide/svelte';
 
 	let { data } = $props();
 	let container = $derived(data.container);
@@ -79,7 +80,7 @@
 				class="mt-4 flex w-full items-center justify-center gap-2 btn-primary"
 				onclick={() => (confirmEaten = true)}
 			>
-				<Utensils size={18} />
+				<EatenIcon size={24} />
 				{m.item.eaten}
 			</button>
 		{/if}

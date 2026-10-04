@@ -43,7 +43,8 @@ export function listStock() {
 			unit: items.unit,
 			code: containers.code,
 			size: containers.size,
-			source: containers.source
+			source: containers.source,
+			createdAt: items.createdAt
 		})
 		.from(items)
 		.innerJoin(containers, eq(items.containerId, containers.id))

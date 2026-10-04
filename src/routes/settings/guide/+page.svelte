@@ -61,7 +61,7 @@
 								class="p-2 whitespace-nowrap {rated === 'good'
 									? 'text-good'
 									: rated === 'bad'
-										? 'text-danger'
+										? 'text-caution'
 										: ''}"
 								title={m.ratings[rated]}
 							>
@@ -79,7 +79,21 @@
 			</tbody>
 		</table>
 	</div>
-	<p class="mt-2 text-xs text-muted">{m.item.locationLegend}</p>
+	<ul class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+		<li class="flex items-center gap-1.5">
+			<span class="size-3.5 rounded border border-good bg-good/25" aria-hidden="true"></span>
+			{m.ratings.good}
+		</li>
+		<li class="flex items-center gap-1.5">
+			<span class="size-3.5 rounded border border-line bg-surface" aria-hidden="true"></span>
+			{m.ratings.ok}
+		</li>
+		<li class="flex items-center gap-1.5">
+			<span class="size-3.5 rounded border border-caution bg-caution/25" aria-hidden="true"></span>
+			{m.ratings.bad}
+		</li>
+		<li class="flex items-center gap-1.5">– {m.ratings.never}</li>
+	</ul>
 
 	<h2 class="mt-8 font-semibold">{m.guide.sources}</h2>
 	<ol class="mt-2 list-decimal space-y-1 pl-5 text-sm">

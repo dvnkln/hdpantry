@@ -16,7 +16,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions and a simple stock list work; the full inventory, settings for language and colour scheme, and export are still missing. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions and the stock list work; settings for language and colour scheme, and export are still missing. There is no release and no published image. This page grows with the app.
 
 ## 📖 Documentation
 
@@ -33,7 +33,7 @@ Working today:
 - 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
 - 📅 **Shelf life** – the kind of food and a symbol are suggested from its name (German and English; your corrections are remembered). Suitable places of storage are marked, unsuitable ones locked, and a best-before date is suggested from the kind of food, the place and whether it is vacuum-sealed – [guide values, not a guarantee](#shelf-life-guide-values-not-guarantees).
 - 🎨 **Symbols in two styles** – colourful or plain line icons, your choice.
-- 📋 **In stock** – everything you have, what expires first at the top.
+- 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts; at present hdpantry does not connect to any outside service at all.
 - 🛡️ **Protected login** – repeated wrong passwords block the address they come from.
 - 🌍 **English and German** – follows your browser on first start, chosen during set-up.
@@ -41,7 +41,6 @@ Working today:
 
 Being built for the first version:
 
-- 📋 **Inventory** – filter by place of storage, what expires soon highlighted, a wide table on computers.
 - 📤 **Export and import** – your data as a file.
 
 ## Shelf life: guide values, not guarantees

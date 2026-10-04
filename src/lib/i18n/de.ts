@@ -42,7 +42,36 @@ export const de = {
 		empty: 'Noch nichts im Vorrat',
 		emptyHint: 'Scanne einen Behälter oder Beutel, um den ersten Inhalt zu erfassen.',
 		scan: 'Scannen',
-		title: 'Vorrat'
+		title: 'Vorrat',
+		all: 'Alle',
+		filter: 'Nach Lagerort filtern',
+		nothingHere: 'An diesem Lagerort ist nichts.',
+		summary: (total: number, soon: number, expired: number) =>
+			[
+				total === 1 ? '1 Inhalt' : `${total} Inhalte`,
+				soon ? (soon === 1 ? '1 läuft bald ab' : `${soon} laufen bald ab`) : '',
+				expired ? `${expired} abgelaufen` : ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		// How far away a best-before date is, in words
+		relative: (days: number) =>
+			days === 0
+				? 'heute'
+				: days === 1
+					? 'morgen'
+					: days > 60
+						? `in ${Math.round(days / 30)} Monaten`
+						: days > 1
+							? `in ${days} Tagen`
+							: days === -1
+								? 'seit gestern abgelaufen'
+								: `seit ${-days} Tagen abgelaufen`,
+		expired: 'abgelaufen',
+		sortBy: 'Sortieren nach',
+		sortKeys: { date: 'Haltbar bis', name: 'Name', location: 'Lagerort' },
+		reverse: 'Reihenfolge umkehren',
+		columns: { amount: 'Füllstand', container: 'Behälter' }
 	},
 
 	scan: {
@@ -185,7 +214,7 @@ export const de = {
 		dry_goods: 'Reis, Nudeln, Mehl, Linsen, Nüsse, Kaffee',
 		other: 'alles, wofür es keinen Richtwert gibt – ohne Datumsvorschlag'
 	},
-	ratings: { good: 'empfohlen', ok: 'möglich', bad: 'nicht empfohlen', never: 'nicht geeignet' },
+	ratings: { good: 'empfohlen', ok: 'möglich', bad: 'nicht empfohlen', never: 'nicht möglich' },
 
 	item: {
 		addTitle: 'Neuer Inhalt',
@@ -215,8 +244,6 @@ export const de = {
 			'Richtwert, keine Garantie – vor dem Essen immer selbst prüfen. Der Aufschlag fürs Vakuumieren ist eine vorsichtige Schätzung.',
 		noGuide:
 			'Für diese Kategorie gibt es keinen Richtwert – trag ein Datum ein, wenn du eines kennst.',
-		locationLegend:
-			'Grün: empfohlen · Rot: nicht empfohlen · Grau: für diese Kategorie nicht geeignet',
 		fill: 'Füllstand',
 		amount: 'Menge',
 		addAmount: 'Menge hinzufügen',

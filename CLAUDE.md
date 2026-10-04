@@ -64,7 +64,8 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Kein Foto-Upload. Optionale Notiz je Inhalt: im Formular eine unauffällige Zeile direkt unter dem Namen, ohne Rahmen und Überschrift. Optionales bleibt dezent: Die Menge erscheint erst über „Menge hinzufügen“.
 - Knöpfe nur zeigen, wenn die Aktion gerade möglich ist; sonst gleich den Grund nennen (Beispiel: Zusammenführen bei zwei gefüllten Behältern).
 - Der große Scan-Knopf steht nur auf der Startseite (Vorrat), nicht auf den anderen Seiten.
-- Startseite: einfache Vorratsliste, sortiert nach Datum (ohne Datum zuletzt). Filter, Hervorhebung und Tabellenansicht folgen mit dem Inventar-Punkt.
+- Startseite = Vorrat (`src/routes/+page.svelte`, Regeln in `src/lib/stock.ts`): Filter nach Lagerort und Sortierung (Haltbar bis, Name, Lagerort; nochmal antippen dreht um) stehen in der Adresse (`?place=&sort=&dir=`). Abgelaufenes rot, „läuft bald ab“ (bis `SOON_DAYS` = 3 Tage) gelb, dazu das Datum in Worten. Die Filterknöpfe zeigen unter 640 px nur Symbol und Anzahl. Bis 1024 px Karten (ab 768 px zweispaltig), darüber eine Tabelle mit sortierbaren Spaltenköpfen, die ganze Zeile ist anklickbar; die Spalten Vakuumiert, Behälter und Seit erst ab 1280 px. Inhalte ohne Datum stehen immer am Ende. Keine Suche, kein „Gegessen“ direkt aus der Liste.
+- Raster am Handy immer mit `grid-cols-1` anlegen – sonst machen lange Namen die Seite breiter als den Bildschirm.
 
 ## Haltbarkeit
 
@@ -72,7 +73,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - **Die Richtwerte sind bewusst vorsichtig und mit dem User abgestimmt – nicht ohne Rückfrage lockern.** Reihenfolge der Quellen: deutsche Stellen (BVL, BfR, BZfE, BMEL, Verbraucherzentrale), USDA FoodKeeper für Lücken, unteres Ende einer Spanne, bei zwei Angaben die vorsichtigere. Null-Grad-Zone und Vakuum sind eigene Schätzungen (`est`, `vac`).
 - **Roher Fisch, Meeresfrüchte, Geflügel und Hackfleisch bekommen gekühlt keinen Vakuum-Aufschlag** (nur im Gefrierschrank); Verderbliches im Kühlschrank auch vakuumiert höchstens 10 Tage. Tests sichern das ab.
 - Wörterbuch: Gerichte gehen vor („Linsensuppe“), der letzte Wortteil entscheidet („Zwiebelkuchen“), Teilstücke zählen nur ohne Tier („Putenschnitzel“). Korrekturen des Users je Name landen in `food_memory` und gehen dem Wörterbuch vor.
-- Formular: Kategorie aus dem Namen (antippbar, Auswahl mit Beispielzeile), Lagerorte eingefärbt, gesperrte nicht wählbar (prüft auch der Server), bester vorausgewählt. Das Datum folgt Kategorie, Lagerort und Vakuum, bis es von Hand gesetzt wird (`date_manual`); dann „Vorschlag übernehmen“.
+- Formular: Kategorie aus dem Namen (antippbar, Auswahl mit Beispielzeile), Lagerorte in vier Zuständen, die sich klar unterscheiden müssen: grün = empfohlen, ohne Farbe = möglich, orange = nicht empfohlen (nie rot, das hieße „verboten“), gestrichelter Rand mit blasser Schrift = nicht möglich und nicht wählbar (keine Schraffur, war zu laut) (prüft auch der Server). Darunter eine Legende aus kleinen Farbfeldern, nur mit den Zuständen, die bei der Kategorie vorkommen. Der beste Lagerort ist vorausgewählt. Das Datum folgt Kategorie, Lagerort und Vakuum, bis es von Hand gesetzt wird (`date_manual`); dann „Vorschlag übernehmen“.
 - **Überall, wo ein Datum vorgeschlagen wird, steht der Hinweis „Richtwert, keine Garantie – immer selbst prüfen“.**
 - Symbole (`src/lib/food/icons.ts`, `FoodIcon.svelte`): zwei Stile, umschaltbar in den Einstellungen (`iconStyle`) – farbig = Twemoji (CC BY 4.0, Namensnennung in README und App Pflicht), schlicht = Lucide/Tabler als Maske in Textfarbe. Die Dateien liegen fertig unter `static/food/` und werden mit `scripts/food-icons.mjs` aus der Liste erzeugt (Pakete dafür nur vorübergehend installieren, keine Projekt-Abhängigkeit). Symbol je Inhalt: von Hand gewählt (`items.icon`) oder aus Name und Kategorie (`suggestIcon()`).
 - Seite `/settings/guide` zeigt Tabelle, Quellen und Hinweis; README hat denselben Hinweis samt Quellenliste. Ändern sich Werte oder Quellen: `shelfLife.ts`, README und Wiki-Seite „Shelf life guide values“ zusammen anpassen.
@@ -116,8 +117,8 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 2. Scanner, Code-Parser, Behälterverwaltung – ✅
 3. Erfassung (alle Felder von Hand), Bearbeiten, „Gegessen“, Verlauf je Behälter als Vorlage, einfache Vorratsliste – ✅
 4. Haltbarkeit: Kategorie und Symbol aus dem Namen, eingefärbte Lagerorte, berechnetes Datum, Richtwerte mit Quellen – ✅
-5. Scan-Ablauf, Rest: „ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
-6. Inventar
+5. Inventar: Filter, Hervorhebung, Sortierung, Tabelle am PC – ✅
+6. „Ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
 7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste). Dazu gehören vor dem ersten Release:
    - Sprache der Oberfläche nachträglich ändern (Deutsch/Englisch; bisher nur im Einrichtungs-Wizard wählbar)
    - Farbschema wählen: System (folgt dem Gerät, Standard), Dunkel, Hell – mit kleiner Vorschau je Schema. Technik: Attribut `data-theme` am `<html>`, vom Server direkt ins HTML geschrieben (kein Aufblitzen), die Login-Seite merkt sich das Schema des Geräts per Cookie; die Farbwerte in `layout.css` dafür auf `[data-theme]`-Blöcke umstellen
