@@ -1,5 +1,7 @@
 # Local data (database, screenshots): never committed
 data/
+# ...but the settings page of the same name is code
+!/src/routes/settings/data/
 
 node_modules
 
