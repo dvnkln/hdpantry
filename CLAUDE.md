@@ -6,7 +6,7 @@ Self-hosted Vorrats-Tracker für wiederverwendbare Vakuumbehälter und -beutel m
 
 - Antworten auf Deutsch; jede Änderung in 1–2 Sätzen ohne Fachjargon erklären.
 - Kleine Schritte. Vor größeren Aufgaben einen Plan vorlegen, nach jedem Schritt stoppen und erklären, wie man testet. Bei Unklarheiten nachfragen.
-- Vor jedem Commit fragen; nach dem Okay selbst committen.
+- Vor jedem Commit fragen; nach dem Okay selbst committen und im selben Zug pushen.
 - Diese Datei bleibt schlank (Richtwert unter 150 Zeilen): nur Regeln und Entscheidungen, die jede Session braucht. Details in Code-Kommentare, Anleitungen ins Wiki. Wird sie länger: kürzen statt anhängen. Keine Angaben über Personen, lokale Pfade oder Rechner.
 
 ## Unverhandelbar
