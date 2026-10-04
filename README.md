@@ -69,11 +69,11 @@ hdpantry suggests a best-before date so you keep track of what to eat first. **T
 | :-------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :----------------------------------------------------------------------: |
 | <img src="docs/screenshots/stock.jpg" alt="Stock list" width="260" /> | <img src="docs/screenshots/form.jpg" alt="Form for a new content" width="260" /> | <img src="docs/screenshots/details.jpg" alt="Detail page" width="260" /> |
 
-|                                    Guide values                                    |                                        Appearance                                         |                                              Dark                                              |
-| :--------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
-| <img src="docs/screenshots/guide.jpg" alt="Shelf-life guide values" width="260" /> | <img src="docs/screenshots/appearance.jpg" alt="Colour scheme and symbols" width="260" /> | <img src="docs/screenshots/dark.jpg" alt="Stock list in the dark colour scheme" width="260" /> |
+|                                    Guide values                                    |                                        Appearance                                         |                                Settings                                |
+| :--------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| <img src="docs/screenshots/guide.jpg" alt="Shelf-life guide values" width="260" /> | <img src="docs/screenshots/appearance.jpg" alt="Colour scheme and symbols" width="260" /> | <img src="docs/screenshots/settings.jpg" alt="Settings" width="260" /> |
 
-<p align="center"><sub>Screenshots with an invented demo stock. Colourful symbols: Twemoji.</sub></p>
+<p align="center"><sub>Screenshots in the dark colour scheme, with an invented demo stock. Colourful symbols: Twemoji.</sub></p>
 
 ## 🐳 Quick start
 
