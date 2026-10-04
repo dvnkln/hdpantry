@@ -7,7 +7,7 @@
 	import { codeLabel } from '$lib/containers';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
-	import { Pencil } from '@lucide/svelte';
+	import { Pencil, Replace } from '@lucide/svelte';
 
 	let { data } = $props();
 	let container = $derived(data.container);
@@ -75,14 +75,24 @@
 				</form>
 			</div>
 		{:else}
-			<button
-				type="button"
-				class="mt-4 flex w-full items-center justify-center gap-2 btn-primary"
-				onclick={() => (confirmEaten = true)}
-			>
-				<EatenIcon size={24} />
-				{m.item.eaten}
-			</button>
+			<div class="mt-4 flex gap-2">
+				<button
+					type="button"
+					class="flex flex-1 items-center justify-center gap-2 btn-primary"
+					onclick={() => (confirmEaten = true)}
+				>
+					<EatenIcon size={24} />
+					{m.item.eaten}
+				</button>
+				<!-- Eaten and filled again in one go -->
+				<a
+					href="/containers/{container.id}/add?replace=1"
+					class="flex flex-1 items-center justify-center gap-2 btn-secondary"
+				>
+					<Replace size={18} />
+					{m.item.replace}
+				</a>
+			</div>
 		{/if}
 	{:else}
 		<h1 class="text-2xl font-bold">{m.containers.emptyTitle}</h1>

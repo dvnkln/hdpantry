@@ -89,6 +89,22 @@ export function removeActiveItem(containerId: number) {
 	);
 }
 
+// Replaces what is in the container: the old content becomes history, the new one goes in –
+// both or neither. An empty container is simply filled.
+export function replaceItem(containerId: number, values: ItemValues) {
+	return getDb().transaction((tx) => {
+		tx.update(items)
+			.set({ removedAt: new Date() })
+			.where(and(eq(items.containerId, containerId), isNull(items.removedAt)))
+			.run();
+		return tx
+			.insert(items)
+			.values({ containerId, ...values })
+			.returning()
+			.get();
+	});
+}
+
 // Where the latest content was put – preselected in the form.
 export function lastLocation(): Location {
 	const row = getDb()

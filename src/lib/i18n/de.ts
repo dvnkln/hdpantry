@@ -221,6 +221,10 @@ export const de = {
 		editTitle: 'Inhalt bearbeiten',
 		edit: 'Bearbeiten',
 		eaten: 'Gegessen',
+		replace: 'Ersetzen',
+		replaceTitle: 'Inhalt ersetzen',
+		replaceHint: (name: string) =>
+			`„${name}“ wird beim Speichern als gegessen vermerkt. Brichst du ab, bleibt alles, wie es ist.`,
 		eatenQuestion: (name: string) => `„${name}“ ist gegessen? Der Behälter ist danach leer.`,
 		eatenConfirm: 'Ja, gegessen',
 		history: 'Zuletzt in diesem Behälter',

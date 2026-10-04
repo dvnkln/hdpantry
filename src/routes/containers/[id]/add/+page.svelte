@@ -5,10 +5,17 @@
 	let { data, form } = $props();
 </script>
 
-<svelte:head><title>{m.item.addTitle} · hdpantry</title></svelte:head>
+<svelte:head>
+	<title>{data.replacing ? m.item.replaceTitle : m.item.addTitle} · hdpantry</title>
+</svelte:head>
 
 <main class="mx-auto max-w-md px-4 py-6">
-	<h1 class="mb-4 text-xl font-bold">{m.item.addTitle}</h1>
+	<h1 class="text-xl font-bold">{data.replacing ? m.item.replaceTitle : m.item.addTitle}</h1>
+	{#if data.replacing}
+		<!-- Nothing happens to the old content until the new one is saved -->
+		<p class="mt-1 text-sm text-muted">{m.item.replaceHint(data.replacing)}</p>
+	{/if}
+	<div class="mt-4"></div>
 	<ItemForm
 		nameFirst
 		initial={{
@@ -29,7 +36,7 @@
 		memory={data.memory}
 		history={data.history}
 		submitLabel={m.item.add}
-		cancelHref="/"
+		cancelHref={data.replacing ? `/containers/${data.container.id}` : '/'}
 		error={form?.error}
 	/>
 </main>

@@ -220,6 +220,10 @@ export const en: Messages = {
 		editTitle: 'Edit content',
 		edit: 'Edit',
 		eaten: 'Eaten',
+		replace: 'Replace',
+		replaceTitle: 'Replace content',
+		replaceHint: (name: string) =>
+			`“${name}” is marked as eaten when you save. If you cancel, everything stays as it is.`,
 		eatenQuestion: (name: string) => `“${name}” is eaten? The container will be empty.`,
 		eatenConfirm: 'Yes, eaten',
 		history: 'Last in this container',

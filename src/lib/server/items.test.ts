@@ -10,6 +10,7 @@ import {
 	lastLocation,
 	listStock,
 	removeActiveItem,
+	replaceItem,
 	updateActiveItem
 } from './items';
 
@@ -83,6 +84,20 @@ it('eaten: the container is empty again and can take something new', () => {
 	expect(removeActiveItem(bag.id)).toBe(false);
 	expect(listStock().map((i) => i.name)).not.toContain('Red lentils');
 	expect(addItem(bag.id, { ...lentils, name: 'Bread' })?.name).toBe('Bread');
+});
+
+it('replacing puts the old content into the history and the new one in', () => {
+	const jar = openTyped('REPL1')!;
+	addItem(jar.id, { ...lentils, name: 'Old' });
+	expect(replaceItem(jar.id, { ...lentils, name: 'New' }).name).toBe('New');
+	expect(activeItem(jar.id)?.name).toBe('New');
+	expect(containerHistory(jar.id).map((i) => i.name)).toEqual(['Old']);
+	// an empty container is simply filled
+	const empty = openTyped('REPL2')!;
+	expect(replaceItem(empty.id, { ...lentils, name: 'First' }).name).toBe('First');
+	expect(containerHistory(empty.id)).toEqual([]);
+	deleteContainer(jar.id);
+	deleteContainer(empty.id);
 });
 
 it('history of a container: the latest first, only what was taken out', () => {
