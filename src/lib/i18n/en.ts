@@ -268,8 +268,21 @@ export const en: Messages = {
 		title: 'Settings',
 		groupPersonal: 'Personal',
 		groupStock: 'Stock',
+		general: 'General',
+		generalHint: 'Language, scanning, “expires soon”',
+		language: 'Language',
+		scanning: 'Scanning',
+		vibration: 'Vibrate when a code is recognised',
+		vibrationHint:
+			'Only works if your phone allows haptic feedback – that cannot be bypassed from here.',
+		soon: '“Expires soon”',
+		soonHint: 'How many days before its date an item is highlighted in the stock list.',
+		days: (n: number) => (n === 1 ? '1 day' : `${n} days`),
 		appearance: 'Appearance',
-		appearanceHint: 'Symbols',
+		appearanceHint: 'Colour scheme, symbols',
+		theme: 'Colour scheme',
+		themeHint: '“System” follows the setting of your device.',
+		themes: { system: 'System', dark: 'Dark', light: 'Light' },
 		containersShort: 'Delete, change code, merge',
 		guideShort: 'Table of shelf lives with sources',
 		aboutHint: 'Version, links, licence',
@@ -349,11 +362,12 @@ export const en: Messages = {
 	},
 
 	about: {
-		title: 'About hdpantry',
+		title: 'About',
 		version: (v: string) => `Version ${v}`,
 		text: 'A self-hosted pantry tracker for reusable vacuum containers and bags with a QR code.',
 		private:
 			'hdpantry runs on your own server and makes no connection to the outside by itself. The links below only open another site when you tap them.',
+		links: 'Links',
 		docs: 'Documentation (wiki)',
 		source: 'Source code on GitHub',
 		issues: 'Report a bug or suggest an idea',
@@ -364,7 +378,8 @@ export const en: Messages = {
 		lucide: 'line icons, ISC License',
 		tabler: 'more line icons, MIT License',
 		outfit: 'font of the wordmark, SIL Open Font License',
-		bundled: 'All of it is part of the app; nothing is loaded from elsewhere.'
+		bundled: 'All of it is part of the app; nothing is loaded from elsewhere.',
+		ai: 'Built with the help of AI (Claude Code).'
 	},
 
 	errorPage: {

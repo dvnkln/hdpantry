@@ -1,9 +1,21 @@
 @import 'tailwindcss';
 
 /* Colours of the interface. Pages only use these names (bg-surface, text-muted, …), never
-   fixed colour values, so light and dark stay in step. The app follows the device. */
+   fixed colour values, so all colour schemes stay in step.
+
+   The scheme is the attribute data-theme, written into <html> by the server (hooks.server.ts):
+   'light', 'dark' or 'system' (follows the device). It also works on any other element – the
+   previews in the settings use that. */
 :root {
-	color-scheme: light dark;
+	/* Gradient of the "hd" in the wordmark – the same in every scheme */
+	--brand-from: #149a6b;
+	--brand-to: #b3d94d;
+}
+
+:root,
+[data-theme='light'],
+[data-theme='system'] {
+	color-scheme: light;
 	--bg: #f6f7f4;
 	--surface: #ffffff;
 	--line: #dfe3dc;
@@ -16,12 +28,27 @@
 	--good: #2c8a4b;
 	/* "not recommended": orange, not red – red would say "must not" */
 	--caution: #c2570a;
-	/* Gradient of the "hd" in the wordmark – the same in light and dark */
-	--brand-from: #149a6b;
-	--brand-to: #b3d94d;
 }
+
+[data-theme='dark'] {
+	color-scheme: dark;
+	--bg: #111513;
+	--surface: #1a201d;
+	--line: #2c3530;
+	--text: #e8ede9;
+	--muted: #9aa79f;
+	--accent: #5fd0a5;
+	--on-accent: #0c1a14;
+	--danger: #ff8a80;
+	--warn: #f2c14e;
+	--good: #6fd08c;
+	--caution: #fb923c;
+}
+
+/* 'system' on a device set to dark: the same values as the dark block above – keep both in step */
 @media (prefers-color-scheme: dark) {
-	:root {
+	[data-theme='system'] {
+		color-scheme: dark;
 		--bg: #111513;
 		--surface: #1a201d;
 		--line: #2c3530;
@@ -34,6 +61,11 @@
 		--good: #6fd08c;
 		--caution: #fb923c;
 	}
+}
+
+/* An element with a scheme of its own (preview) is drawn in that scheme's colours */
+[data-theme] {
+	color: var(--text);
 }
 
 /* Font of the "hdpantry" wordmark only (bundled, see +layout.svelte); everything else uses the

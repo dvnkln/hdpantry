@@ -48,7 +48,7 @@
 	let stock = $derived(
 		data.stock.map((item) => ({
 			...item,
-			expiry: expiry(item.bestBefore, data.today),
+			expiry: expiry(item.bestBefore, data.today, data.soonDays),
 			iconKey: item.icon ?? suggestIcon(item.name, item.category ?? 'other')
 		}))
 	);

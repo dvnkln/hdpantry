@@ -1,0 +1,18 @@
+// Colour schemes of the interface. The colours themselves are defined in routes/layout.css,
+// in the blocks for [data-theme='…'].
+//
+// bar: colour of the browser's own bar on phones – [on light devices, on dark devices]
+export const THEMES = {
+	// Follows the device
+	system: { bar: ['#f6f7f4', '#111513'] },
+	dark: { bar: ['#111513', '#111513'] },
+	light: { bar: ['#f6f7f4', '#f6f7f4'] }
+} as const;
+
+export type Theme = keyof typeof THEMES;
+export const THEME_KEYS = Object.keys(THEMES) as Theme[];
+export const DEFAULT_THEME: Theme = 'system';
+
+export function isTheme(value: unknown): value is Theme {
+	return typeof value === 'string' && Object.hasOwn(THEMES, value);
+}

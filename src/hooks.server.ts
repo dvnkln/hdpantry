@@ -11,6 +11,8 @@ import { getSecret } from '$lib/server/config';
 import { runMigrations } from '$lib/server/db';
 import { localeFor } from '$lib/server/i18n';
 import { allowedOrigins, isAllowedOrigin, isHttps } from '$lib/server/origins';
+import { themeFor } from '$lib/server/theme';
+import { THEMES } from '$lib/themes';
 
 // Runs once when the server starts, before the first request is handled.
 export const init: ServerInit = () => {
@@ -77,11 +79,20 @@ const respond: Handle = async ({ event, resolve }) => {
 	}
 
 	event.locals.locale = localeFor(request);
-	// Fills in the placeholder of app.html
-	const render = () =>
-		resolve(event, {
-			transformPageChunk: ({ html }) => html.replace('%lang%', event.locals.locale)
+	// Fills in the placeholders of app.html: language and colour scheme. The scheme is set on
+	// the server, so a page never flashes in the wrong colours while loading.
+	const render = () => {
+		const theme = themeFor(event);
+		const [light, dark] = THEMES[theme].bar;
+		return resolve(event, {
+			transformPageChunk: ({ html }) =>
+				html
+					.replace('%lang%', event.locals.locale)
+					.replace('%theme%', theme)
+					.replace('%themeColor%', light)
+					.replace('%themeColorDark%', dark)
 		});
+	};
 
 	// No account yet: everything leads to the first-run wizard.
 	if (!hasAnyUser()) return path === '/setup' ? render() : redirectTo('/setup');

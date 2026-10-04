@@ -16,7 +16,7 @@
 {#if isOverview}<h1 class="sr-only">{m.settings.title}</h1>{/if}
 <div class="mx-auto max-w-screen-lg px-4 py-4 md:flex md:gap-8 md:py-6">
 	<nav aria-label={m.settings.title} class="hidden w-52 shrink-0 md:block">
-		<div class="sticky top-20 flex flex-col gap-5">
+		<div class="sticky top-[77px] flex flex-col gap-5">
 			{#each groups as group, i (i)}
 				<div>
 					{#if group.title}

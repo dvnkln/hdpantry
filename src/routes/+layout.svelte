@@ -6,6 +6,7 @@
 	import { page } from '$app/state';
 	import Brand from '$lib/components/Brand.svelte';
 	import { m, setLocale } from '$lib/i18n/index.svelte';
+	import { THEMES } from '$lib/themes';
 	import { LogOut, ScanLine, Settings } from '@lucide/svelte';
 
 	let { data, children } = $props();
@@ -15,6 +16,18 @@
 	// svelte-ignore state_referenced_locally
 	setLocale(data.locale);
 	$effect.pre(() => setLocale(data.locale));
+
+	// The server writes language and colour scheme into the page. When they are changed in the
+	// settings, the page is not loaded again: bring <html> and the browser's bar up to date here.
+	$effect(() => {
+		const root = document.documentElement;
+		root.lang = data.locale;
+		root.dataset.theme = data.theme;
+		const [light, dark] = THEMES[data.theme].bar;
+		const bars = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
+		if (bars[0]) bars[0].content = light;
+		if (bars[1]) bars[1].content = dark;
+	});
 
 	// First part of the address, e.g. "containers" for /containers/3
 	let section = $derived(page.url.pathname.split('/')[1]);

@@ -3,6 +3,8 @@ import { LOCATIONS, type Location } from './items';
 
 // "Expires soon" means: within this many days from today
 export const SOON_DAYS = 3;
+// What can be chosen in the settings
+export const SOON_CHOICES = [1, 2, 3, 5, 7, 14] as const;
 
 export type ExpiryLevel = 'expired' | 'soon' | 'fine' | 'none';
 
@@ -14,11 +16,12 @@ export function daysUntil(date: string, today: string) {
 // How urgent a best-before date is. No date: nothing to say.
 export function expiry(
 	bestBefore: string | null,
-	today: string
+	today: string,
+	soonDays: number = SOON_DAYS
 ): { level: ExpiryLevel; days: number | null } {
 	if (!bestBefore) return { level: 'none', days: null };
 	const days = daysUntil(bestBefore, today);
-	return { level: days < 0 ? 'expired' : days <= SOON_DAYS ? 'soon' : 'fine', days };
+	return { level: days < 0 ? 'expired' : days <= soonDays ? 'soon' : 'fine', days };
 }
 
 export const SORT_KEYS = ['date', 'name', 'location'] as const;

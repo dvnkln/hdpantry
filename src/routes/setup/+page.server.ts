@@ -6,6 +6,7 @@ import { getDb } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { serverMessages } from '$lib/server/i18n';
 import { isHttps } from '$lib/server/origins';
+import { rememberTheme } from '$lib/server/theme';
 import { setSettings } from '$lib/server/settings';
 import type { Actions } from './$types';
 
@@ -44,6 +45,7 @@ export const actions: Actions = {
 
 		const { token, expiresAt } = createSession(user.id);
 		setSessionCookie(cookies, isHttps(request, url), token, expiresAt);
+		rememberTheme(cookies, request, url); // the login page of this device follows the account
 		redirect(303, '/');
 	}
 };

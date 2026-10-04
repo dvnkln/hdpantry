@@ -18,6 +18,11 @@ describe('what expires soon', () => {
 		expect(expiry('2026-10-08', today)).toEqual({ level: 'fine', days: 4 });
 		expect(expiry(null, today)).toEqual({ level: 'none', days: null });
 	});
+	it('the threshold for "soon" can be changed', () => {
+		expect(expiry('2026-10-08', today, 7).level).toBe('soon');
+		expect(expiry('2026-10-06', today, 1).level).toBe('fine');
+		expect(expiry('2026-10-05', today, 1).level).toBe('soon');
+	});
 });
 
 describe('order of the list', () => {

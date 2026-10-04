@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { m } from '$lib/i18n/index.svelte';
 	import { readCode, type Code } from '$lib/scanner';
 	import { CameraOff } from '@lucide/svelte';
@@ -29,7 +30,7 @@
 				if (code && (code.text !== last.text || Date.now() - last.at > REPEAT_MS)) {
 					last = { text: code.text, at: Date.now() };
 					// Long enough to be felt; the phone may still suppress it (haptics off, do not disturb)
-					navigator.vibrate?.(200);
+					if (page.data.scanVibration !== false) navigator.vibrate?.(200);
 					onscan(code);
 				} else if (code) {
 					last.at = Date.now();

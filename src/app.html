@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="%lang%">
+<html lang="%lang%" data-theme="%theme%">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<!-- Colour of the browser's bar; the second one applies on devices set to dark -->
-		<meta name="theme-color" content="#f6f7f4" />
-		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111513" />
+		<meta name="theme-color" content="%themeColor%" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="%themeColorDark%" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

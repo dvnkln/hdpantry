@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Brand from '$lib/components/Brand.svelte';
 	import { m } from '$lib/i18n/index.svelte';
-	import { BookOpen, Bug, ExternalLink, ListChecks, Scale } from '@lucide/svelte';
+	import { BookOpen, Bug, ExternalLink, Link, ListChecks, Package, Scale } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -20,48 +19,64 @@
 		{ name: 'Tabler Icons', href: 'https://tabler.io/icons', text: () => m.about.tabler },
 		{ name: 'Outfit', href: 'https://github.com/Outfitio/Outfit-Fonts', text: () => m.about.outfit }
 	];
+
+	const card = 'mt-4 rounded-xl border border-line bg-surface p-4';
+	const heading = 'flex items-center gap-2 font-medium';
 </script>
 
 <svelte:head><title>{m.about.title} · hdpantry</title></svelte:head>
 
-<h1 class="sr-only">{m.about.title}</h1>
-<div class="flex flex-col items-start gap-1">
-	<Brand large />
-	<p class="text-sm text-muted">{m.about.version(data.version)}</p>
-</div>
-<p class="mt-4 text-sm">{m.about.text}</p>
-<p class="mt-2 text-sm text-muted">{m.about.private}</p>
+<h1 class="text-lg font-semibold">{m.about.title}</h1>
+
+<!-- Name, version and what it is -->
+<section class={card}>
+	<div class="flex flex-wrap items-center gap-2">
+		<h2 class="text-lg font-semibold">hdpantry</h2>
+		<span class="rounded-full border border-line px-2 py-0.5 text-xs text-muted">
+			{m.about.version(data.version)}
+		</span>
+	</div>
+	<p class="mt-1 text-sm text-muted">{m.about.text}</p>
+	<p class="mt-2 text-sm text-muted">{m.about.private}</p>
+</section>
 
 <!-- Links the reader may follow; hdpantry itself never contacts these sites -->
-<ul class="mt-6 overflow-hidden rounded-xl border border-line bg-surface">
-	{#each links as link (link.href)}
-		<li class="border-b border-line last:border-b-0">
-			<a
-				href={link.href}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-bg"
-			>
-				<link.icon size={18} class="shrink-0 text-muted" />
-				{link.label}
-			</a>
-		</li>
-	{/each}
-</ul>
+<section class={card}>
+	<h2 class={heading}><Link size={20} class="text-muted" />{m.about.links}</h2>
+	<ul class="mt-2">
+		{#each links as link (link.href)}
+			<li>
+				<a
+					href={link.href}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="-mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-bg"
+				>
+					<link.icon size={18} class="shrink-0 text-muted" />
+					{link.label}
+				</a>
+			</li>
+		{/each}
+	</ul>
+</section>
 
-<h2 class="mt-8 font-medium">{m.about.credits}</h2>
-<ul class="mt-2 flex flex-col gap-2 text-sm">
-	{#each credits as credit (credit.name)}
-		<li>
-			<a
-				href={credit.href}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="font-medium underline decoration-line underline-offset-4 hover:text-accent"
-				>{credit.name}</a
-			>
-			<span class="text-muted">– {credit.text()}</span>
-		</li>
-	{/each}
-</ul>
-<p class="mt-3 text-sm text-muted">{m.about.bundled}</p>
+<section class={card}>
+	<h2 class={heading}><Package size={20} class="text-muted" />{m.about.credits}</h2>
+	<ul class="mt-3 flex flex-col gap-3 text-sm">
+		{#each credits as credit (credit.name)}
+			<li>
+				<a
+					href={credit.href}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium underline decoration-line underline-offset-2 hover:text-accent"
+					>{credit.name}</a
+				>
+				<span class="text-muted">– {credit.text()}</span>
+			</li>
+		{/each}
+	</ul>
+	<p class="mt-4 text-sm text-muted">{m.about.bundled}</p>
+</section>
+
+<p class="mt-6 text-center text-sm text-muted">{m.about.ai}</p>

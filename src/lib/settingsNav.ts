@@ -1,10 +1,17 @@
-import { Boxes, Info, Palette, Scale } from '@lucide/svelte';
+import { Boxes, Info, Palette, Scale, Settings2 } from '@lucide/svelte';
 import { m } from '$lib/i18n/index.svelte';
 
 // Areas of the settings, in display order. A new area only needs one more line here (and its
 // page under src/routes/settings/).
 export function settingsSections() {
 	return [
+		{
+			href: '/settings/general',
+			group: 'personal',
+			icon: Settings2,
+			label: m.settings.general,
+			hint: m.settings.generalHint
+		},
 		{
 			href: '/settings/appearance',
 			group: 'personal',
@@ -47,4 +54,4 @@ export function settingsGroups() {
 }
 
 // Where "Settings" leads on a computer: the first area
-export const FIRST_SETTINGS_PAGE = '/settings/appearance';
+export const FIRST_SETTINGS_PAGE = '/settings/general';

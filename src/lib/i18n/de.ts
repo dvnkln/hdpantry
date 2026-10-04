@@ -270,8 +270,21 @@ export const de = {
 		title: 'Einstellungen',
 		groupPersonal: 'Persönlich',
 		groupStock: 'Vorrat',
+		general: 'Allgemein',
+		generalHint: 'Sprache, Scannen, „läuft bald ab“',
+		language: 'Sprache',
+		scanning: 'Scannen',
+		vibration: 'Vibration beim Erkennen eines Codes',
+		vibrationHint:
+			'Wirkt nur, wenn dein Handy haptisches Feedback erlaubt – das lässt sich von hier aus nicht umgehen.',
+		soon: '„Läuft bald ab“',
+		soonHint: 'Ab wie vielen Tagen vor dem Datum ein Inhalt im Vorrat hervorgehoben wird.',
+		days: (n: number) => (n === 1 ? '1 Tag' : `${n} Tage`),
 		appearance: 'Aussehen',
-		appearanceHint: 'Symbole',
+		appearanceHint: 'Farbschema, Symbole',
+		theme: 'Farbschema',
+		themeHint: '„System“ folgt der Einstellung deines Geräts.',
+		themes: { system: 'System', dark: 'Dunkel', light: 'Hell' },
 		containersShort: 'Löschen, Code ändern, zusammenführen',
 		guideShort: 'Tabelle der Haltbarkeiten mit Quellen',
 		aboutHint: 'Version, Links, Lizenz',
@@ -352,11 +365,12 @@ export const de = {
 	},
 
 	about: {
-		title: 'Über hdpantry',
+		title: 'Über',
 		version: (v: string) => `Version ${v}`,
 		text: 'Ein Vorrats-Tracker zum Selberhosten für wiederverwendbare Vakuumbehälter und -beutel mit QR-Code.',
 		private:
 			'hdpantry läuft auf deinem eigenen Server und nimmt von sich aus keine Verbindung nach außen auf. Die Links unten öffnen erst auf deinen Tipp hin eine andere Seite.',
+		links: 'Links',
 		docs: 'Dokumentation (Wiki)',
 		source: 'Quellcode auf GitHub',
 		issues: 'Fehler melden oder Idee vorschlagen',
@@ -367,7 +381,8 @@ export const de = {
 		lucide: 'Strich-Symbole, ISC-Lizenz',
 		tabler: 'weitere Strich-Symbole, MIT-Lizenz',
 		outfit: 'Schrift des Schriftzugs, SIL Open Font License',
-		bundled: 'Alles davon ist Teil der App; nichts wird von anderswo geladen.'
+		bundled: 'Alles davon ist Teil der App; nichts wird von anderswo geladen.',
+		ai: 'Entwickelt mit Unterstützung von KI (Claude Code).'
 	},
 
 	errorPage: {
