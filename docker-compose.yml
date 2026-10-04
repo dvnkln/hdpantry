@@ -1,0 +1,13 @@
+services:
+  hdpantry:
+    image: ghcr.io/dvnkln/hdpantry:latest
+    container_name: hdpantry
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file: .env
+    volumes:
+      - hdpantry-data:/data
+
+volumes:
+  hdpantry-data:

@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+/* Colours of the interface. Pages only use these names (bg-surface, text-muted, …), never
+   fixed colour values, so light and dark stay in step. The app follows the device. */
+:root {
+	color-scheme: light dark;
+	--bg: #f6f7f4;
+	--surface: #ffffff;
+	--line: #dfe3dc;
+	--text: #1b211d;
+	--muted: #5d6b62;
+	--accent: #1f7a5c;
+	--on-accent: #ffffff;
+	--danger: #b3261e;
+	--warn: #8a5a00;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #111513;
+		--surface: #1a201d;
+		--line: #2c3530;
+		--text: #e8ede9;
+		--muted: #9aa79f;
+		--accent: #5fd0a5;
+		--on-accent: #0c1a14;
+		--danger: #ff8a80;
+		--warn: #f2c14e;
+	}
+}
+
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-line: var(--line);
+	--color-text: var(--text);
+	--color-muted: var(--muted);
+	--color-accent: var(--accent);
+	--color-on-accent: var(--on-accent);
+	--color-danger: var(--danger);
+	--color-warn: var(--warn);
+}
+
+body {
+	background: var(--bg);
+	color: var(--text);
+	/* System font: nothing to download */
+	font-family: system-ui, sans-serif;
+}

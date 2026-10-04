@@ -1,0 +1,11 @@
+# Test container: builds the image from source instead of pulling it, with its own name, its
+# own data volume and port 3001, so it can run next to a real installation:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+name: hdpantry-test
+services:
+  hdpantry:
+    build: .
+    image: hdpantry:test
+    container_name: hdpantry-test
+    ports: !override
+      - '3001:3000'
