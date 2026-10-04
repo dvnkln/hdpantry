@@ -10,9 +10,8 @@
 	<PackageOpen size={48} class="text-muted" />
 	<h1 class="mt-4 text-xl font-bold">{m.home.empty}</h1>
 	<p class="mt-2 text-sm text-muted">{m.home.emptyHint}</p>
-	<button class="mt-8 flex items-center gap-2 btn-primary px-6" disabled>
+	<a href="/scan" class="mt-8 flex items-center gap-2 btn-primary px-6">
 		<ScanLine size={20} />
 		{m.home.scan}
-	</button>
-	<p class="mt-2 text-xs text-muted">{m.home.scanSoon}</p>
+	</a>
 </main>

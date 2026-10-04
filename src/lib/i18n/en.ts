@@ -35,8 +35,45 @@ export const en: Messages = {
 	home: {
 		empty: 'Nothing in stock yet',
 		emptyHint: 'Scan a container or bag to record its first content.',
-		scan: 'Scan',
-		scanSoon: 'The scanner comes with the next step.'
+		scan: 'Scan'
+	},
+
+	scan: {
+		title: 'Scanner test',
+		intro:
+			'Shows exactly what a code contains. Nothing is saved here; a web address in a code is never opened.',
+		startCamera: 'Start camera',
+		cameraStarting: 'Starting camera …',
+		photo: 'Take or choose a photo',
+		photoReading: 'Reading photo …',
+		photoNoCode: 'No code was found in the photo.',
+		photoFailed: 'The photo could not be read.',
+		manual: 'Type a code',
+		add: 'Add',
+		results: (n: number) => `Codes read (${n})`,
+		empty: 'No code read yet.',
+		copy: 'Copy',
+		copyAll: 'Copy all',
+		clear: 'Clear',
+		length: (n: number) => `${n} characters`,
+		isUrl: 'Web address',
+		problems: {
+			noHttps:
+				'The camera only works over a secure connection (https). Photo and typing still work.',
+			denied:
+				'Access to the camera was not allowed. You can allow it for this page in the settings of your browser.',
+			noCamera: 'No camera was found.',
+			failed: 'The camera could not be started.'
+		},
+		sources: { camera: 'Camera', photo: 'Photo', manual: 'Typed' },
+		formats: {
+			qr_code: 'QR code',
+			data_matrix: 'Data Matrix',
+			ean_13: 'Barcode (EAN-13)',
+			ean_8: 'Barcode (EAN-8)',
+			code_128: 'Barcode (Code 128)',
+			manual: 'Text'
+		}
 	},
 
 	errorPage: {

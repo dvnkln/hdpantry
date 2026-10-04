@@ -39,6 +39,13 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt hell/dunkel des Geräts; kein Theme-System. Systemschrift, keine eigene Schrift.
 - Hover-Effekte für alles Klickbare, kurze Übergänge.
 
+## Scanner
+
+- Codes werden nur im Browser gelesen (`src/lib/scanner.ts`): eingebauter Scanner des Browsers (`BarcodeDetector`, z. B. Chrome auf Android – lädt nichts nach), sonst `zxing-wasm` hinter derselben Schnittstelle (Paket `barcode-detector`), erst bei Bedarf geladen. Die wasm-Datei ist gebündelt; die Bibliothek würde sie sonst von einem fremden Server holen – `locateFile` nie entfernen. Dafür steht `'wasm-unsafe-eval'` in der CSP.
+- Drei Wege, immer alle anbieten: Kamera (`CameraScanner.svelte`), Foto (wird im Browser gelesen, nie hochgeladen), Eintippen. Am Handy startet die Kamera sofort, am PC (`pointer: fine`) erst per Knopf.
+- Eine Web-Adresse in einem Code wird nur angezeigt oder gespeichert, nie geöffnet oder abgerufen.
+- Gelesen werden QR, Data Matrix, EAN-13/8, Code 128 (`FORMATS`).
+
 ## Sicherheit
 
 - Start über `start.js`: `ORIGIN` darf mehrere Adressen (kommagetrennt) enthalten. Die eigene Origin-Prüfung in `hooks.server.ts` ersetzt SvelteKits CSRF-Check. Ohne `ORIGIN` scheitern Formulare im Container mit 403 – deshalb Pflicht.
@@ -74,7 +81,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 ## MVP
 
 1. Scaffold + Infrastruktur, First-Run-Wizard, Login – ✅
-2. Scanner-Testseite (zeigt den Rohinhalt eines Codes), dann Behälterverwaltung
+2. Scanner-Testseite `/scan` (zeigt den Rohinhalt eines Codes) – **2a ✅**; dann 2b Behälterverwaltung samt Code-Parser
 3. Erfassung
 4. Scan-Ablauf (bekannt/aktiv/leer, gegessen, ersetzen, Verlauf je Behälter)
 5. Haltbarkeit: Kategorien, Namensvorschlag, Lagerempfehlung, Berechnung

@@ -24,11 +24,12 @@ export default defineConfig({
 			// Our own origin check in hooks.server.ts replaces this, because ORIGIN may list several addresses.
 			csrf: { trustedOrigins: ['*'] },
 			// The browser only loads from our own server and runs only our own scripts: no foreign
-			// scripts, fonts or images. Inline styles are needed for style="…" attributes.
+			// scripts, fonts or images. Inline styles are needed for style="…" attributes;
+			// 'wasm-unsafe-eval' lets the bundled code reader (WebAssembly, see scanner.ts) run.
 			csp: {
 				directives: {
 					'default-src': ['self'],
-					'script-src': ['self'],
+					'script-src': ['self', 'wasm-unsafe-eval'],
 					'style-src': ['self', 'unsafe-inline'],
 					'img-src': ['self', 'data:', 'blob:'],
 					'font-src': ['self'],
