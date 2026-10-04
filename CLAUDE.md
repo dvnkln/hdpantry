@@ -54,6 +54,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 - `npm test` (vitest): Jede Testdatei bekommt eine leere, echte Datenbank in einem Temp-Ordner und **kein Netz** (`src/tests/setup.ts`). Tests liegen neben dem Code (`*.test.ts`).
 - **Neue oder geänderte Regel-Logik bekommt einen Test** (Login, Code-Parser, Haltbarkeit, Kategorievorschlag, Import/Export).
+- GitHub prüft bei jedem Push auf `main` und bei Pull Requests: `check`, `lint`, `test` (`.github/workflows/check.yml`).
 - Keine Browser-Tests (Playwright) – bewusst, wegen der großen Abhängigkeit. Erst nachziehen, wenn der Scan-Ablauf steht und der Nutzen klar ist.
 
 ## Befehle
@@ -67,12 +68,14 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 ## MVP
 
-1. Scaffold + Infrastruktur, First-Run-Wizard, Login – **1a Grundgerüst ✅, 1b Einrichtung/Anmeldung ✅**, 1c Docker ✅ / GitHub Actions + Changelog offen
+1. Scaffold + Infrastruktur, First-Run-Wizard, Login – ✅
 2. Scanner-Testseite (zeigt den Rohinhalt eines Codes), dann Behälterverwaltung
 3. Erfassung
 4. Scan-Ablauf (bekannt/aktiv/leer, gegessen, ersetzen, Verlauf je Behälter)
 5. Haltbarkeit: Kategorien, Namensvorschlag, Lagerempfehlung, Berechnung
 6. Inventar
 7. Einstellungen, Export/Import als JSON
+
+**Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
 
 Ideen für später stehen in `ROADMAP.md` (Englisch, aus Nutzersicht) – dort eintragen, nicht umsetzen.
