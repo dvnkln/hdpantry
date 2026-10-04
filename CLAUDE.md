@@ -45,6 +45,10 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Drei Wege, immer alle anbieten: Kamera (`CameraScanner.svelte`), Foto (wird im Browser gelesen, nie hochgeladen), Eintippen. Am Handy startet die Kamera sofort, am PC (`pointer: fine`) erst per Knopf.
 - Eine Web-Adresse in einem Code wird nur angezeigt oder gespeichert, nie geöffnet oder abgerufen.
 - Gelesen werden QR, Data Matrix, EAN-13/8, Code 128 (`FORMATS`).
+- **Sobald ein Code erkannt ist, geht es ohne Bestätigung weiter** (`/scan`): bekannter Behälter → seine Seite, unbekannter → Formular „Neuer Behälter“ mit optionalem Namen. Kein Zwischenschritt, kein „Foto bestätigen“.
+- Code-Parser `src/lib/codes.ts`: zieht die ID eines Behälters aus dem Rohinhalt. Regeln als Tabelle (`PARAMETER_RULES`): Bei Codes mit Parametern ist der Kurzcode-Parameter die ID (er steht auch aufgedruckt auf dem Behälter – eingetippt muss er denselben Behälter finden), Größe und Typ-Code werden mitgenommen; die Adresse davor ist egal. Jeder andere Code zählt als Ganzes. Kurzcodes werden großgeschrieben. Neue Code-Form = neue Regel + Test, mit erfundenen Beispielwerten.
+- Behälter (`containers`, `src/lib/server/containers.ts`): Rohinhalt wird immer mitgespeichert. Kein pflegbares Feld für die Art (Beutel/Box); der Typ-Code wird nur gespeichert, nicht gedeutet. Ohne Namen heißt ein Behälter „Größe · Kurzcode“ (`containerLabel()` in `src/lib/containers.ts`).
+- `/scan/check` („Code prüfen“) zeigt Rohinhalte, ohne zu speichern – bleibt dauerhaft in der App, für neue Behälter-Systeme und Fehlermeldungen.
 
 ## Sicherheit
 
@@ -81,7 +85,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 ## MVP
 
 1. Scaffold + Infrastruktur, First-Run-Wizard, Login – ✅
-2. Scanner-Testseite `/scan` (zeigt den Rohinhalt eines Codes) – **2a ✅**; dann 2b Behälterverwaltung samt Code-Parser
+2. Scanner, Code-Parser, Behälterverwaltung – ✅
 3. Erfassung
 4. Scan-Ablauf (bekannt/aktiv/leer, gegessen, ersetzen, Verlauf je Behälter)
 5. Haltbarkeit: Kategorien, Namensvorschlag, Lagerempfehlung, Berechnung

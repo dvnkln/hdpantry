@@ -1,9 +1,10 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
+	import { page } from '$app/state';
 	import Brand from '$lib/components/Brand.svelte';
 	import { m, setLocale } from '$lib/i18n/index.svelte';
-	import { LogOut } from '@lucide/svelte';
+	import { Boxes, LogOut, ScanLine } from '@lucide/svelte';
 
 	let { data, children } = $props();
 
@@ -12,6 +13,9 @@
 	// svelte-ignore state_referenced_locally
 	setLocale(data.locale);
 	$effect.pre(() => setLocale(data.locale));
+
+	// First part of the address, e.g. "containers" for /containers/3
+	let section = $derived(page.url.pathname.split('/')[1]);
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -19,10 +23,23 @@
 {#if data.user}
 	<!-- Stays at the top while scrolling -->
 	<header class="sticky top-0 z-10 border-b border-line bg-bg pt-[env(safe-area-inset-top)]">
-		<div class="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-2">
-			<a href="/" aria-label={m.common.home} class="transition-opacity hover:opacity-80"
+		<div class="mx-auto flex max-w-screen-xl items-center gap-1 px-4 py-2">
+			<a href="/" aria-label={m.common.home} class="mr-auto transition-opacity hover:opacity-80"
 				><Brand /></a
 			>
+			<a
+				href="/containers"
+				class="flex items-center gap-1.5 rounded-lg p-2 text-sm transition-colors hover:bg-surface hover:text-text {section ===
+				'containers'
+					? 'text-text'
+					: 'text-muted'}"
+				aria-current={section === 'containers' ? 'page' : undefined}
+				aria-label={m.containers.title}
+				title={m.containers.title}
+			>
+				<Boxes size={20} />
+				<span class="hidden sm:inline">{m.containers.title}</span>
+			</a>
 			<!-- -mr-2: the icon itself (not its hover area) lines up with the content edge -->
 			<form method="POST" action="/logout" class="-mr-2">
 				<button
@@ -35,6 +52,22 @@
 			</form>
 		</div>
 	</header>
-{/if}
 
-{@render children()}
+	<!-- pb-28 keeps content clear of the scan button -->
+	<div class={section === 'scan' ? '' : 'pb-28'}>
+		{@render children()}
+	</div>
+
+	<!-- Always within reach, except while scanning -->
+	{#if section !== 'scan'}
+		<a
+			href="/scan"
+			class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-10 flex items-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent shadow-lg transition-transform hover:scale-105 active:scale-95"
+		>
+			<ScanLine size={22} />
+			{m.home.scan}
+		</a>
+	{/if}
+{:else}
+	{@render children()}
+{/if}

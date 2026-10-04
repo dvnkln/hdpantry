@@ -6,6 +6,9 @@ export const de = {
 	common: {
 		home: 'Startseite',
 		logout: 'Abmelden',
+		cancel: 'Abbrechen',
+		save: 'Speichern',
+		saved: 'Gespeichert',
 		showPassword: 'Passwort anzeigen',
 		hidePassword: 'Passwort verbergen'
 	},
@@ -38,9 +41,8 @@ export const de = {
 	},
 
 	scan: {
-		title: 'Scanner-Test',
-		intro:
-			'Zeigt, was genau in einem Code steht. Gespeichert wird hier nichts; eine Web-Adresse im Code wird nie geöffnet.',
+		title: 'Scannen',
+		intro: 'Halte den Code des Behälters oder Beutels vor die Kamera.',
 		startCamera: 'Kamera starten',
 		cameraStarting: 'Kamera startet …',
 		photo: 'Foto aufnehmen oder auswählen',
@@ -48,6 +50,27 @@ export const de = {
 		photoNoCode: 'Auf dem Foto wurde kein Code gefunden.',
 		photoFailed: 'Das Foto konnte nicht gelesen werden.',
 		manual: 'Code eintippen',
+		open: 'Öffnen',
+		failed: 'Das hat nicht geklappt. Bitte noch einmal versuchen.',
+		unreadable: 'Mit diesem Code kann hdpantry nichts anfangen (leer oder zu lang).',
+		newTitle: 'Neuer Behälter',
+		newHint: 'Diesen Code kennt hdpantry noch nicht.',
+		addContainer: 'Behälter anlegen',
+		checkLink: 'Code prüfen (Rohinhalt anzeigen)',
+		problems: {
+			noHttps:
+				'Die Kamera geht nur über eine sichere Verbindung (https). Foto und Eintippen funktionieren trotzdem.',
+			denied:
+				'Der Zugriff auf die Kamera wurde nicht erlaubt. Du kannst ihn in den Einstellungen des Browsers für diese Seite freigeben.',
+			noCamera: 'Es wurde keine Kamera gefunden.',
+			failed: 'Die Kamera konnte nicht gestartet werden.'
+		}
+	},
+
+	scanCheck: {
+		title: 'Code prüfen',
+		intro:
+			'Zeigt, was genau in einem Code steht – hilfreich, wenn ein Code nicht wie erwartet erkannt wird. Gespeichert wird hier nichts; eine Web-Adresse im Code wird nie geöffnet.',
 		add: 'Hinzufügen',
 		results: (n: number) => `Gelesene Codes (${n})`,
 		empty: 'Noch kein Code gelesen.',
@@ -56,14 +79,6 @@ export const de = {
 		clear: 'Leeren',
 		length: (n: number) => `${n} Zeichen`,
 		isUrl: 'Web-Adresse',
-		problems: {
-			noHttps:
-				'Die Kamera geht nur über eine sichere Verbindung (https). Foto und Eintippen funktionieren trotzdem.',
-			denied:
-				'Der Zugriff auf die Kamera wurde nicht erlaubt. Du kannst ihn in den Einstellungen des Browsers für diese Seite freigeben.',
-			noCamera: 'Es wurde keine Kamera gefunden.',
-			failed: 'Die Kamera konnte nicht gestartet werden.'
-		},
 		sources: { camera: 'Kamera', photo: 'Foto', manual: 'Eingetippt' },
 		formats: {
 			qr_code: 'QR-Code',
@@ -73,6 +88,24 @@ export const de = {
 			code_128: 'Strichcode (Code 128)',
 			manual: 'Text'
 		}
+	},
+
+	containers: {
+		title: 'Behälter',
+		empty: 'Noch keine Behälter. Scanne einen Code, um den ersten anzulegen.',
+		count: (n: number) => (n === 1 ? '1 Behälter' : `${n} Behälter`),
+		nameOptional: 'Name (optional)',
+		namePlaceholder: 'z. B. Beutel L 3',
+		emptyContainer: 'Dieser Behälter ist leer.',
+		code: 'Code',
+		size: 'Größe',
+		added: 'Angelegt am',
+		rawContent: 'Inhalt des Codes',
+		delete: 'Behälter löschen',
+		deleteQuestion:
+			'Diesen Behälter wirklich löschen? Beim nächsten Scan seines Codes kann er neu angelegt werden.',
+		deleteConfirm: 'Löschen',
+		notFound: 'Diesen Behälter gibt es nicht (mehr).'
 	},
 
 	errorPage: {

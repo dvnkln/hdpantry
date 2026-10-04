@@ -7,6 +7,9 @@ export const en: Messages = {
 	common: {
 		home: 'Home',
 		logout: 'Log out',
+		cancel: 'Cancel',
+		save: 'Save',
+		saved: 'Saved',
 		showPassword: 'Show password',
 		hidePassword: 'Hide password'
 	},
@@ -39,9 +42,8 @@ export const en: Messages = {
 	},
 
 	scan: {
-		title: 'Scanner test',
-		intro:
-			'Shows exactly what a code contains. Nothing is saved here; a web address in a code is never opened.',
+		title: 'Scan',
+		intro: 'Hold the code of the container or bag in front of the camera.',
 		startCamera: 'Start camera',
 		cameraStarting: 'Starting camera …',
 		photo: 'Take or choose a photo',
@@ -49,6 +51,27 @@ export const en: Messages = {
 		photoNoCode: 'No code was found in the photo.',
 		photoFailed: 'The photo could not be read.',
 		manual: 'Type a code',
+		open: 'Open',
+		failed: 'That did not work. Please try again.',
+		unreadable: 'hdpantry cannot use this code (empty or too long).',
+		newTitle: 'New container',
+		newHint: 'hdpantry does not know this code yet.',
+		addContainer: 'Add container',
+		checkLink: 'Check a code (show raw content)',
+		problems: {
+			noHttps:
+				'The camera only works over a secure connection (https). Photo and typing still work.',
+			denied:
+				'Access to the camera was not allowed. You can allow it for this page in the settings of your browser.',
+			noCamera: 'No camera was found.',
+			failed: 'The camera could not be started.'
+		}
+	},
+
+	scanCheck: {
+		title: 'Check a code',
+		intro:
+			'Shows exactly what a code contains – helpful when a code is not recognised as expected. Nothing is saved here; a web address in a code is never opened.',
 		add: 'Add',
 		results: (n: number) => `Codes read (${n})`,
 		empty: 'No code read yet.',
@@ -57,14 +80,6 @@ export const en: Messages = {
 		clear: 'Clear',
 		length: (n: number) => `${n} characters`,
 		isUrl: 'Web address',
-		problems: {
-			noHttps:
-				'The camera only works over a secure connection (https). Photo and typing still work.',
-			denied:
-				'Access to the camera was not allowed. You can allow it for this page in the settings of your browser.',
-			noCamera: 'No camera was found.',
-			failed: 'The camera could not be started.'
-		},
 		sources: { camera: 'Camera', photo: 'Photo', manual: 'Typed' },
 		formats: {
 			qr_code: 'QR code',
@@ -74,6 +89,24 @@ export const en: Messages = {
 			code_128: 'Barcode (Code 128)',
 			manual: 'Text'
 		}
+	},
+
+	containers: {
+		title: 'Containers',
+		empty: 'No containers yet. Scan a code to add the first one.',
+		count: (n: number) => (n === 1 ? '1 container' : `${n} containers`),
+		nameOptional: 'Name (optional)',
+		namePlaceholder: 'e.g. Bag L 3',
+		emptyContainer: 'This container is empty.',
+		code: 'Code',
+		size: 'Size',
+		added: 'Added on',
+		rawContent: 'Content of the code',
+		delete: 'Delete container',
+		deleteQuestion:
+			'Really delete this container? It can be added again the next time its code is scanned.',
+		deleteConfirm: 'Delete',
+		notFound: 'This container does not exist (any more).'
 	},
 
 	errorPage: {

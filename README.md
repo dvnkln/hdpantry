@@ -10,7 +10,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** hdpantry cannot track anything yet: so far there is the foundation – set-up, login and the container to run it in. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** hdpantry cannot track food yet: so far there is the foundation – set-up, login, scanning codes and managing containers. There is no release and no published image. This page grows with the app.
 
 ## 📖 Documentation
 
@@ -22,6 +22,8 @@ What's planned for later: [Roadmap](ROADMAP.md).
 
 Working today:
 
+- 📷 **Scan** – hold a code in front of the camera and hdpantry opens the container right away; no button, no confirmation. A photo of the code or typing it works too. Any QR code will do.
+- 🥡 **Containers and bags** – every code is one container; give it a name if you like.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts; at present hdpantry does not connect to any outside service at all.
 - 🛡️ **Protected login** – repeated wrong passwords block the address they come from.
 - 🌍 **English and German** – follows your browser on first start, chosen during set-up.
@@ -29,8 +31,6 @@ Working today:
 
 Being built for the first version:
 
-- 📷 **Scan** – with the camera in the app, from a photo, or by typing the code. Works with any QR code.
-- 🥡 **Containers and bags** – every code is one container; give it a name if you like.
 - 📝 **Quick entry** – what is inside, vacuum-sealed or not, where it is stored, how full it is.
 - 📅 **Shelf life** – a suggested date from the kind of food, the place of storage and whether it is vacuum-sealed. Guide values, not a guarantee – and always yours to change.
 - 📋 **Inventory** – everything in stock, sorted by date, with what expires soon highlighted.

@@ -28,7 +28,8 @@
 				const code = video.readyState >= 2 ? await readCode(video) : null;
 				if (code && (code.text !== last.text || Date.now() - last.at > REPEAT_MS)) {
 					last = { text: code.text, at: Date.now() };
-					navigator.vibrate?.(60);
+					// Long enough to be felt; the phone may still suppress it (haptics off, do not disturb)
+					navigator.vibrate?.(200);
 					onscan(code);
 				} else if (code) {
 					last.at = Date.now();

@@ -23,3 +23,19 @@ export const sessions = sqliteTable('sessions', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
+
+// A reusable container or bag, known by the code on it (see src/lib/codes.ts).
+export const containers = sqliteTable('containers', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	// ID taken from the code; also shown as the short code
+	code: text('code').notNull().unique(),
+	size: text('size'),
+	typeCode: text('type_code'),
+	// Optional name given by the user, e.g. "Bag L 3"
+	name: text('name'),
+	// Exactly what the code contained when the container was added
+	rawContent: text('raw_content').notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});

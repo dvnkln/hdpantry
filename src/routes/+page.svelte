@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { m } from '$lib/i18n/index.svelte';
-	import { PackageOpen, ScanLine } from '@lucide/svelte';
+	import { PackageOpen } from '@lucide/svelte';
 </script>
 
 <svelte:head><title>hdpantry</title></svelte:head>
@@ -10,8 +10,4 @@
 	<PackageOpen size={48} class="text-muted" />
 	<h1 class="mt-4 text-xl font-bold">{m.home.empty}</h1>
 	<p class="mt-2 text-sm text-muted">{m.home.emptyHint}</p>
-	<a href="/scan" class="mt-8 flex items-center gap-2 btn-primary px-6">
-		<ScanLine size={20} />
-		{m.home.scan}
-	</a>
 </main>
