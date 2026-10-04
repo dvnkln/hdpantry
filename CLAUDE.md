@@ -50,7 +50,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Code-Parser `src/lib/codes.ts`: zieht die ID eines Behälters aus dem Rohinhalt. Regeln als Tabelle (`PARAMETER_RULES`): Bei Codes mit Parametern ist der Kurzcode-Parameter die ID (er steht auch aufgedruckt auf dem Behälter – eingetippt muss er denselben Behälter finden), Größe und Typ-Code werden mitgenommen; die Adresse davor ist egal. Jeder andere Code zählt als Ganzes. Kurzcodes werden großgeschrieben. Neue Code-Form = neue Regel + Test, mit erfundenen Beispielwerten.
 - Behälter (`containers`, `src/lib/server/containers.ts`): Rohinhalt und Herkunft des Codes (`source`: Kamera, Foto, eingetippt) werden mitgespeichert. Kein pflegbares Feld für die Art (Beutel/Box); der Typ-Code wird nur gespeichert, nicht gedeutet. **Es gibt keine Behälter-Übersicht:** Leere Behälter interessieren nicht, gefüllte stehen im Vorrat. Auf der Detailseite steht der Behälter nur in zwei leisen Zeilen: Bezeichnung, darunter „manuell erfasst“ oder „gescannt“. Der Inhalt des Codes interessiert im Alltag nicht; er steht nur in den Einstellungen hinter dem Info-Symbol des Behälters.
 - **Manuell erfasste und gescannte Behälter sind getrennte Gruppen** (`manual`; derselbe Code darf in jeder Gruppe einmal vorkommen). Eingetippt wird zuerst der gescannte Behälter gesucht (der Kurzcode steht aufgedruckt), dann der manuelle, sonst ein manueller angelegt. Wird ein Code gescannt, den es nur manuell gibt, fragt die App „Zusammenführen?“: Ja = der manuelle wird zum gescannten (Inhalt und Verlauf bleiben), Nein = eigener gescannter Behälter; später zusammenführen geht in den Einstellungen (nicht, solange beide gefüllt sind). Nur bei manuellen lässt sich der Code ändern.
-- Einstellungen (`/settings`): Liste aller Behälter. Einzelnen löschen = doppelte Bestätigung; **„Alle Behälter löschen“ nur nach Eintippen des Bestätigungsworts** (prüft auch der Server).
+- Einstellungen → Behälter (`/settings/containers`): Liste aller Behälter. Einzelnen löschen = doppelte Bestätigung; **„Alle Behälter löschen“ nur nach Eintippen des Bestätigungsworts** (prüft auch der Server).
 - Rückmeldung beim Erkennen: nur eine kurze Vibration (wirkt nur, wenn das Handy haptisches Feedback erlaubt – von einer Webseite nicht zu umgehen). Bewusst kein Ton und kein optischer Effekt: Das Ergebnis erscheint ohnehin sofort.
 - `/scan/check` („Code prüfen“) zeigt Rohinhalte, ohne zu speichern – bleibt dauerhaft in der App, für neue Behälter-Systeme und Fehlermeldungen.
 
@@ -120,13 +120,17 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 4. Haltbarkeit: Kategorie und Symbol aus dem Namen, eingefärbte Lagerorte, berechnetes Datum, Richtwerte mit Quellen – ✅
 5. Inventar: Filter, Hervorhebung, Sortierung, Tabelle am PC – ✅
 6. „Ersetzen“ – ✅
-7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste). Dazu gehören vor dem ersten Release:
-   - Sprache der Oberfläche nachträglich ändern (Deutsch/Englisch; bisher nur im Einrichtungs-Wizard wählbar)
-   - Farbschema wählen: System (folgt dem Gerät, Standard), Dunkel, Hell – mit kleiner Vorschau je Schema. Technik: Attribut `data-theme` am `<html>`, vom Server direkt ins HTML geschrieben (kein Aufblitzen), die Login-Seite merkt sich das Schema des Geräts per Cookie; die Farbwerte in `layout.css` dafür auf `[data-theme]`-Blöcke umstellen
-   - Vibration beim Scan abschaltbar
-   - Passwort ändern, Reverse Proxy bestätigen (`trustedProxies`/`proxyKey`)
-   - Export/Import als JSON
+7. Einstellungen – in Etappen, nach jeder stoppen. Vor dem ersten Release müssen alle fertig sein:
+   - **Gerüst ✅:** Bereiche in `src/lib/settingsNav.ts` (neuer Bereich = eine Zeile dort + Seite unter `src/routes/settings/`); am PC Seitenleiste, am Handy zeigt `/settings` die gruppierte Liste, jeder Bereich hat „← Einstellungen“. Fertig: Aussehen (Symbole), Behälter, Richtwerte, Über.
+   - Allgemein: Sprache (Deutsch/Englisch), Vibration beim Scan, Schwelle „läuft bald ab“. Aussehen: Farbschema System (Standard) / Dunkel / Hell mit Vorschau – Attribut `data-theme` am `<html>`, vom Server ins HTML geschrieben (kein Aufblitzen), Login-Seite merkt sich das Schema per Cookie, Farbwerte in `layout.css` auf `[data-theme]`-Blöcke umstellen
+   - Konto: Benutzername und Passwort ändern, andere Geräte abmelden
+   - Daten: Export und Import als JSON – Import **ersetzt** den ganzen Bestand, mit deutlichem Hinweis und Bestätigungswort
+   - Verbindung: Reverse Proxy bestätigen (`trustedProxies`/`proxyKey`, per Adresse oder Schlüssel), Anzeige ob HTTPS aktiv ist
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
+Außerdem vor dem Release:
+
+- README straffen: Der Abschnitt zur Haltbarkeit wird ein kurzer Hinweis („Schätzung anhand von Quellen, keine Garantie“) mit Link auf die Wiki-Seite „Shelf life guide values“; die Details und die Quellenliste stehen nur noch dort.
+- README bekommt eine Screenshot-Tabelle (Handy-Screenshots der wichtigsten Seiten, drei pro Zeile, Bilder unter `docs/screenshots/`), sobald die App release-fertig ist.
 
 Ideen für später stehen in `ROADMAP.md` (Englisch, aus Nutzersicht) – dort eintragen, nicht umsetzen.

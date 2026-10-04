@@ -268,13 +268,19 @@ export const de = {
 
 	settings: {
 		title: 'Einstellungen',
+		groupPersonal: 'Persönlich',
+		groupStock: 'Vorrat',
+		appearance: 'Aussehen',
+		appearanceHint: 'Symbole',
+		containersShort: 'Löschen, Code ändern, zusammenführen',
+		guideShort: 'Tabelle der Haltbarkeiten mit Quellen',
+		aboutHint: 'Version, Links, Lizenz',
 		icons: 'Symbole',
 		iconsHint: 'Wie Lebensmittel in Listen und Formularen dargestellt werden.',
 		iconStyles: { color: 'Farbig', line: 'Schlicht' },
 		guide: 'Richtwerte',
 		guideHint:
 			'Wie lange hdpantry welches Lebensmittel für haltbar hält, je nach Lagerort – mit Quellen.',
-		guideOpen: 'Richtwerte und Quellen ansehen',
 		containers: 'Behälter',
 		containersHint:
 			'Alle Behälter, die hdpantry kennt – auch leere. Löschen entfernt einen Behälter samt seinem Verlauf; beim nächsten Scan seines Codes wird er neu angelegt.',
@@ -342,8 +348,26 @@ export const de = {
 			'Eigene vorsichtige Schätzung für vakuumierte Lebensmittel (keine öffentliche Stelle veröffentlicht dazu Zahlen)',
 		symbols: 'Symbole',
 		symbolsText:
-			'Farbige Symbole: Twemoji, © Twitter, Inc. und weitere Mitwirkende, Lizenz CC BY 4.0. Schlichte Symbole: Lucide (ISC-Lizenz) und Tabler Icons (MIT-Lizenz).',
-		back: 'Einstellungen'
+			'Farbige Symbole: Twemoji, © Twitter, Inc. und weitere Mitwirkende, Lizenz CC BY 4.0. Schlichte Symbole: Lucide (ISC-Lizenz) und Tabler Icons (MIT-Lizenz).'
+	},
+
+	about: {
+		title: 'Über hdpantry',
+		version: (v: string) => `Version ${v}`,
+		text: 'Ein Vorrats-Tracker zum Selberhosten für wiederverwendbare Vakuumbehälter und -beutel mit QR-Code.',
+		private:
+			'hdpantry läuft auf deinem eigenen Server und nimmt von sich aus keine Verbindung nach außen auf. Die Links unten öffnen erst auf deinen Tipp hin eine andere Seite.',
+		docs: 'Dokumentation (Wiki)',
+		source: 'Quellcode auf GitHub',
+		issues: 'Fehler melden oder Idee vorschlagen',
+		roadmap: 'Was noch geplant ist',
+		license: 'Lizenz: GNU AGPL v3',
+		credits: 'Verwendet',
+		twemoji: 'farbige Symbole, © Twitter, Inc. und weitere Mitwirkende, Lizenz CC BY 4.0',
+		lucide: 'Strich-Symbole, ISC-Lizenz',
+		tabler: 'weitere Strich-Symbole, MIT-Lizenz',
+		outfit: 'Schrift des Schriftzugs, SIL Open Font License',
+		bundled: 'Alles davon ist Teil der App; nichts wird von anderswo geladen.'
 	},
 
 	errorPage: {

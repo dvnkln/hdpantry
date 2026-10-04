@@ -266,12 +266,18 @@ export const en: Messages = {
 
 	settings: {
 		title: 'Settings',
+		groupPersonal: 'Personal',
+		groupStock: 'Stock',
+		appearance: 'Appearance',
+		appearanceHint: 'Symbols',
+		containersShort: 'Delete, change code, merge',
+		guideShort: 'Table of shelf lives with sources',
+		aboutHint: 'Version, links, licence',
 		icons: 'Symbols',
 		iconsHint: 'How food is shown in lists and forms.',
 		iconStyles: { color: 'Colourful', line: 'Plain' },
 		guide: 'Guide values',
 		guideHint: 'How long hdpantry assumes which food keeps, by place of storage – with sources.',
-		guideOpen: 'See guide values and sources',
 		containers: 'Containers',
 		containersHint:
 			'All containers hdpantry knows – empty ones too. Deleting removes a container with its history; it is added again the next time its code is scanned.',
@@ -339,8 +345,26 @@ export const en: Messages = {
 			'Own cautious estimate for vacuum-sealed food (no public body publishes such figures)',
 		symbols: 'Symbols',
 		symbolsText:
-			'Colourful symbols: Twemoji, © Twitter, Inc and other contributors, licensed under CC BY 4.0. Plain symbols: Lucide (ISC License) and Tabler Icons (MIT License).',
-		back: 'Settings'
+			'Colourful symbols: Twemoji, © Twitter, Inc and other contributors, licensed under CC BY 4.0. Plain symbols: Lucide (ISC License) and Tabler Icons (MIT License).'
+	},
+
+	about: {
+		title: 'About hdpantry',
+		version: (v: string) => `Version ${v}`,
+		text: 'A self-hosted pantry tracker for reusable vacuum containers and bags with a QR code.',
+		private:
+			'hdpantry runs on your own server and makes no connection to the outside by itself. The links below only open another site when you tap them.',
+		docs: 'Documentation (wiki)',
+		source: 'Source code on GitHub',
+		issues: 'Report a bug or suggest an idea',
+		roadmap: 'What is planned',
+		license: 'Licence: GNU AGPL v3',
+		credits: 'Built with',
+		twemoji: 'colourful symbols, © Twitter, Inc and other contributors, licensed under CC BY 4.0',
+		lucide: 'line icons, ISC License',
+		tabler: 'more line icons, MIT License',
+		outfit: 'font of the wordmark, SIL Open Font License',
+		bundled: 'All of it is part of the app; nothing is loaded from elsewhere.'
 	},
 
 	errorPage: {
