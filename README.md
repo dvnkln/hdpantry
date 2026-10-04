@@ -20,7 +20,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and the settings work. Still to come before the first version: a published image. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and the settings work. There is no release and no published image yet – for now it is built from the source code.
 
 ## 📖 Documentation
 
@@ -83,7 +83,7 @@ There is no published image yet. To try the current state, build it from source:
    docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
    ```
 
-The camera scanner will need HTTPS (a rule of the browsers); hdpantry expects a reverse proxy for that.
+The camera scanner needs HTTPS (a rule of the browsers); hdpantry expects a reverse proxy for that – see [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS).
 
 ## 🙏 Credits
 
