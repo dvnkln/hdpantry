@@ -36,7 +36,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - DB wird erst bei Bedarf über `getDb()` geöffnet; Migrationen laufen automatisch beim Start (`src/hooks.server.ts`).
 - **Migrationen:** Schema ändern → `npm run db:generate` → Migration mit committen. Bis zum ersten Release (v0.1.0) darf alles in `drizzle/0000_init.sql` zusammengefasst werden. **Ab v0.1.0** nur noch neue Migrationen, die bestehende Daten erhalten – nie alte ändern oder löschen.
 - **Texte:** Alle sichtbaren Texte in `src/lib/i18n/de.ts` + `en.ts` (gleiche Struktur, TypeScript prüft das). Im Browser `m.xyz` aus `$lib/i18n/index.svelte`, auf dem Server `serverMessages(locale)`. Der Server liefert Werte (ISO-Datum, Zahlen), formatiert wird in der Oberfläche. Sprache einer Anfrage: `event.locals.locale`.
-- **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt bisher hell/dunkel des Geräts; mit Punkt 7 wird das wählbar (System, Dunkel, Hell – siehe MVP). Weitere Farbschemata sind nicht geplant. Systemschrift, keine eigene Schrift.
+- **Farben:** nur die Namen aus `src/routes/layout.css` (`bg-surface`, `text-muted`, `bg-accent`, …), keine festen Farbwerte in Seiten. Die App folgt bisher hell/dunkel des Geräts; mit Punkt 7 wird das wählbar (System, Dunkel, Hell – siehe MVP). Weitere Farbschemata sind nicht geplant. Systemschrift; die einzige eigene Schrift ist Outfit für den Schriftzug „hdpantry“.
 - Hover-Effekte für alles Klickbare, kurze Übergänge.
 - Seitentitel, die sich von selbst erklären (Vorrat, Einstellungen), sind nur für Screenreader da (`sr-only`), nicht sichtbar.
 
@@ -86,6 +86,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 ## Dokumentation
 
+- Schriftzug für die README: `docs/brand/wordmark-light.png` / `-dark.png` (Logo + „hdpantry“ in der Schrift Outfit, „hd“ extrafett mit Verlauf von Grün `#149a6b` nach Hellgrün `#b3d94d`, Rest halbfett; als Bild erzeugt, weil GitHub keine eigenen Schriften lädt). In der App derselbe Schriftzug als Text (`Brand.svelte`, Schrift lokal gebündelt über `@fontsource/outfit`, Klasse `font-brand`).
 - README (Englisch) ist das Schaufenster: Name, Kurzbeschreibung, Hinweis „Early development“ (bis zum ersten Release), Links ins Wiki, Features – ehrlich getrennt in „funktioniert heute“ und „in Arbeit“, nur was hdpantry auszeichnet –, Quick start, **Built with AI** und License. Screenshots kommen, sobald es etwas zu zeigen gibt. Mit jedem MVP-Punkt die Feature-Liste nachziehen.
 - Anleitungen für Nutzer gehören ins GitHub-Wiki (eigenes Git-Repo, Englisch), nicht in die README. Ändert sich etwas an Installation, `.env`, Update oder Rettungswegen: Wiki-Seite mit anpassen. Die Seite „Privacy and security“ hält fest, dass es keine Verbindung nach außen gibt und wie Daten gespeichert sind.
 
@@ -104,6 +105,9 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 2. Scanner, Code-Parser, Behälterverwaltung – ✅
 3. Erfassung (alle Felder von Hand), Bearbeiten, „Gegessen“, Verlauf je Behälter als Vorlage, einfache Vorratsliste – ✅
 4. **Als Nächstes, vor dem Scan-Ablauf:** Haltbarkeit – Kategorie aus dem Namen vorschlagen (änderbar, Korrekturen je Name merken), schematisches Symbol aus dem Namen (aus dem vorhandenen Symbolsatz, per Antippen änderbar, kein Foto-Upload), Lagerorte je Kategorie einfärben (gut = grün, schlecht = rot, „auf keinen Fall“ = ausgegraut und gesperrt) und den besten vorauswählen, Datum aus Kategorie × Lagerort × vakuumiert berechnen (von Hand änderbar)
+   - Richtwerte: deutsche Stellen zuerst (BVL, Bundeszentrum für Ernährung, BMEL), USDA FoodKeeper für Lücken, bei zwei Angaben die vorsichtigere; Vakuum nur als zurückhaltender Aufschlag. Jeder Wert trägt seine Quelle (eigene Datei, einsehbar unter Einstellungen → „Richtwerte“).
+   - **Deutlicher Hinweis überall, wo ein Datum vorgeschlagen wird, und gut sichtbar in der README:** Schätzung auf Grundlage der genannten Quellen, keine Garantie – man muss immer selbst prüfen (sehen, riechen, im Zweifel wegwerfen). Quellen in README und App auflisten.
+   - Symbole in zwei Stilen, umschaltbar in den Einstellungen: schlicht (Strich-Symbole, Lucide + Tabler) und farbig (eine gebündelte Emoji-Bibliothek, überall gleich).
 5. Scan-Ablauf, Rest: „ersetzen“ (alten Inhalt entfernen und neuen erfassen in einem Zug)
 6. Inventar
 7. Einstellungen ausbauen (Seite `/settings` gibt es schon, bisher nur Behälter; Aufbau dann in Bereiche gliedern: am PC Seitenleiste, am Handy gruppierte Liste). Dazu gehören vor dem ersten Release:

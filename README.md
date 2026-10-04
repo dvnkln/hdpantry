@@ -1,4 +1,10 @@
-<h1 align="center">hdpantry</h1>
+<!-- Logo with wordmark; GitHub picks the variant matching its light or dark theme -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/wordmark-dark.png" />
+    <img src="docs/brand/wordmark-light.png" width="380" alt="hdpantry" />
+  </picture>
+</p>
 
 <p align="center">
   <a href="https://github.com/dvnkln/hdpantry/actions/workflows/check.yml"><img src="https://img.shields.io/github/actions/workflow/status/dvnkln/hdpantry/check.yml?label=checks&style=for-the-badge" alt="Checks" /></a>

@@ -13,6 +13,9 @@
 	--on-accent: #ffffff;
 	--danger: #b3261e;
 	--warn: #8a5a00;
+	/* Gradient of the "hd" in the wordmark – the same in light and dark */
+	--brand-from: #149a6b;
+	--brand-to: #b3d94d;
 }
 @media (prefers-color-scheme: dark) {
 	:root {
@@ -26,6 +29,12 @@
 		--danger: #ff8a80;
 		--warn: #f2c14e;
 	}
+}
+
+/* Font of the "hdpantry" wordmark only (bundled, see +layout.svelte); everything else uses the
+   system font. */
+@theme {
+	--font-brand: 'Outfit', system-ui, sans-serif;
 }
 
 @theme inline {
