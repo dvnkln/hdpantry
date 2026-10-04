@@ -103,7 +103,15 @@ body {
 
 /* Text fields look the same everywhere. 16px keeps phones from zooming in on focus. */
 @layer base {
-	input:where([type='text'], [type='password'], [type='date'], [type='number'], :not([type])) {
+	input:where(
+		[type='text'],
+		[type='password'],
+		[type='date'],
+		[type='time'],
+		[type='number'],
+		:not([type])
+	),
+	select {
 		border: 1px solid var(--line);
 		border-radius: 0.5rem;
 		background: var(--surface);

@@ -1,4 +1,13 @@
-import { Boxes, Info, Palette, Scale, Settings2, UserRound } from '@lucide/svelte';
+import {
+	Boxes,
+	DatabaseBackup,
+	FileJson,
+	Info,
+	Palette,
+	Scale,
+	Settings2,
+	UserRound
+} from '@lucide/svelte';
 import { m } from '$lib/i18n/index.svelte';
 
 // Areas of the settings, in display order. A new area only needs one more line here (and its
@@ -41,6 +50,20 @@ export function settingsSections() {
 			hint: m.settings.guideShort
 		},
 		{
+			href: '/settings/data',
+			group: 'stock',
+			icon: FileJson,
+			label: m.settings.data,
+			hint: m.settings.dataHint
+		},
+		{
+			href: '/settings/maintenance',
+			group: 'system',
+			icon: DatabaseBackup,
+			label: m.settings.maintenance,
+			hint: m.settings.maintenanceHint
+		},
+		{
 			href: '/settings/about',
 			group: 'about',
 			icon: Info,
@@ -56,6 +79,7 @@ export function settingsGroups() {
 	return [
 		{ title: m.settings.groupPersonal, items: sections.filter((s) => s.group === 'personal') },
 		{ title: m.settings.groupStock, items: sections.filter((s) => s.group === 'stock') },
+		{ title: m.settings.groupSystem, items: sections.filter((s) => s.group === 'system') },
 		{ title: null, items: sections.filter((s) => s.group === 'about') }
 	].filter((group) => group.items.length);
 }

@@ -268,6 +268,7 @@ export const en: Messages = {
 		title: 'Settings',
 		groupPersonal: 'Personal',
 		groupStock: 'Stock',
+		groupSystem: 'System',
 		general: 'General',
 		generalHint: 'Language, scanning, “expires soon”',
 		language: 'Language',
@@ -303,6 +304,69 @@ export const en: Messages = {
 				: `You are logged in on ${n} other devices.`,
 		accountDevicesLogout: 'Log out other devices',
 		accountDevicesDone: 'All other devices were logged out.',
+		data: 'Data',
+		dataHint: 'Export and import',
+		dataExport: 'Export',
+		dataExportText:
+			'Downloads your stock as a file: all containers, what is inside, the history and what the app has learned about your food. Account and settings are not included.',
+		dataNow: (containers: number, filled: number) =>
+			`Right now: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
+		dataExportButton: 'Download export',
+		dataImport: 'Import',
+		dataImportText:
+			'Loads an export file. Importing replaces the whole stock – it does not add to it. Account and settings stay as they are.',
+		dataChoose: 'Choose file',
+		dataWarning:
+			'Everything in the app right now is deleted and replaced by the file. This cannot be undone – download an export first if you are unsure.',
+		dataWord: 'REPLACE',
+		dataReplace: 'Replace stock',
+		dataWrongWord: 'To replace, please type the confirmation word.',
+		dataImported: (containers: number, filled: number) =>
+			`Import finished: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
+		maintenance: 'Maintenance',
+		maintenanceHint: 'Automatic backup of the database',
+		backup: 'Automatic backup',
+		backupText:
+			'Makes a copy of the whole database on a schedule – stock, account and settings. The copies are kept in the data folder under “backups” and can be downloaded here.',
+		backupSwitch: 'Back up on a schedule',
+		backupHow: 'How often',
+		backupFrequencies: { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' },
+		backupMonthlyHint: 'Monthly means: on the first of the month.',
+		backupWeekday: 'Day of the week',
+		backupTime: 'Time',
+		backupKeep: 'Keep',
+		backupKeepHint: 'This many backups stay; older ones are deleted.',
+		backupNext: (when: string) => `Next backup: ${when}`,
+		backupLast: (when: string) => `Last backup: ${when}`,
+		backupNever: 'No backup has been made yet.',
+		backupFailed: (error: string) => `The last backup failed: ${error}`,
+		backupNow: 'Back up now',
+		backupRunning: 'Backing up …',
+		backupFiles: 'Backups',
+		backupNone: 'No backup yet.',
+		backupDownload: 'Download',
+		backupDeleteQuestion: 'Delete this backup?',
+		backupSizes: (database: string, backups: string) =>
+			`Database: ${database} · Backups: ${backups}`,
+		backupRestore:
+			'A backup is restored outside the app. The guide is in the wiki under “Backups and restore”.',
+		dataBusy: 'Importing …',
+		dataNowColumn: 'Now',
+		dataAfterColumn: 'Afterwards',
+		dataRows: {
+			containers: 'Containers',
+			filled: 'of which filled',
+			history: 'History entries',
+			memory: 'Learned corrections'
+		},
+		dataFileFrom: (day: string) => `Export from ${day}`,
+		dataProblems: {
+			tooLarge: 'The file is too large.',
+			notBackup: 'This is not an export file of hdpantry.',
+			newer: 'The file comes from a newer version of hdpantry. Please update the app first.',
+			invalid: (where: string) =>
+				`The file is damaged or was changed (at: ${where}). Nothing was changed.`
+		},
 		theme: 'Colour scheme',
 		themeHint: '“System” follows the setting of your device.',
 		themes: { system: 'System', dark: 'Dark', light: 'Light' },

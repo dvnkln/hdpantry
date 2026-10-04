@@ -16,7 +16,7 @@
 </p>
 
 > [!NOTE]
-> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list and most settings work; export and import are still missing. There is no release and no published image. This page grows with the app.
+> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and most settings work; the reverse-proxy settings are still missing. There is no release and no published image. This page grows with the app.
 
 ## 📖 Documentation
 
@@ -38,10 +38,13 @@ Working today:
 - 🛡️ **Protected login** – repeated wrong passwords block the address they come from. Change your username or password in the settings and log out your other devices with one tap.
 - 🌍 **English and German** – follows your browser on first start; change it any time in the settings.
 - 🌗 **Light and dark** – follows your device, or pick one.
+- 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
+- 💾 **Automatic backups** – optional copies of the database on a schedule, kept inside the data folder and downloadable in the app. Off until you switch it on.
 
 Being built for the first version:
 
-- 📤 **Export and import** – your data as a file.
+- 🔌 **Reverse proxy settings** – tell hdpantry which proxy to trust, and see whether HTTPS is active.
+- 📦 **A published image** – so installing no longer means building from source.
 
 ## Shelf life: guide values, not guarantees
 

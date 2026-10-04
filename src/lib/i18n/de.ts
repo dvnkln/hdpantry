@@ -270,6 +270,7 @@ export const de = {
 		title: 'Einstellungen',
 		groupPersonal: 'Persönlich',
 		groupStock: 'Vorrat',
+		groupSystem: 'System',
 		general: 'Allgemein',
 		generalHint: 'Sprache, Scannen, „läuft bald ab“',
 		language: 'Sprache',
@@ -305,6 +306,70 @@ export const de = {
 				: `Du bist auf ${n} weiteren Geräten angemeldet.`,
 		accountDevicesLogout: 'Andere Geräte abmelden',
 		accountDevicesDone: 'Alle anderen Geräte wurden abgemeldet.',
+		data: 'Daten',
+		dataHint: 'Export und Import',
+		dataExport: 'Export',
+		dataExportText:
+			'Lädt deinen Vorrat als Datei herunter: alle Behälter, was drin ist, der Verlauf und was die App über deine Lebensmittel gelernt hat. Konto und Einstellungen sind nicht enthalten.',
+		dataNow: (containers: number, filled: number) =>
+			`Aktuell: ${containers} Behälter, davon ${filled} gefüllt.`,
+		dataExportButton: 'Export herunterladen',
+		dataImport: 'Import',
+		dataImportText:
+			'Spielt eine Export-Datei ein. Der Import ersetzt den ganzen Vorrat – er fügt nichts hinzu. Konto und Einstellungen bleiben, wie sie sind.',
+		dataChoose: 'Datei auswählen',
+		dataWarning:
+			'Alles, was jetzt in der App ist, wird gelöscht und durch die Datei ersetzt. Das lässt sich nicht rückgängig machen – lade vorher einen Export herunter, wenn du unsicher bist.',
+		dataWord: 'ERSETZEN',
+		dataReplace: 'Vorrat ersetzen',
+		dataWrongWord: 'Zum Ersetzen bitte das Bestätigungswort eintippen.',
+		dataImported: (containers: number, filled: number) =>
+			`Import abgeschlossen: ${containers} Behälter, davon ${filled} gefüllt.`,
+		maintenance: 'Wartung',
+		maintenanceHint: 'Automatische Sicherung der Datenbank',
+		backup: 'Automatische Sicherung',
+		backupText:
+			'Legt nach Zeitplan eine Kopie der ganzen Datenbank an – Vorrat, Konto und Einstellungen. Die Kopien liegen im Datenordner unter „backups“ und lassen sich hier herunterladen.',
+		backupSwitch: 'Nach Zeitplan sichern',
+		backupHow: 'Wie oft',
+		backupFrequencies: { daily: 'Täglich', weekly: 'Wöchentlich', monthly: 'Monatlich' },
+		backupMonthlyHint: 'Monatlich heißt: am Ersten des Monats.',
+		backupWeekday: 'Wochentag',
+		backupTime: 'Uhrzeit',
+		backupKeep: 'Aufbewahren',
+		backupKeepHint: 'So viele Sicherungen bleiben; ältere werden gelöscht.',
+		backupNext: (when: string) => `Nächste Sicherung: ${when}`,
+		backupLast: (when: string) => `Letzte Sicherung: ${when}`,
+		backupNever: 'Bisher wurde keine Sicherung angelegt.',
+		backupFailed: (error: string) => `Die letzte Sicherung ist fehlgeschlagen: ${error}`,
+		backupNow: 'Jetzt sichern',
+		backupRunning: 'Sichert …',
+		backupFiles: 'Sicherungen',
+		backupNone: 'Noch keine Sicherung vorhanden.',
+		backupDownload: 'Herunterladen',
+		backupDeleteQuestion: 'Diese Sicherung löschen?',
+		backupSizes: (database: string, backups: string) =>
+			`Datenbank: ${database} · Sicherungen: ${backups}`,
+		backupRestore:
+			'Eine Sicherung wird außerhalb der App zurückgespielt. Die Anleitung steht im Wiki unter „Backups and restore“.',
+		dataBusy: 'Wird importiert …',
+		dataNowColumn: 'Jetzt',
+		dataAfterColumn: 'Danach',
+		dataRows: {
+			containers: 'Behälter',
+			filled: 'davon gefüllt',
+			history: 'Einträge im Verlauf',
+			memory: 'Gelernte Zuordnungen'
+		},
+		dataFileFrom: (day: string) => `Export vom ${day}`,
+		dataProblems: {
+			tooLarge: 'Die Datei ist zu groß.',
+			notBackup: 'Das ist keine Export-Datei von hdpantry.',
+			newer:
+				'Die Datei stammt aus einer neueren Version von hdpantry. Bitte zuerst die App aktualisieren.',
+			invalid: (where: string) =>
+				`Die Datei ist beschädigt oder wurde verändert (Stelle: ${where}). Es wurde nichts geändert.`
+		},
 		theme: 'Farbschema',
 		themeHint: '„System“ folgt der Einstellung deines Geräts.',
 		themes: { system: 'System', dark: 'Dunkel', light: 'Hell' },

@@ -14,7 +14,19 @@ const DEFAULTS = {
 	// ranges, comma-separated. Empty = none.
 	trustedProxies: '',
 	// Secret a reverse proxy sends to prove itself where addresses do not help (see proxy.ts)
-	proxyKey: ''
+	proxyKey: '',
+	// Automatic database backup (see backups.ts): off by default, schedule as in $lib/schedule
+	backupEnabled: 'off',
+	backupFrequency: 'daily',
+	backupTime: '03:00',
+	backupWeekday: '1',
+	backupKeep: '7', // this many are kept, older ones are deleted
+	// Kept by the app itself: when the schedule was last changed, and how the last run went
+	// (points in time in milliseconds)
+	backupChangedAt: '0',
+	backupLastRun: '',
+	backupLastMs: '',
+	backupLastError: ''
 } as const;
 
 export type SettingKey = keyof typeof DEFAULTS;
