@@ -56,7 +56,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 
 ## Inhalte
 
-- **Es gibt genau einen Namen: den des Inhalts** (z. B. „Provolone“). Er wird nach dem Scan abgefragt, steht in der Vorratsübersicht und steuert die Automatik (Kategorie, Symbol, Lagerort, Datum). Ein Behälter hat keinen eigenen Namen; er heißt „Größe · Kurzcode“ (`codeLabel()`) und steht nur bei den Details. Nie ein zweites Namensfeld einführen.
+- **Es gibt genau einen Namen: den des Inhalts** (z. B. „Provolone“). Das leere Namensfeld zeigt jedes Mal ein anderes Beispiel in der gewählten Sprache (`nameExamples` in `de.ts`/`en.ts`, nur Lebensmittel und Gerichte, die das Wörterbuch kennt – ein Test prüft das). Er wird nach dem Scan abgefragt, steht in der Vorratsübersicht und steuert die Automatik (Kategorie, Symbol, Lagerort, Datum). Ein Behälter hat keinen eigenen Namen; er heißt „Größe · Kurzcode“ (`codeLabel()`) und steht nur bei den Details. Nie ein zweites Namensfeld einführen.
 - Tabelle `items`: was in einem Behälter ist oder war. „Gegessen“ (immer mit Rückfrage) löscht nicht, sondern setzt `removed_at`; danach ist der Behälter leer und fragt beim nächsten Scan nach einem neuen Namen. Darunter steht der Verlauf dieses Behälters, das Neueste zuerst; Antippen übernimmt den Eintrag als Vorlage (alles außer dem Datum). Höchstens ein aktiver Inhalt je Behälter – das sichert auch ein Index in der Datenbank.
 - Felder, Grenzen und die Prüfung des Formulars stehen in `src/lib/items.ts` (`readItemForm()`), für Browser und Server gemeinsam. Lagerorte: `pantry`, `fridge`, `zero`, `freezer`; Füllstand: `low`, `medium`, `full`. Menge optional als Zahl + Einheit (`g`, `kg`, `ml`, `l`, `pcs`, `servings`). **Die Menge folgt dem Füllstand-Regler in Dritteln** (voll = 3/3, mittel = 2/3, niedrig = 1/3; `scaleAmount()`), gerechnet ab der zuletzt eingetippten Menge und der Stufe, bei der sie eingetippt wurde.
 - „Ersetzen“ (`/containers/[id]/add?replace=1`): Der alte Inhalt wird erst beim Speichern des neuen als gegessen vermerkt, beides in einer Transaktion (`replaceItem()`); Abbrechen ändert nichts. Deshalb keine eigene Rückfrage.
@@ -77,7 +77,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 - Formular: Kategorie aus dem Namen (antippbar, Auswahl mit Beispielzeile), Lagerorte in vier Zuständen, die sich klar unterscheiden müssen: grün = empfohlen, ohne Farbe = möglich, orange = nicht empfohlen (nie rot, das hieße „verboten“), gestrichelter Rand mit blasser Schrift = nicht möglich und nicht wählbar (keine Schraffur, war zu laut) (prüft auch der Server). Darunter eine Legende aus kleinen Farbfeldern, nur mit den Zuständen, die bei der Kategorie vorkommen. Der beste Lagerort ist vorausgewählt. Das Datum folgt Kategorie, Lagerort und Vakuum, bis es von Hand gesetzt wird (`date_manual`); dann „Vorschlag übernehmen“.
 - **Überall, wo ein Datum vorgeschlagen wird, steht der Hinweis „Richtwert, keine Garantie – immer selbst prüfen“.**
 - Symbole (`src/lib/food/icons.ts`, `FoodIcon.svelte`): zwei Stile, umschaltbar in den Einstellungen (`iconStyle`) – farbig = Twemoji (CC BY 4.0, Namensnennung in README und App Pflicht), schlicht = Lucide/Tabler als Maske in Textfarbe. Die Dateien liegen fertig unter `static/food/` und werden mit `scripts/food-icons.mjs` aus der Liste erzeugt (Pakete dafür nur vorübergehend installieren, keine Projekt-Abhängigkeit). Symbol je Inhalt: von Hand gewählt (`items.icon`) oder aus Name und Kategorie (`suggestIcon()`).
-- Seite `/settings/guide` zeigt Tabelle, Quellen und Hinweis; README hat denselben Hinweis samt Quellenliste. Ändern sich Werte oder Quellen: `shelfLife.ts`, README und Wiki-Seite „Shelf life guide values“ zusammen anpassen.
+- Seite `/settings/guide` zeigt Tabelle, Quellen und Hinweis; die README hat nur den kurzen Hinweis mit Link ins Wiki. Ändern sich Werte oder Quellen: `shelfLife.ts` und Wiki-Seite „Shelf life guide values“ zusammen anpassen.
 
 ## Sicherheit
 
@@ -105,7 +105,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 ## Dokumentation
 
 - Schriftzug für die README: `docs/brand/wordmark-light.png` / `-dark.png` (Logo + „hdpantry“ in der Schrift Outfit, „hd“ extrafett mit Verlauf von Grün `#149a6b` nach Hellgrün `#b3d94d`, Rest halbfett; als Bild erzeugt, weil GitHub keine eigenen Schriften lädt). In der App derselbe Schriftzug als Text (`Brand.svelte`, Schrift lokal gebündelt über `@fontsource/outfit`, Klasse `font-brand`).
-- README (Englisch) ist das Schaufenster: Name, Kurzbeschreibung, Hinweis „Early development“ (bis zum ersten Release), Links ins Wiki, Features – ehrlich getrennt in „funktioniert heute“ und „in Arbeit“, nur was hdpantry auszeichnet –, Quick start, **Built with AI** und License. Screenshots kommen, sobald es etwas zu zeigen gibt. Mit jedem MVP-Punkt die Feature-Liste nachziehen.
+- README (Englisch) ist das Schaufenster: Name, Kurzbeschreibung, Hinweis „Early development“ (bis zum ersten Release), Links ins Wiki, Features – ehrlich getrennt in „funktioniert heute“ und „in Arbeit“, nur was hdpantry auszeichnet –, Quick start, **Built with AI** und License. oben das Titelbild `devices.jpg` (Bildschirm + zwei Handys, eigene Zeichnung der Geräte), Screenshot-Tabelle (`docs/screenshots/`, Handy 390×844 in doppelter Auflösung, englische Oberfläche, **nur erfundene Beispieldaten**, drei pro Zeile) – nach sichtbaren Änderungen neu aufnehmen. Feature-Liste aktuell halten.
 - Anleitungen für Nutzer gehören ins GitHub-Wiki (eigenes Git-Repo, Englisch), nicht in die README. Ändert sich etwas an Installation, `.env`, Update oder Rettungswegen: Wiki-Seite mit anpassen. Die Seite „Privacy and security“ hält fest, dass es keine Verbindung nach außen gibt und wie Daten gespeichert sind.
 
 ## Befehle
@@ -134,9 +134,5 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
    - **Verbindung ✅** (`/settings/connection`): zeigt, ob HTTPS aktiv ist und welche Adressen in `ORIGIN` stehen; Reverse Proxy bestätigen per Adresse (ein Knopf) oder – wenn Docker die Adressen verbirgt – per Schlüssel mit fertiger Zeile für gängige Proxys (`src/lib/proxySnippets.ts`). Was die App von einer Anfrage sieht: `connectionOf()` in `auth.ts`.
 
 **Vor dem ersten Release (v0.1.0, nach Punkt 7) noch offen – bewusst verschoben:** GitHub Action für das Multi-Arch-Image (amd64, arm64 → GHCR bei Tag `v*`, nur nach grüner Prüfung, App-Build nur auf der Build-Plattform, kein Build-Cache) und `CHANGELOG.md` samt Release-Ablauf.
-Außerdem vor dem Release:
-
-- README straffen: Der Abschnitt zur Haltbarkeit wird ein kurzer Hinweis („Schätzung anhand von Quellen, keine Garantie“) mit Link auf die Wiki-Seite „Shelf life guide values“; die Details und die Quellenliste stehen nur noch dort.
-- README bekommt eine Screenshot-Tabelle (Handy-Screenshots der wichtigsten Seiten, drei pro Zeile, Bilder unter `docs/screenshots/`), sobald die App release-fertig ist.
 
 Ideen für später stehen in `ROADMAP.md` (Englisch, aus Nutzersicht) – dort eintragen, nicht umsetzen.

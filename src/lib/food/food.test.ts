@@ -223,3 +223,14 @@ describe('symbols', () => {
 		}
 	});
 });
+
+describe('example names in the empty name field', () => {
+	it('are food the app recognises, in both languages', async () => {
+		const { de } = await import('$lib/i18n/de');
+		const { en } = await import('$lib/i18n/en');
+		expect(de.item.nameExamples.length).toBe(en.item.nameExamples.length);
+		for (const name of [...de.item.nameExamples, ...en.item.nameExamples]) {
+			expect(suggestCategory(name), name).not.toBe('other');
+		}
+	});
+});

@@ -18,6 +18,7 @@
 	<div class="mt-4"></div>
 	<ItemForm
 		nameFirst
+		example={data.example}
 		initial={{
 			name: '',
 			note: null,

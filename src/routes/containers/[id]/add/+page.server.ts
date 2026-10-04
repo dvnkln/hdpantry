@@ -21,6 +21,8 @@ export const load: PageServerLoad = ({ params, locals, url }) => {
 	if (current && !replacing) redirect(303, `/containers/${c.id}`);
 	return {
 		replacing,
+		// Picks the example name in the empty field, a different one each time
+		example: Math.random(),
 		container: { id: c.id, source: c.source },
 		location: lastLocation(),
 		// Today in the time zone of the server (TZ): suggested dates count from here

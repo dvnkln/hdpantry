@@ -42,10 +42,14 @@
 		history = [],
 		submitLabel,
 		cancelHref,
-		error = ''
+		error = '',
+		example = 0
 	}: {
 		// Values the form starts with
 		initial: ItemValues;
+		// Which example name the empty field shows: a number from 0 up to (not including) 1,
+		// drawn by the server so that it is the same when the page is first drawn and in the browser
+		example?: number;
 		// How the container was recorded – decides how the fill level is drawn
 		source?: CodeSource | null;
 		// Ask only for the name first; the rest appears after Enter (new content)
@@ -60,6 +64,10 @@
 		cancelHref: string;
 		error?: string;
 	} = $props();
+
+	let exampleName = $derived(
+		m.item.nameExamples[Math.floor(example * m.item.nameExamples.length)] ?? m.item.nameExamples[0]
+	);
 
 	// svelte-ignore state_referenced_locally
 	let step = $state<1 | 2>(nameFirst ? 1 : 2);
@@ -213,7 +221,7 @@
 			bind:value={name}
 			oninput={() => step === 2 && guess()}
 			maxlength={MAX_ITEM_NAME}
-			placeholder={m.item.namePlaceholder}
+			placeholder={m.item.namePlaceholder(exampleName)}
 			autocomplete="off"
 			enterkeyhint={step === 1 ? 'next' : undefined}
 			required
