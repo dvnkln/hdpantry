@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import type { Cookies, RequestEvent } from '@sveltejs/kit';
-import { count, eq, lt } from 'drizzle-orm';
+import { and, count, eq, lt, ne } from 'drizzle-orm';
 import { getSecret } from './config';
 import { getDb } from './db';
 import { sessions, users } from './db/schema';
@@ -100,6 +100,25 @@ export function deleteSession(token: string) {
 		.delete(sessions)
 		.where(eq(sessions.id, sessionId(token)))
 		.run();
+}
+
+// Logins of this account on other devices: everything but the session of this cookie token
+function otherSessions(userId: number, token: string) {
+	return and(eq(sessions.userId, userId), ne(sessions.id, sessionId(token)));
+}
+
+export function countOtherSessions(userId: number, token: string) {
+	const [row] = getDb()
+		.select({ n: count() })
+		.from(sessions)
+		.where(otherSessions(userId, token))
+		.all();
+	return row.n;
+}
+
+// Logs out every other device. Returns how many were logged out.
+export function deleteOtherSessions(userId: number, token: string) {
+	return getDb().delete(sessions).where(otherSessions(userId, token)).run().changes;
 }
 
 // Called at server start and on every login (there is no background scheduler).

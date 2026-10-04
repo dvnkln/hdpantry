@@ -123,7 +123,7 @@ Sparsam bleiben: kleines Image, wenige Abhängigkeiten, schnelle Seiten auf schw
 7. Einstellungen – in Etappen, nach jeder stoppen. Vor dem ersten Release müssen alle fertig sein:
    - **Gerüst ✅:** Bereiche in `src/lib/settingsNav.ts` (neuer Bereich = eine Zeile dort + Seite unter `src/routes/settings/`); am PC Seitenleiste, am Handy zeigt `/settings` die gruppierte Liste, jeder Bereich hat „← Einstellungen“. Fertig: Aussehen (Symbole), Behälter, Richtwerte, Über.
    - **Allgemein ✅** (Sprache, Vibration beim Scan, Schwelle „läuft bald ab“) und **Aussehen ✅** (Farbschema mit Vorschau, Symbole). Jede Wahl wird sofort gespeichert, ohne „Speichern“-Knopf; die Seite wird dabei nicht neu geladen – `+layout.svelte` zieht Sprache, Schema und Farbe der Browser-Leiste nach.
-   - Konto: Benutzername und Passwort ändern, andere Geräte abmelden
+   - **Konto ✅** (`src/lib/server/account.ts`): Benutzername und Passwort ändern – beides nur mit dem aktuellen Passwort; ein falsches zählt zur Login-Sperre. Eine Passwortänderung meldet alle anderen Geräte ab; dafür gibt es auch einen eigenen Knopf.
    - Daten: Export und Import als JSON – Import **ersetzt** den ganzen Bestand, mit deutlichem Hinweis und Bestätigungswort
    - Verbindung: Reverse Proxy bestätigen (`trustedProxies`/`proxyKey`, per Adresse oder Schlüssel), Anzeige ob HTTPS aktiv ist
 

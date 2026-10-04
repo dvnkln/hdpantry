@@ -1,4 +1,4 @@
-import { Boxes, Info, Palette, Scale, Settings2 } from '@lucide/svelte';
+import { Boxes, Info, Palette, Scale, Settings2, UserRound } from '@lucide/svelte';
 import { m } from '$lib/i18n/index.svelte';
 
 // Areas of the settings, in display order. A new area only needs one more line here (and its
@@ -18,6 +18,13 @@ export function settingsSections() {
 			icon: Palette,
 			label: m.settings.appearance,
 			hint: m.settings.appearanceHint
+		},
+		{
+			href: '/settings/account',
+			group: 'personal',
+			icon: UserRound,
+			label: m.settings.account,
+			hint: m.settings.accountHint
 		},
 		{
 			href: '/settings/containers',
