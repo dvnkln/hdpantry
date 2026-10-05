@@ -40,6 +40,6 @@ export const actions: Actions = {
 		if (!values) return fail(400, { error: t.item.problems[problem] });
 		updateActiveItem(c.id, values);
 		learnFood(values.name, values.category, values.icon);
-		redirect(303, `/containers/${c.id}`);
+		redirect(303, '/');
 	}
 };
