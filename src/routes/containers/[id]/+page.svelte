@@ -78,7 +78,7 @@
 			<div class="mt-4 flex gap-2">
 				<button
 					type="button"
-					class="flex flex-1 items-center justify-center gap-2 btn-primary"
+					class="flex flex-1 items-center justify-center gap-2 btn-secondary"
 					onclick={() => (confirmEaten = true)}
 				>
 					<EatenIcon size={24} />
@@ -87,7 +87,7 @@
 				<!-- Eaten and filled again in one go -->
 				<a
 					href="/containers/{container.id}/add?replace=1"
-					class="flex flex-1 items-center justify-center gap-2 btn-secondary"
+					class="flex flex-1 items-center justify-center gap-2 btn-primary"
 				>
 					<Replace size={18} />
 					{m.item.replace}
