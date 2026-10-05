@@ -4,9 +4,9 @@ import type { Location } from '$lib/items';
 import { REMINDER_KINDS, isNotifyMode, type NotifyMode, type ReminderKind } from '$lib/reminders';
 import { daysUntil } from '$lib/stock';
 import { getDb } from './db';
-import { items, notificationsSent, pushSubscriptions, users } from './db/schema';
+import { items, notificationsSent, users } from './db/schema';
 import { serverMessages } from './i18n';
-import { sendPush, type PushMessage } from './push';
+import { deliver, hasEnabledTarget, type Notice } from './targets';
 import { getSetting, setSettings, soonDays } from './settings';
 
 // Reminds of what is about to expire: the day a content reaches the "expires soon" threshold,
@@ -44,7 +44,14 @@ export function prefsFor(userId: number) {
 // nothing that was due before is announced.
 export function savePrefs(
 	userId: number,
-	values: { mode?: NotifyMode; hour?: number; kind?: ReminderKind; on?: boolean },
+	values: {
+		mode?: NotifyMode;
+		hour?: number;
+		kind?: ReminderKind;
+		on?: boolean;
+		// all three occasions at once (the settings form)
+		kinds?: Record<ReminderKind, boolean>;
+	},
 	now = new Date()
 ) {
 	const before = prefsFor(userId);
@@ -55,6 +62,11 @@ export function savePrefs(
 		...(values.hour !== undefined && { notifyHour: String(values.hour) }),
 		...(values.kind !== undefined &&
 			values.on !== undefined && { [kindKey[values.kind]]: values.on ? 'on' : 'off' }),
+		...(values.kinds && {
+			notifySoon: values.kinds.soon ? 'on' : 'off',
+			notifyToday: values.kinds.today ? 'on' : 'off',
+			notifyExpired: values.kinds.expired ? 'on' : 'off'
+		}),
 		...(switchedOn && { notifyFrom: today(now) })
 	});
 }
@@ -158,7 +170,7 @@ function phrase(due: Due, m: ReturnType<typeof serverMessages>) {
 
 // One message per content (opens it), or one for all of them (opens the stock list).
 // Messages with the same tag replace each other on the device.
-export function buildMessages(due: Due[], mode: NotifyMode, day = today()): PushMessage[] {
+export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Notice[] {
 	if (due.length === 0 || mode === 'off') return [];
 	const m = serverMessages(locale());
 
@@ -172,7 +184,8 @@ export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Push
 				body: lines.join('\n'),
 				url: '/',
 				tag: `digest-${day}`,
-				icon: ICON
+				icon: ICON,
+				count: due.length
 			}
 		];
 	}
@@ -181,14 +194,17 @@ export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Push
 		body: `${phrase(d, m)} · ${m.locations[d.location]}`,
 		url: `/containers/${d.containerId}`,
 		tag: `item-${d.itemId}`,
-		icon: ICON
+		icon: ICON,
+		count: 1
 	}));
 }
 
-// For the test button: a message that looks like a real one – made from what expires first in
-// the stock, in the form the user chose (marked as a test). Null if nothing has a date.
-export function sampleMessage(userId: number, day = today()): PushMessage | null {
+// For the test of a target: a message that looks like a real one – made from what expires
+// first in the stock, in the form the user chose, marked as a test. Without anything dated in
+// stock a plain sentence.
+export function sampleMessage(userId: number, day = today()): Notice {
 	const { mode } = prefsFor(userId);
+	const m = serverMessages(locale()).notifications;
 	const stock = getDb()
 		.select()
 		.from(items)
@@ -217,9 +233,18 @@ export function sampleMessage(userId: number, day = today()): PushMessage | null
 		digest ? 'digest' : 'single',
 		day
 	);
-	if (!message) return null;
-	const mark = serverMessages(locale()).notifications.testMark;
-	return { ...message, title: `${mark} · ${message.title}`, tag: 'test' };
+	if (!message) {
+		return {
+			title: m.testTitle,
+			body: m.testBody,
+			url: '/settings/notifications',
+			tag: 'test',
+			icon: ICON,
+			count: 0,
+			test: true
+		};
+	}
+	return { ...message, title: `${m.testMark} · ${message.title}`, tag: 'test', test: true };
 }
 
 // ---- Sending ----
@@ -245,21 +270,16 @@ export async function notifyUser(userId: number, now = new Date()) {
 	const due = dueReminders(userId, day);
 	if (due.length === 0) return 0;
 
-	const devices = getDb()
-		.select({ id: pushSubscriptions.id })
-		.from(pushSubscriptions)
-		.where(eq(pushSubscriptions.userId, userId))
-		.all();
-	// Nobody to tell: do not save it up for the day a device is switched on.
-	if (devices.length === 0) {
+	// Nobody to tell: do not save it up for the day a target is switched on.
+	if (!hasEnabledTarget(userId)) {
 		markSent(userId, due);
 		return 0;
 	}
 
 	let sentMessages = 0;
 	for (const message of buildMessages(due, mode, day)) {
-		const results = await sendPush(userId, message);
-		// Reached no device at all: try again with the next run (for as long as it is fresh).
+		const results = await deliver(userId, message);
+		// Reached no target at all: try again with the next run (for as long as it is fresh).
 		if (!results.some((r) => r.ok)) continue;
 		sentMessages++;
 		markSent(

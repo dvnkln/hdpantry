@@ -108,10 +108,12 @@ body {
 		[type='password'],
 		[type='date'],
 		[type='time'],
+		[type='url'],
 		[type='number'],
 		:not([type])
 	),
-	select {
+	select,
+	textarea {
 		border: 1px solid var(--line);
 		border-radius: 0.5rem;
 		background: var(--surface);
@@ -121,6 +123,17 @@ body {
 	:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
+	}
+	/* Hand cursor on everything clickable (Tailwind v4 uses the arrow for buttons by default) */
+	button:not(:disabled),
+	summary,
+	select,
+	label:has(input:where([type='checkbox'], [type='radio'], [type='file']):not(:disabled)),
+	[role='button'] {
+		cursor: pointer;
+	}
+	button:disabled {
+		cursor: not-allowed;
 	}
 }
 

@@ -37,6 +37,20 @@ CREATE TABLE `items` (
 --> statement-breakpoint
 CREATE INDEX `items_container_idx` ON `items` (`container_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `items_active_idx` ON `items` (`container_id`) WHERE "items"."removed_at" is null;--> statement-breakpoint
+CREATE TABLE `notification_channels` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`user_id` integer NOT NULL,
+	`kind` text NOT NULL,
+	`name` text NOT NULL,
+	`enabled` integer DEFAULT true NOT NULL,
+	`config` text NOT NULL,
+	`created_at` integer NOT NULL,
+	`last_ok_at` integer,
+	`last_error` text,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `notification_channels_user` ON `notification_channels` (`user_id`);--> statement-breakpoint
 CREATE TABLE `notifications_sent` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` integer NOT NULL,
@@ -57,6 +71,7 @@ CREATE TABLE `push_subscriptions` (
 	`label` text NOT NULL,
 	`created_at` integer NOT NULL,
 	`last_ok_at` integer,
+	`enabled` integer DEFAULT true NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

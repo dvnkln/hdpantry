@@ -2,7 +2,14 @@ import { createECDH, randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDb } from './db';
-import { containers, items, notificationsSent, pushSubscriptions, users } from './db/schema';
+import {
+	containers,
+	items,
+	notificationChannels,
+	notificationsSent,
+	pushSubscriptions,
+	users
+} from './db/schema';
 import {
 	buildMessages,
 	dueReminders,
@@ -11,7 +18,8 @@ import {
 	sampleMessage,
 	savePrefs
 } from './notifications';
-import { addDevice } from './push';
+import { saveChannel } from './channels';
+import { addDevice, listDevices, setDeviceEnabled } from './push';
 import { setSettings } from './settings';
 
 // The day everything happens on, and days counted from it
@@ -76,6 +84,7 @@ beforeEach(() => {
 	db.delete(containers).run();
 	db.delete(notificationsSent).run();
 	db.delete(pushSubscriptions).run();
+	db.delete(notificationChannels).run();
 	setSettings({
 		uiLanguage: 'en',
 		soonDays: '3',
@@ -163,14 +172,16 @@ describe('the messages', () => {
 				body: 'expired yesterday · Fridge',
 				url: expect.stringMatching(/^\/containers\/\d+$/),
 				tag: expect.stringMatching(/^item-\d+$/),
-				icon: '/icons/notify.png'
+				icon: '/icons/notify.png',
+				count: 1
 			},
 			{
 				title: 'Cheese',
 				body: 'expires in 3 days · Fridge',
 				url: `/containers/${cheese.containerId}`,
 				tag: `item-${cheese.id}`,
-				icon: '/icons/notify.png'
+				icon: '/icons/notify.png',
+				count: 1
 			}
 		]);
 	});
@@ -191,13 +202,14 @@ describe('the messages', () => {
 		expect(lines.at(-1)).toBe('… und 3 weitere');
 	});
 
-	it('the test message looks like a real one, or is missing without dated stock', () => {
-		expect(sampleMessage(me, DAY)).toBeNull();
+	it('the test message looks like a real one; without dated stock it is a plain sentence', () => {
+		expect(sampleMessage(me, DAY)).toMatchObject({ title: 'hdpantry', tag: 'test', test: true });
 		store('Cheese', plus(5));
 		expect(sampleMessage(me, DAY)).toMatchObject({
 			title: 'Test · Cheese',
 			body: 'expires in 5 days · Fridge',
-			tag: 'test'
+			tag: 'test',
+			test: true
 		});
 	});
 });
@@ -252,6 +264,31 @@ describe('sending', () => {
 		device();
 		expect(await notifyUser(me, at(DAY, 12))).toBe(0);
 		expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+	});
+
+	it('leaves out a device that is switched off – with none switched on, nothing is saved up', async () => {
+		device();
+		const [only] = listDevices(me);
+		setDeviceEnabled(me, only.id, false);
+		store('Fish', plus(0));
+		expect(await notifyUser(me, at(DAY))).toBe(0);
+		expect(vi.mocked(fetch)).not.toHaveBeenCalled();
+		setDeviceEnabled(me, only.id, true);
+		expect(await notifyUser(me, at(DAY, 12))).toBe(0);
+	});
+
+	it('reaches a webhook like a device', async () => {
+		await saveChannel(me, {
+			id: null,
+			kind: 'webhook',
+			name: 'Hook',
+			fields: { url: 'https://hook.example/x', body: '{{title}} – {{message}}' }
+		});
+		store('Fish', plus(0));
+		expect(await notifyUser(me, at(DAY))).toBe(1);
+		const [url, init] = vi.mocked(fetch).mock.calls[0];
+		expect(String(url)).toBe('https://hook.example/x');
+		expect(init!.body).toBe('Fish – expires today · Fridge');
 	});
 
 	it('tries again when no device could be reached', async () => {

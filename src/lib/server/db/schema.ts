@@ -119,7 +119,9 @@ export const pushSubscriptions = sqliteTable(
 			.notNull()
 			.$defaultFn(() => new Date()),
 		// Last time the push service accepted a message for this device
-		lastOkAt: integer('last_ok_at', { mode: 'timestamp' })
+		lastOkAt: integer('last_ok_at', { mode: 'timestamp' }),
+		// Off: stays in the list with everything about it, but gets no messages
+		enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true)
 	},
 	(table) => [index('push_subscriptions_user').on(table.userId)]
 );
@@ -144,4 +146,28 @@ export const notificationsSent = sqliteTable(
 	(table) => [
 		uniqueIndex('notifications_sent_once').on(table.userId, table.itemId, table.kind, table.date)
 	]
+);
+
+// Further ways to notify the user, besides their own devices (see server/channels.ts): a
+// Pushover account, an ntfy topic, a webhook. Any number, each with a name and a switch – off
+// keeps the settings. `config` holds what the kind needs (keys, address, ...).
+export const notificationChannels = sqliteTable(
+	'notification_channels',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		userId: integer('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		kind: text('kind').$type<'pushover' | 'ntfy' | 'webhook'>().notNull(),
+		name: text('name').notNull(),
+		enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+		config: text('config', { mode: 'json' }).$type<Record<string, unknown>>().notNull(),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date()),
+		lastOkAt: integer('last_ok_at', { mode: 'timestamp' }),
+		// Why the last message could not be delivered (cleared by the next one that works)
+		lastError: text('last_error')
+	},
+	(table) => [index('notification_channels_user').on(table.userId)]
 );

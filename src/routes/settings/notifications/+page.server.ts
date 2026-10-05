@@ -1,18 +1,19 @@
 import { fail, redirect, type RequestEvent } from '@sveltejs/kit';
-import { REMINDER_KINDS, isNotifyMode, type ReminderKind } from '$lib/reminders';
+import { isNotifyMode } from '$lib/reminders';
+import { removeChannel, saveChannel, setChannelEnabled } from '$lib/server/channels';
 import { serverMessages } from '$lib/server/i18n';
 import { notifyUser, prefsFor, sampleMessage, savePrefs } from '$lib/server/notifications';
 import {
 	addDevice,
-	listDevices,
 	parseSubscription,
 	pushPublicKey,
 	removeDevice,
 	removeEndpoint,
 	renameDevice,
-	sendPush
+	setDeviceEnabled
 } from '$lib/server/push';
 import { soonDays } from '$lib/server/settings';
+import { deliver, listTargets, parseTargetKey } from '$lib/server/targets';
 import type { Actions, PageServerLoad } from './$types';
 
 function userOf(event: RequestEvent) {
@@ -26,100 +27,141 @@ export const load: PageServerLoad = (event) => {
 		publicKey: pushPublicKey(),
 		prefs: prefsFor(user.id),
 		soonDays: soonDays(),
-		devices: listDevices(user.id).map((device) => ({
-			...device,
-			createdAt: device.createdAt.toISOString(),
-			lastOkAt: device.lastOkAt?.toISOString() ?? null
-		}))
+		targets: listTargets(user.id)
 	};
 };
 
 export const actions: Actions = {
-	// Called by the page after the browser has subscribed at its push service.
+	// What to be reminded of, how and from which hour – saved the moment a choice is made.
+	prefs: async (event) => {
+		const user = userOf(event);
+		const t = serverMessages(event.locals.locale);
+		const data = await event.request.formData();
+		const mode = data.get('mode');
+		const hour = Number(data.get('hour'));
+		if (!isNotifyMode(mode) || !Number.isInteger(hour) || hour < 0 || hour > 23) {
+			return fail(400, { error: t.common.invalid });
+		}
+		savePrefs(user.id, {
+			mode,
+			hour,
+			kinds: {
+				soon: data.get('soon') === 'on',
+				today: data.get('today') === 'on',
+				expired: data.get('expired') === 'on'
+			}
+		});
+		// Look right away instead of at the next full hour: what is due today under the new
+		// choice goes out now (in the background; the page does not wait for the services)
+		notifyUser(user.id).catch((err) => console.error('Reminders failed', err));
+		return {};
+	},
+
+	// "This device": called by the page after the browser has subscribed at its push service.
 	subscribe: async (event) => {
 		const user = userOf(event);
 		const t = serverMessages(event.locals.locale).notifications;
 		const data = await event.request.formData();
 		const sub = parseSubscription(String(data.get('subscription') ?? ''));
 		const agent = event.request.headers.get('user-agent') ?? '';
-		if (!sub || !addDevice(user.id, sub, agent)) {
-			return fail(400, { section: 'device', error: t.refused });
-		}
+		if (!sub || !addDevice(user.id, sub, agent)) return fail(400, { error: t.refused });
 		// The browser made a new subscription in place of an older one: that address is dead now
 		const replaces = String(data.get('replaces') ?? '');
 		if (replaces && replaces !== sub.endpoint) removeEndpoint(user.id, replaces);
-		return { section: 'device', message: t.enabled };
+		return { message: t.saved };
 	},
 
-	// Removes a device (the page also ends the subscription in the browser).
-	unsubscribe: async (event) => {
+	// The switch of a target: off keeps everything about it.
+	targetToggle: async (event) => {
+		const user = userOf(event);
+		const data = await event.request.formData();
+		const ref = parseTargetKey(String(data.get('key') ?? ''));
+		const enabled = data.get('enabled') === 'on';
+		const done =
+			ref &&
+			(ref.type === 'device'
+				? setDeviceEnabled(user.id, ref.id, enabled)
+				: setChannelEnabled(user.id, ref.id, enabled));
+		if (!done) {
+			const t = serverMessages(event.locals.locale).notifications;
+			return fail(400, { error: t.channelErrors.unknown });
+		}
+		return {};
+	},
+
+	targetRemove: async (event) => {
 		const user = userOf(event);
 		const t = serverMessages(event.locals.locale).notifications;
-		const id = Number((await event.request.formData()).get('id'));
-		if (!Number.isInteger(id) || !removeDevice(user.id, id)) {
-			return fail(400, { section: 'devices', error: t.invalid });
-		}
-		return { section: 'devices', message: t.removed };
+		const ref = parseTargetKey(String((await event.request.formData()).get('key') ?? ''));
+		const done =
+			ref &&
+			(ref.type === 'device' ? removeDevice(user.id, ref.id) : removeChannel(user.id, ref.id));
+		if (!done) return fail(400, { error: t.channelErrors.unknown });
+		return { message: t.removed };
 	},
 
-	rename: async (event) => {
+	// A test message to exactly one target (also one that is switched off): it looks like a
+	// real reminder where the stock has something with a date.
+	targetTest: async (event) => {
+		const user = userOf(event);
+		const t = serverMessages(event.locals.locale).notifications;
+		const ref = parseTargetKey(String((await event.request.formData()).get('key') ?? ''));
+		const [result] = ref ? await deliver(user.id, sampleMessage(user.id), ref) : [];
+		if (!result) return fail(400, { error: t.channelErrors.unknown });
+		if (result.ok) return { message: t.testSent };
+		const reason =
+			result.error === 'gone'
+				? t.gone
+				: !result.error || result.error === 'unreachable'
+					? t.unreachable
+					: t.testFailed(result.error);
+		return fail(502, { error: reason });
+	},
+
+	// The name of a device (a device has no other settings).
+	deviceRename: async (event) => {
 		const user = userOf(event);
 		const t = serverMessages(event.locals.locale).notifications;
 		const data = await event.request.formData();
-		const id = Number(data.get('id'));
-		if (!Number.isInteger(id) || !renameDevice(user.id, id, String(data.get('label') ?? ''))) {
-			return fail(400, { section: 'devices', error: t.invalid });
-		}
-		return { section: 'devices', message: t.renamed };
+		const ref = parseTargetKey(String(data.get('key') ?? ''));
+		const done =
+			ref?.type === 'device' && renameDevice(user.id, ref.id, String(data.get('name') ?? ''));
+		if (!done) return fail(400, { error: t.channelErrors.name });
+		return { message: t.saved };
 	},
 
-	// What to be reminded of, how and from which hour. Every choice is saved as soon as it is
-	// made, so only what was sent and is valid is changed.
-	prefs: async (event) => {
+	// Creates or changes a Pushover, ntfy or webhook target (Pushover's keys are checked there first).
+	channelSave: async (event) => {
 		const user = userOf(event);
+		const t = serverMessages(event.locals.locale).notifications;
 		const data = await event.request.formData();
-		const mode = data.get('mode');
-		const hour = data.has('hour') ? Number(data.get('hour')) : NaN;
-		const kind = data.get('kind');
-		const isKind = (REMINDER_KINDS as readonly unknown[]).includes(kind);
-		savePrefs(user.id, {
-			...(isNotifyMode(mode) && { mode }),
-			...(Number.isInteger(hour) && hour >= 0 && hour <= 23 && { hour }),
-			...(isKind && { kind: kind as ReminderKind, on: data.get('on') === 'on' })
+		const ref = parseTargetKey(String(data.get('key') ?? ''));
+		const text = (name: string) => String(data.get(name) ?? '');
+		const result = await saveChannel(user.id, {
+			id: ref?.type === 'channel' ? ref.id : null,
+			kind: text('kind'),
+			name: text('name'),
+			fields: {
+				token: text('token'),
+				user: text('user'),
+				devices: text('devices'),
+				url: text('url'),
+				body: text('body'),
+				header: text('header'),
+				clearHeader: text('clearHeader'),
+				server: text('server'),
+				topic: text('topic'),
+				icon: text('icon'),
+				clearToken: text('clearToken')
+			}
 		});
-		// Look right away instead of at the next full hour: what is due today under the new
-		// choice goes out now (in the background; the page does not wait for the push service)
-		notifyUser(user.id).catch((err) => console.error('Reminders failed', err));
-		return { section: 'prefs' };
-	},
-
-	// A test message to all devices
-	test: async (event) => {
-		const user = userOf(event);
-		const t = serverMessages(event.locals.locale).notifications;
-		// Looks like the real thing where the stock has something with a date
-		const message = sampleMessage(user.id) ?? {
-			title: t.testTitle,
-			body: t.testBody,
-			url: '/settings/notifications',
-			tag: 'test',
-			icon: '/icons/notify.png'
-		};
-		const results = await sendPush(user.id, message);
-		if (results.length === 0) return fail(400, { section: 'test', error: t.noDevices });
-		const names = (list: typeof results) => list.map((r) => r.label).join(', ');
-		const reached = results.filter((r) => r.ok);
-		const gone = results.filter((r) => r.gone);
-		const failed = results.filter((r) => !r.ok && !r.gone);
-		// What happened, device by device: reached, no longer there (removed), not delivered
-		const text = [
-			reached.length ? t.testSent(reached.length) : '',
-			gone.length ? t.testGone(names(gone)) : '',
-			failed.length ? t.testFailed(names(failed)) : ''
-		]
-			.filter(Boolean)
-			.join(' · ');
-		if (reached.length === 0) return fail(502, { section: 'test', error: text });
-		return { section: 'test', message: text };
+		if (!result.ok) {
+			const error =
+				result.error === 'refused'
+					? t.rejected(result.text ?? '')
+					: (t.channelErrors[result.error] ?? t.invalid);
+			return fail(400, { error });
+		}
+		return { message: t.saved, key: `channel:${result.id}` };
 	}
 };
