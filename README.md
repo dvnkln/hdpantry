@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  Self-hosted pantry tracker for reusable <b>vacuum containers and bags</b> with a QR code – scan a container, note what is inside, and see what should be eaten first.
+  Self-hosted pantry tracker – know <b>what you have</b> and <b>what should be eaten first</b>. Scan the code on a container, note what is inside, done.
 </p>
 
 <p align="center">
@@ -29,6 +29,7 @@ The guides live in the **[wiki](https://github.com/dvnkln/hdpantry/wiki)**:
 - 🐳 [Installation](https://github.com/dvnkln/hdpantry/wiki/Installation) – Docker Compose and the `.env` file
 - 🔐 [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS) – reverse proxy, `ORIGIN`, why the camera needs it, installing as an app
 - 📅 [Shelf life guide values](https://github.com/dvnkln/hdpantry/wiki/Shelf-life-guide-values) – what the suggested dates are worth and where they come from
+- 🔔 [Notifications](https://github.com/dvnkln/hdpantry/wiki/Notifications) – reminders on your phone, and what they need
 - 📤 [Export and import](https://github.com/dvnkln/hdpantry/wiki/Export-and-import) – your stock as a file
 - 💾 [Backups and restore](https://github.com/dvnkln/hdpantry/wiki/Backups-and-restore)
 - 🛡️ [Privacy and security](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) – what stays on your server, how your data is stored
@@ -42,14 +43,15 @@ What's planned for later: [Roadmap](ROADMAP.md).
 Working today:
 
 - 📷 **Scan** – hold a code in front of the camera and hdpantry leads on right away, without a button or a question: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too. Any QR code will do.
-- 🥡 **Containers and bags** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten – or replace it in one go – and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
+- 🥡 **Containers** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten – or replace it in one go – and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
 - 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
 - 📅 **Shelf life** – the kind of food and a symbol are suggested from its name (German and English; your corrections are remembered). Suitable places of storage are marked, unsuitable ones locked, and a best-before date is suggested from the kind of food, the place and whether it is vacuum-sealed – [guide values, not a guarantee](#-shelf-life).
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
+- 🔔 **Reminders** – push notifications before something expires, on the day and after, one by one or as one summary a day from an hour you choose. No extra app needed; off until you switch it on.
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
 - 🛠️ **Maintenance built in** – optional scheduled backups of the database that you can download.
 - 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.
-- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts: hdpantry does not connect to any outside service at all – [what stays where](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
+- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts. hdpantry connects to nothing outside – with one exception you choose yourself: push notifications, off by default, travel encrypted through the push service of your browser. [What stays where](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
 
 Being built for the first version:
 

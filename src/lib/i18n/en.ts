@@ -18,7 +18,7 @@ export const en: Messages = {
 
 	// What the browser shows when hdpantry is installed as an app
 	app: {
-		description: 'Pantry tracker for reusable vacuum containers and bags',
+		description: 'Pantry tracker: know what you have and what should be eaten first',
 		scan: 'Scan'
 	},
 
@@ -45,7 +45,7 @@ export const en: Messages = {
 
 	home: {
 		empty: 'Nothing in stock yet',
-		emptyHint: 'Scan a container or bag to record its first content.',
+		emptyHint: 'Scan a container to record its first content.',
 		scan: 'Scan',
 		title: 'In stock',
 		all: 'All',
@@ -81,7 +81,7 @@ export const en: Messages = {
 
 	scan: {
 		title: 'Scan',
-		intro: 'Hold the code of the container or bag in front of the camera.',
+		intro: 'Hold the code of the container in front of the camera.',
 		startCamera: 'Start camera',
 		cameraStarting: 'Starting camera …',
 		photo: 'Take or choose a photo',
@@ -557,11 +557,92 @@ export const en: Messages = {
 			'Own cautious estimate for vacuum-sealed food (no public body publishes such figures)'
 	},
 
+	notifications: {
+		title: 'Notifications',
+		navHint: 'Push messages to your devices',
+		thisDevice: 'This device',
+		on: 'Switched on',
+		off: 'Switched off',
+		blocked: 'Blocked in the browser',
+		blockedHint:
+			'You declined notifications for this site. Allow them in the settings of your browser and reload the page.',
+		needsHttps: 'Needs HTTPS',
+		needsHttpsHint:
+			'Push messages only work over an https:// address. Open hdpantry through your reverse proxy.',
+		unsupported: 'Not possible here',
+		unsupportedHint:
+			'This browser cannot receive push messages. On iPhone and iPad it only works in the installed app (Share → Add to Home Screen).',
+		notReady: 'The files of the app are not ready yet – reload the page.',
+		enable: 'Switch on for this device',
+		enabled: 'Switched on ✓',
+		failed: 'Switching on failed. Please try again.',
+		refused: 'This device was not accepted (unknown push service or too many devices).',
+		outside:
+			'Push messages travel through the push service of your browser (e.g. Google, Apple, Mozilla). That is the only connection to the outside, and only for devices you switch on here. The content is encrypted.',
+		devices: 'Your devices',
+		noDevices: 'No device switched on yet.',
+		here: 'this device',
+		added: (date: string) => `since ${date}`,
+		lastReached: (date: string) => `last reached ${date}`,
+		neverReached: 'no message yet',
+		remove: 'Remove',
+		removed: 'Removed ✓',
+		rename: 'Rename',
+		renamed: 'Saved ✓',
+		name: 'Name of the device',
+		invalid: 'That did not work.',
+		test: 'Send test',
+		testMark: 'Test',
+		testTitle: 'hdpantry',
+		testBody: 'This is a test message. It works ✓',
+		testSent: (count: number) =>
+			count === 1 ? 'Sent to 1 device ✓' : `Sent to ${count} devices ✓`,
+		testGone: (labels: string) => `No longer there and removed: ${labels}`,
+		testFailed: (labels: string) => `Not delivered: ${labels}`,
+		learnMore: 'How push messages work',
+		reminders: 'Reminders',
+		mode: 'Tell me',
+		modes: {
+			off: 'Off',
+			single: 'One by one – a message per content',
+			digest: 'Together – one message a day'
+		},
+		hour: 'From when',
+		oclock: (hour: number) => `${hour}:00`,
+		occasions: 'What to remind of',
+		kinds: {
+			soon: 'Expires soon',
+			today: 'Expires today',
+			expired: 'Has expired'
+		},
+		kindHints: {
+			soon: (days: number) =>
+				days === 1
+					? 'One day before the best-before date – the threshold from “General”.'
+					: `${days} days before the best-before date – the threshold from “General”.`,
+			today: 'On the best-before date.',
+			expired: 'Once, on the day after.'
+		},
+		what: 'Messages are sent from the chosen hour on. Something that is close to its date when you record it does not report itself right away.',
+		needsDevice: 'Reminders only arrive while at least one device is switched on.',
+		expires: (when: string) => `expires ${when}`,
+		digestTitle: (soon: number, today: number, expired: number) =>
+			'Stock: ' +
+			[
+				soon ? (soon === 1 ? '1 expires soon' : `${soon} expire soon`) : '',
+				today ? (today === 1 ? '1 expires today' : `${today} expire today`) : '',
+				expired ? `${expired} expired` : ''
+			]
+				.filter(Boolean)
+				.join(', '),
+		more: (count: number) => `… and ${count} more`
+	},
+
 	about: {
 		title: 'About',
 		version: (v: string) => `Version ${v}`,
 		versionHint: "What's new in this version?",
-		text: 'A self-hosted pantry tracker for reusable vacuum containers and bags with a QR code.',
+		text: 'A self-hosted pantry tracker – know what you have and what should be eaten first.',
 		private:
 			'hdpantry runs on your own server and makes no connection to the outside by itself. The links below only open another site when you tap them.',
 		links: 'Links',

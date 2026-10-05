@@ -3,6 +3,7 @@ import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-or
 import type { CodeSource } from '../../containers';
 import type { Category } from '../../food/categories';
 import type { FillLevel, Location, Unit } from '../../items';
+import type { ReminderKind } from '../../reminders';
 
 // Simple key/value store for app settings (interface language, ...).
 export const settings = sqliteTable('settings', {
@@ -28,7 +29,7 @@ export const sessions = sqliteTable('sessions', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
-// A reusable container or bag, known by the code on it (see src/lib/codes.ts).
+// A container, known by the code on it (see src/lib/codes.ts).
 export const containers = sqliteTable(
 	'containers',
 	{
@@ -98,3 +99,49 @@ export const foodMemory = sqliteTable('food_memory', {
 	category: text('category').$type<Category>().notNull(),
 	icon: text('icon')
 });
+
+// A browser or installed app that receives push notifications (Web Push). `endpoint` is the
+// address at the browser maker's push service, the two keys encrypt the message for this
+// device only. Belongs to the user who switched it on.
+export const pushSubscriptions = sqliteTable(
+	'push_subscriptions',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		userId: integer('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		endpoint: text('endpoint').notNull().unique(),
+		p256dh: text('p256dh').notNull(),
+		auth: text('auth').notNull(),
+		// Shown in the list of devices, e.g. "Chrome · Android"
+		label: text('label').notNull(),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date()),
+		// Last time the push service accepted a message for this device
+		lastOkAt: integer('last_ok_at', { mode: 'timestamp' })
+	},
+	(table) => [index('push_subscriptions_user').on(table.userId)]
+);
+
+// What the user was already told about a content, so nothing is announced twice. `date` is
+// the best-before date the message was about: a content whose date is changed is announced
+// anew. Rows go with their content.
+export const notificationsSent = sqliteTable(
+	'notifications_sent',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		userId: integer('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		itemId: integer('item_id')
+			.notNull()
+			.references(() => items.id, { onDelete: 'cascade' }),
+		// 'soon' | 'today' | 'expired' (see src/lib/reminders.ts)
+		kind: text('kind').$type<ReminderKind>().notNull(),
+		date: text('date').notNull()
+	},
+	(table) => [
+		uniqueIndex('notifications_sent_once').on(table.userId, table.itemId, table.kind, table.date)
+	]
+);

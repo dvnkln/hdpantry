@@ -160,22 +160,3 @@ export function backupDue(now = new Date()) {
 	);
 	return isDue(schedule, new Date(since), now);
 }
-
-// Called once at server start: looks every minute whether a backup is due. One that was missed
-// while the server was off is made shortly after the start. (There is no cron in the image.)
-export function startBackupScheduler() {
-	// During development the server code can be reloaded; never start a second timer
-	const g = globalThis as { hdpantryScheduler?: boolean };
-	if (g.hdpantryScheduler) return;
-	g.hdpantryScheduler = true;
-
-	const tick = () => {
-		try {
-			if (backupDue()) void runBackup();
-		} catch (err) {
-			console.error('Backup scheduler failed', err);
-		}
-	};
-	setTimeout(tick, 30_000).unref();
-	setInterval(tick, 60_000).unref();
-}

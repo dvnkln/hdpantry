@@ -7,9 +7,9 @@ import {
 	setSessionCookie,
 	validateSession
 } from '$lib/server/auth';
-import { startBackupScheduler } from '$lib/server/backups';
 import { getSecret } from '$lib/server/config';
 import { runMigrations } from '$lib/server/db';
+import { startScheduler } from '$lib/server/scheduler';
 import { localeFor } from '$lib/server/i18n';
 import { allowedOrigins, isAllowedOrigin, isHttps } from '$lib/server/origins';
 import { themeFor } from '$lib/server/theme';
@@ -24,7 +24,7 @@ export const init: ServerInit = () => {
 	runMigrations();
 	console.log('Database migrations applied');
 	deleteExpiredSessions();
-	startBackupScheduler();
+	startScheduler();
 };
 
 // Pages reachable without being logged in.

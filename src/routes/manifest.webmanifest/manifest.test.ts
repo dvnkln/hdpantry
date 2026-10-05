@@ -15,7 +15,13 @@ describe('app manifest', () => {
 		const sizes = data.icons.map(
 			(icon: { sizes: string; purpose: string }) => icon.sizes + icon.purpose
 		);
-		expect(sizes).toEqual(['192x192any', '512x512any', '192x192maskable', '512x512maskable']);
+		expect(sizes).toEqual([
+			'192x192any',
+			'512x512any',
+			'192x192maskable',
+			'512x512maskable',
+			'96x96monochrome'
+		]);
 	});
 	it('only names icons that exist, all from the own server', async () => {
 		const { data } = await manifest('en');

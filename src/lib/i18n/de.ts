@@ -19,7 +19,7 @@ export const de = {
 
 	// What the browser shows when hdpantry is installed as an app
 	app: {
-		description: 'Vorrats-Tracker für wiederverwendbare Vakuumbehälter und -beutel',
+		description: 'Vorrats-Tracker: wissen, was da ist und was zuerst gegessen werden sollte',
 		scan: 'Scannen'
 	},
 
@@ -46,7 +46,7 @@ export const de = {
 
 	home: {
 		empty: 'Noch nichts im Vorrat',
-		emptyHint: 'Scanne einen Behälter oder Beutel, um den ersten Inhalt zu erfassen.',
+		emptyHint: 'Scanne einen Behälter, um den ersten Inhalt zu erfassen.',
 		scan: 'Scannen',
 		title: 'Vorrat',
 		all: 'Alle',
@@ -82,7 +82,7 @@ export const de = {
 
 	scan: {
 		title: 'Scannen',
-		intro: 'Halte den Code des Behälters oder Beutels vor die Kamera.',
+		intro: 'Halte den Code des Behälters vor die Kamera.',
 		startCamera: 'Kamera starten',
 		cameraStarting: 'Kamera startet …',
 		photo: 'Foto aufnehmen oder auswählen',
@@ -563,11 +563,92 @@ export const de = {
 			'Eigene vorsichtige Schätzung für vakuumierte Lebensmittel (keine öffentliche Stelle veröffentlicht dazu Zahlen)'
 	},
 
+	notifications: {
+		title: 'Benachrichtigungen',
+		navHint: 'Push-Nachrichten auf deine Geräte',
+		thisDevice: 'Dieses Gerät',
+		on: 'Eingeschaltet',
+		off: 'Ausgeschaltet',
+		blocked: 'Im Browser blockiert',
+		blockedHint:
+			'Du hast Benachrichtigungen für diese Seite abgelehnt. Erlaube sie in den Einstellungen des Browsers und lade die Seite neu.',
+		needsHttps: 'Braucht HTTPS',
+		needsHttpsHint:
+			'Push-Nachrichten gibt es nur über eine https://-Adresse. Öffne hdpantry über deinen Reverse Proxy.',
+		unsupported: 'Hier nicht möglich',
+		unsupportedHint:
+			'Dieser Browser kann keine Push-Nachrichten. Auf iPhone und iPad geht es nur in der installierten App (Teilen → Zum Home-Bildschirm).',
+		notReady: 'App-Dateien noch nicht bereit – lade die Seite neu.',
+		enable: 'Auf diesem Gerät einschalten',
+		enabled: 'Eingeschaltet ✓',
+		failed: 'Einschalten fehlgeschlagen. Versuche es erneut.',
+		refused: 'Dieses Gerät wurde nicht angenommen (unbekannter Push-Dienst oder zu viele Geräte).',
+		outside:
+			'Push-Nachrichten laufen über den Push-Dienst deines Browsers (z. B. Google, Apple, Mozilla). Das ist die einzige Verbindung nach außen, und nur für Geräte, die du hier einschaltest. Der Inhalt ist verschlüsselt.',
+		devices: 'Deine Geräte',
+		noDevices: 'Noch kein Gerät eingeschaltet.',
+		here: 'dieses Gerät',
+		added: (date: string) => `seit ${date}`,
+		lastReached: (date: string) => `zuletzt erreicht ${date}`,
+		neverReached: 'noch keine Nachricht',
+		remove: 'Entfernen',
+		removed: 'Entfernt ✓',
+		rename: 'Umbenennen',
+		renamed: 'Gespeichert ✓',
+		name: 'Name des Geräts',
+		invalid: 'Das hat nicht geklappt.',
+		test: 'Test senden',
+		testMark: 'Test',
+		testTitle: 'hdpantry',
+		testBody: 'Das ist eine Testnachricht. Es funktioniert ✓',
+		testSent: (count: number) =>
+			count === 1 ? 'An 1 Gerät gesendet ✓' : `An ${count} Geräte gesendet ✓`,
+		testGone: (labels: string) => `Nicht mehr vorhanden und entfernt: ${labels}`,
+		testFailed: (labels: string) => `Nicht zugestellt: ${labels}`,
+		learnMore: 'Wie Push-Nachrichten funktionieren',
+		reminders: 'Erinnerungen',
+		mode: 'Melden',
+		modes: {
+			off: 'Aus',
+			single: 'Einzeln – eine Nachricht je Inhalt',
+			digest: 'Gesammelt – eine Nachricht am Tag'
+		},
+		hour: 'Ab wann',
+		oclock: (hour: number) => `${hour} Uhr`,
+		occasions: 'Woran erinnern',
+		kinds: {
+			soon: 'Läuft bald ab',
+			today: 'Läuft heute ab',
+			expired: 'Ist abgelaufen'
+		},
+		kindHints: {
+			soon: (days: number) =>
+				days === 1
+					? 'Einen Tag vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.'
+					: `${days} Tage vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.`,
+			today: 'Am Tag des Haltbarkeitsdatums.',
+			expired: 'Einmal am Tag danach.'
+		},
+		what: 'Gemeldet wird ab der gewählten Uhrzeit. Was schon beim Erfassen kurz vor dem Ablauf steht, meldet sich nicht sofort.',
+		needsDevice: 'Erinnerungen kommen nur an, wenn mindestens ein Gerät eingeschaltet ist.',
+		expires: (when: string) => `läuft ${when} ab`,
+		digestTitle: (soon: number, today: number, expired: number) =>
+			'Vorrat: ' +
+			[
+				soon ? (soon === 1 ? '1 läuft bald ab' : `${soon} laufen bald ab`) : '',
+				today ? (today === 1 ? '1 läuft heute ab' : `${today} laufen heute ab`) : '',
+				expired ? `${expired} abgelaufen` : ''
+			]
+				.filter(Boolean)
+				.join(', '),
+		more: (count: number) => `… und ${count} weitere`
+	},
+
 	about: {
 		title: 'Über',
 		version: (v: string) => `Version ${v}`,
 		versionHint: 'Was ist neu in dieser Version?',
-		text: 'Ein Vorrats-Tracker zum Selberhosten für wiederverwendbare Vakuumbehälter und -beutel mit QR-Code.',
+		text: 'Ein Vorrats-Tracker zum Selberhosten – wissen, was da ist und was zuerst gegessen werden sollte.',
 		private:
 			'hdpantry läuft auf deinem eigenen Server und nimmt von sich aus keine Verbindung nach außen auf. Die Links unten öffnen erst auf deinen Tipp hin eine andere Seite.',
 		links: 'Links',

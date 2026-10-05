@@ -13,15 +13,16 @@ First release.
 
 ### ✨ New
 
-- **Scan** – hold the code of a container or bag in front of the camera and hdpantry leads on right away: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too, with any QR code
-- **Containers and bags** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten or replace it in one go; a container remembers what was in it before
+- **Scan** – hold the code of a container in front of the camera and hdpantry leads on right away: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too, with any QR code
+- **Containers** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten or replace it in one go; a container remembers what was in it before
 - **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and how much
 - **Shelf life** – kind of food, symbol, suitable places of storage and a best-before date are suggested from the name; guide values with their sources, never a guarantee
 - **In stock** – what expires first at the top, expired and soon-to-expire items stand out; filter by place of storage, sort by date, name or place
+- **Reminders** – push notifications when something is about to expire, on the day and after; one by one or as one summary a day, from an hour you choose. Off until you switch it on for a device
 - **Export and import** – the whole stock with its history as one readable file
 - **Maintenance built in** – optional scheduled backups of the database, downloadable in the app
 - **Settings** – English and German, light and dark, symbols in two styles, account, reverse proxy; installable as an app on your home screen
-- **Private** – runs on your own server and does not connect to any outside service
+- **Private** – runs on your own server and connects to nothing outside, unless you switch on push notifications
 
 ### ⬆️ Updating
 

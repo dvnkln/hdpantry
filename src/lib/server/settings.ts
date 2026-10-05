@@ -26,7 +26,20 @@ const DEFAULTS = {
 	backupChangedAt: '0',
 	backupLastRun: '',
 	backupLastMs: '',
-	backupLastError: ''
+	backupLastError: '',
+	// Key pair of this installation for push notifications (VAPID), created on first use. The
+	// public part goes to the browsers, the private part signs every message (see push.ts).
+	vapidPublicKey: '',
+	vapidPrivateKey: '',
+	// Reminders about what expires (see notifications.ts): 'off' | 'single' (one message per
+	// content) | 'digest' (one message a day)
+	notifyMode: 'off',
+	notifyHour: '9', // from this hour of the day on (0–23) the day's messages are sent
+	notifyFrom: '', // day the reminders were switched on: nothing older is announced
+	// Which occasions are announced
+	notifySoon: 'on',
+	notifyToday: 'on',
+	notifyExpired: 'off'
 } as const;
 
 export type SettingKey = keyof typeof DEFAULTS;

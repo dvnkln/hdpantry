@@ -1,4 +1,5 @@
 import {
+	Bell,
 	Boxes,
 	Database,
 	Info,
@@ -35,6 +36,13 @@ export function settingsSections() {
 			icon: UserRound,
 			label: m.settings.account,
 			hint: m.settings.accountHint
+		},
+		{
+			href: '/settings/notifications',
+			group: 'personal',
+			icon: Bell,
+			label: m.notifications.title,
+			hint: m.notifications.navHint
 		},
 		{
 			href: '/settings/data',

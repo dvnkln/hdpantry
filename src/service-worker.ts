@@ -44,3 +44,67 @@ sw.addEventListener('fetch', (event) => {
 		})
 	);
 });
+
+// ---- Push notifications (see src/lib/server/push.ts) ----
+
+// The server sends { title, body, url, tag, icon }; show it. Messages with the same tag
+// replace each other, so a content never piles up several notifications.
+// Android draws the badge as a small symbol in the status bar – always in one colour: it must
+// be a white shape on transparent, a colourful icon becomes a white box.
+sw.addEventListener('push', (event) => {
+	let message: { title?: string; body?: string; url?: string; tag?: string; icon?: string } = {};
+	try {
+		message = event.data?.json() ?? {};
+	} catch {
+		// not ours: show a plain notification below
+	}
+	event.waitUntil(
+		sw.registration.showNotification(message.title ?? 'hdpantry', {
+			body: message.body ?? '',
+			icon: message.icon ?? '/icons/notify.png',
+			badge: '/icons/badge-96.png',
+			tag: message.tag,
+			data: { url: message.url ?? '/' }
+		})
+	);
+});
+
+// The browser replaced the subscription of this device (some do that from time to time):
+// subscribe again with the same key and tell the server, so messages keep arriving. Without
+// this the device would silently drop out of the list. The server only accepts it while the
+// login of this browser is still valid.
+sw.addEventListener('pushsubscriptionchange', (event) => {
+	const change = event as ExtendableEvent & { oldSubscription?: PushSubscription | null };
+	const key = change.oldSubscription?.options.applicationServerKey;
+	if (!key) return;
+	change.waitUntil(
+		sw.registration.pushManager
+			.subscribe({ userVisibleOnly: true, applicationServerKey: key })
+			.then((subscription) => {
+				const body = new FormData();
+				body.set('subscription', JSON.stringify(subscription));
+				body.set('replaces', change.oldSubscription?.endpoint ?? '');
+				return fetch('/settings/notifications?/subscribe', {
+					method: 'POST',
+					body,
+					headers: { 'x-sveltekit-action': 'true' }
+				});
+			})
+			.catch(() => null)
+	);
+});
+
+// Tapped: bring an open window of the app to the page, or open a new one.
+sw.addEventListener('notificationclick', (event) => {
+	event.notification.close();
+	const url = new URL(String(event.notification.data?.url ?? '/'), sw.location.origin);
+	if (url.origin !== sw.location.origin) return;
+	event.waitUntil(
+		sw.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windows) => {
+			const open = windows[0];
+			if (!open) return void (await sw.clients.openWindow(url.href));
+			await open.focus();
+			if ('navigate' in open) await open.navigate(url.href).catch(() => null);
+		})
+	);
+});
