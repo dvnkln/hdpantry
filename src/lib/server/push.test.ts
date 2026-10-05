@@ -10,8 +10,8 @@ import {
 	parseSubscription,
 	pushPublicKey,
 	removeDevice,
-	removeEndpoint,
 	renameDevice,
+	setDeviceEnabled,
 	sendPush
 } from './push';
 
@@ -208,18 +208,39 @@ describe('sendPush', () => {
 	});
 });
 
-describe('a replaced subscription', () => {
-	it('takes the old address of the same user out of the list', () => {
+describe('a renewed subscription', () => {
+	const at = (name: string) => subscription(`https://fcm.googleapis.com/fcm/send/${name}`);
+	const names = (userId: number) => listDevices(userId).map((d) => d.endpoint.split('/').pop());
+
+	it('rewrites the entry: name, switch and id stay', () => {
 		const me = user();
+		addDevice(me, at('old'), CHROME_ANDROID);
+		const { id } = listDevices(me)[0];
+		renameDevice(me, id, 'Phone');
+		setDeviceEnabled(me, id, false);
+		expect(addDevice(me, at('new'), CHROME_ANDROID, at('old').endpoint)).toBe(true);
+		expect(listDevices(me)).toHaveLength(1);
+		expect(listDevices(me)[0]).toMatchObject({ id, label: 'Phone', enabled: false });
+		expect(names(me)).toEqual(['new']);
+
+		// Somebody else naming this address touches nothing of mine
 		const other = user();
-		const before = subscription('https://fcm.googleapis.com/fcm/send/before');
-		addDevice(me, before, CHROME_ANDROID);
-		addDevice(me, subscription('https://fcm.googleapis.com/fcm/send/after'), CHROME_ANDROID);
-		// somebody else cannot remove it
-		expect(removeEndpoint(other, before.endpoint)).toBe(false);
-		expect(removeEndpoint(me, before.endpoint)).toBe(true);
-		expect(listDevices(me).map((device) => device.endpoint)).toEqual([
-			'https://fcm.googleapis.com/fcm/send/after'
-		]);
+		expect(addDevice(other, at('theirs'), CHROME_ANDROID, at('new').endpoint)).toBe(true);
+		expect(names(me)).toEqual(['new']);
+		expect(names(other)).toEqual(['theirs']);
+
+		// The new address is listed already: only the dead entry goes
+		addDevice(me, at('newer'), CHROME_ANDROID);
+		expect(listDevices(me)).toHaveLength(2);
+		expect(addDevice(me, at('newer'), CHROME_ANDROID, at('new').endpoint)).toBe(true);
+		expect(names(me)).toEqual(['newer']);
+	});
+
+	it('is not turned down by the limit', () => {
+		const me = user();
+		for (let i = 0; i < 20; i++) addDevice(me, at(`full${i}`), CHROME_ANDROID);
+		expect(addDevice(me, at('one-more'), CHROME_ANDROID)).toBe(false);
+		expect(addDevice(me, at('renewed'), CHROME_ANDROID, at('full0').endpoint)).toBe(true);
+		expect(listDevices(me)).toHaveLength(20);
 	});
 });

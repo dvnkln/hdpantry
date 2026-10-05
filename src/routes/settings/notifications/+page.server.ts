@@ -8,7 +8,6 @@ import {
 	parseSubscription,
 	pushPublicKey,
 	removeDevice,
-	removeEndpoint,
 	renameDevice,
 	setDeviceEnabled
 } from '$lib/server/push';
@@ -64,10 +63,9 @@ export const actions: Actions = {
 		const data = await event.request.formData();
 		const sub = parseSubscription(String(data.get('subscription') ?? ''));
 		const agent = event.request.headers.get('user-agent') ?? '';
-		if (!sub || !addDevice(user.id, sub, agent)) return fail(400, { error: t.refused });
-		// The browser made a new subscription in place of an older one: that address is dead now
+		// replaces: the address this browser had before it renewed its subscription
 		const replaces = String(data.get('replaces') ?? '');
-		if (replaces && replaces !== sub.endpoint) removeEndpoint(user.id, replaces);
+		if (!sub || !addDevice(user.id, sub, agent, replaces)) return fail(400, { error: t.refused });
 		return { message: t.saved };
 	},
 

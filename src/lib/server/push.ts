@@ -125,13 +125,35 @@ export function listDevices(userId: number) {
 
 // Stores a device for the user. A device that is already known (same address) simply moves
 // to this user with its fresh keys. Returns false if the user has too many devices.
-export function addDevice(userId: number, sub: NewSubscription, userAgent: string) {
+// replaces: the address the browser had before it renewed its subscription. That entry is
+// rewritten instead of replaced, so the device keeps its name, its switch and its id – and
+// the limit cannot turn a renewal down.
+export function addDevice(
+	userId: number,
+	sub: NewSubscription,
+	userAgent: string,
+	replaces?: string
+) {
 	const db = getDb();
 	const known = db
 		.select({ id: pushSubscriptions.id })
 		.from(pushSubscriptions)
 		.where(eq(pushSubscriptions.endpoint, sub.endpoint))
 		.get();
+	if (replaces && replaces !== sub.endpoint) {
+		// Only an entry of the user's own: the address comes from the browser
+		const old = and(eq(pushSubscriptions.endpoint, replaces), eq(pushSubscriptions.userId, userId));
+		// The new address is listed already: only the dead entry has to go
+		if (known) db.delete(pushSubscriptions).where(old).run();
+		else {
+			const moved = db
+				.update(pushSubscriptions)
+				.set({ endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth })
+				.where(old)
+				.run();
+			if (moved.changes > 0) return true;
+		}
+	}
 	if (!known && listDevices(userId).length >= MAX_DEVICES) return false;
 	// (A known device keeps its name – the user may have changed it.)
 	const values = { userId, p256dh: sub.keys.p256dh, auth: sub.keys.auth };
@@ -174,17 +196,6 @@ export function removeDevice(userId: number, id: number) {
 		getDb()
 			.delete(pushSubscriptions)
 			.where(and(eq(pushSubscriptions.id, id), eq(pushSubscriptions.userId, userId)))
-			.run().changes > 0
-	);
-}
-
-// Removes the device with this address at the push service, if it is one of the user's own.
-// Used when a browser replaced its subscription: the old address is dead from then on.
-export function removeEndpoint(userId: number, endpoint: string) {
-	return (
-		getDb()
-			.delete(pushSubscriptions)
-			.where(and(eq(pushSubscriptions.endpoint, endpoint), eq(pushSubscriptions.userId, userId)))
 			.run().changes > 0
 	);
 }
