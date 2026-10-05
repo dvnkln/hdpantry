@@ -1,65 +1,84 @@
 <script lang="ts">
-	import { ui } from '$lib/ui';
-	import { AtSign, KeyRound, MonitorSmartphone } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
+	import FeedbackText from '$lib/components/FeedbackText.svelte';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
+	import SubmitButton, { BUTTON_SECONDARY } from '$lib/components/SubmitButton.svelte';
+	import { FormFeedback } from '$lib/forms.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 	import { MIN_PASSWORD_LENGTH } from '$lib/limits';
+	import { ui } from '$lib/ui';
+	import { AtSign, KeyRound, LogOut, MonitorSmartphone } from '@lucide/svelte';
 
 	let { data, form } = $props();
+
+	const forms = new FormFeedback();
+	const { card, heading, label, labelText, hint, actions } = ui;
 </script>
 
 <svelte:head><title>{m.settings.account} · hdpantry</title></svelte:head>
 
 <h1 class={ui.pageTitle}>{m.settings.account}</h1>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}><AtSign size={20} class="text-muted" />{m.settings.accountName}</h2>
-	<!-- The typed name stays in the field, the password is emptied -->
+<!-- Username: the button wakes up once both fields are filled in -->
+<section class={card}>
+	<h2 class={heading}><AtSign size={20} class="text-muted" />{m.settings.accountName}</h2>
 	<form
 		method="POST"
 		action="?/username"
-		use:enhance={({ formElement }) =>
-			async ({ update }) => {
-				await update({ reset: false });
-				const password = formElement.querySelector<HTMLInputElement>('input[name=password]');
-				if (password) password.value = '';
-			}}
-		class="mt-2 flex max-w-md flex-col gap-3"
+		use:enhance={forms.submit('username')}
+		class="mt-4 flex max-w-md flex-col gap-4"
 	>
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountNameNew}</span>
+		<label class={label}>
+			<span class={labelText}>{m.settings.accountNameNew}</span>
 			<input
 				name="username"
-				value={form?.username ?? data.user?.username ?? ''}
+				value={form && 'username' in form && form.username ? form.username : data.user?.username}
 				autocomplete="username"
 				autocapitalize="off"
 				required
 			/>
+			<span class={hint}>{m.auth.usernameRule}</span>
 		</label>
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountPasswordConfirm}</span>
+		<label class={label}>
+			<span class={labelText}>{m.settings.accountPasswordConfirm}</span>
 			<PasswordInput name="password" autocomplete="current-password" required />
 		</label>
-		{#if form?.nameError}
-			<p class="form-error" role="alert">{form.nameError}</p>
-		{:else if form?.nameDone}
-			<p class="text-sm text-good" role="status">{m.settings.accountNameSaved}</p>
-		{/if}
-		<button class="self-start btn-secondary">{m.settings.accountNameSave}</button>
+		<div class={actions}>
+			<SubmitButton
+				text={m.settings.accountNameSave}
+				busy={forms.busy === 'username'}
+				when="filled"
+			/>
+			<FeedbackText feedback={forms.messages.username} />
+		</div>
 	</form>
 </section>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}><KeyRound size={20} class="text-muted" />{m.settings.accountPassword}</h2>
-	<p class="mt-1 text-sm text-muted">{m.settings.accountPasswordHint}</p>
-	<form method="POST" action="?/password" use:enhance class="mt-3 flex max-w-md flex-col gap-3">
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountPasswordCurrent}</span>
+<!-- Password -->
+<section class={card}>
+	<h2 class={heading}><KeyRound size={20} class="text-muted" />{m.settings.accountPassword}</h2>
+	<p class="mt-1 {hint}">{m.settings.accountPasswordHint}</p>
+	<form
+		method="POST"
+		action="?/password"
+		use:enhance={forms.submit('password', true)}
+		class="mt-4 flex max-w-md flex-col gap-4"
+	>
+		<!-- Hidden username helps password managers to update the right entry -->
+		<input
+			type="text"
+			name="username"
+			value={data.user?.username}
+			autocomplete="username"
+			hidden
+			readonly
+		/>
+		<label class={label}>
+			<span class={labelText}>{m.settings.accountPasswordCurrent}</span>
 			<PasswordInput name="current" autocomplete="current-password" required />
 		</label>
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountPasswordNew(MIN_PASSWORD_LENGTH)}</span>
+		<label class={label}>
+			<span class={labelText}>{m.settings.accountPasswordNew(MIN_PASSWORD_LENGTH)}</span>
 			<PasswordInput
 				name="password"
 				autocomplete="new-password"
@@ -67,8 +86,8 @@
 				required
 			/>
 		</label>
-		<label class="flex flex-col gap-1">
-			<span class="text-sm font-medium">{m.settings.accountPasswordRepeat}</span>
+		<label class={label}>
+			<span class={labelText}>{m.settings.accountPasswordRepeat}</span>
 			<PasswordInput
 				name="confirm"
 				autocomplete="new-password"
@@ -76,28 +95,40 @@
 				required
 			/>
 		</label>
-		{#if form?.passwordError}
-			<p class="form-error" role="alert">{form.passwordError}</p>
-		{:else if form?.passwordDone}
-			<p class="text-sm text-good" role="status">{m.settings.accountPasswordSaved}</p>
-		{/if}
-		<button class="self-start btn-secondary">{m.settings.accountPasswordSave}</button>
+		<div class={actions}>
+			<SubmitButton
+				text={m.settings.accountPasswordSave}
+				busy={forms.busy === 'password'}
+				when="filled"
+				icon={KeyRound}
+			/>
+			<FeedbackText feedback={forms.messages.password} />
+		</div>
 	</form>
 </section>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}>
+<!-- Other devices: the button is only there while another device is logged in -->
+<section class={card}>
+	<h2 class={heading}>
 		<MonitorSmartphone size={20} class="text-muted" />{m.settings.accountDevices}
 	</h2>
-	<!-- The button is only there while another device is logged in -->
 	{#if data.otherDevices > 0}
-		<p class="mt-1 text-sm text-muted">{m.settings.accountDevicesCount(data.otherDevices)}</p>
-		<form method="POST" action="?/logoutOthers" use:enhance class="mt-3">
-			<button class="btn-secondary">{m.settings.accountDevicesLogout}</button>
+		<p class="mt-2 {hint}">{m.settings.accountDevicesCount(data.otherDevices)}</p>
+		<form
+			method="POST"
+			action="?/logoutOthers"
+			use:enhance={forms.submit('logoutOthers')}
+			class="mt-4 {actions}"
+		>
+			<SubmitButton
+				text={m.settings.accountDevicesLogout}
+				busy={forms.busy === 'logoutOthers'}
+				icon={LogOut}
+				style={BUTTON_SECONDARY}
+			/>
 		</form>
 	{:else}
-		<p class="mt-1 text-sm text-muted">
-			{form?.devicesDone ? m.settings.accountDevicesDone : m.settings.accountDevicesNone}
-		</p>
+		<p class="mt-2 {hint}">{m.settings.accountDevicesNone}</p>
 	{/if}
+	<div class="mt-2"><FeedbackText feedback={forms.messages.logoutOthers} /></div>
 </section>

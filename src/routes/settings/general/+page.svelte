@@ -1,80 +1,75 @@
 <script lang="ts">
-	import { ui } from '$lib/ui';
-	import { CalendarClock, Languages, ScanLine } from '@lucide/svelte';
 	import { enhance } from '$app/forms';
+	import { autosave } from '$lib/autosave';
+	import FeedbackText from '$lib/components/FeedbackText.svelte';
+	import Switch from '$lib/components/Switch.svelte';
+	import { FormFeedback } from '$lib/forms.svelte';
 	import { LOCALES, m } from '$lib/i18n/index.svelte';
 	import { SOON_CHOICES } from '$lib/stock';
+	import { ui } from '$lib/ui';
+	import { Monitor, ScanLine } from '@lucide/svelte';
 
 	let { data } = $props();
 
-	const choice =
-		'cursor-pointer rounded-lg border bg-surface px-3 py-2 text-center text-sm transition-colors hover:border-accent';
-	const chosen = 'border-accent font-semibold text-accent ring-2 ring-accent';
+	const forms = new FormFeedback();
+	const { card, heading, label, labelText, hint } = ui;
 </script>
 
 <svelte:head><title>{m.settings.general} · hdpantry</title></svelte:head>
 
 <h1 class={ui.pageTitle}>{m.settings.general}</h1>
 
-<!-- Every choice is saved as soon as it is made -->
-<section class={ui.card}>
-	<h2 class={ui.heading}><Languages size={20} class="text-muted" />{m.settings.language}</h2>
-	<form method="POST" action="?/language" use:enhance class="mt-2 grid max-w-md grid-cols-2 gap-2">
-		{#each LOCALES as locale (locale)}
-			<button
-				name="language"
-				value={locale}
-				class="{choice} {data.locale === locale ? chosen : 'border-line'}"
-				aria-pressed={data.locale === locale}
-			>
-				{m.languages[locale]}
-			</button>
-		{/each}
+<!-- Every choice is saved the moment it is made; only a failure is mentioned (next to the heading) -->
+<section class={card}>
+	<div class="flex min-h-7 items-center justify-between gap-3">
+		<h2 class={heading}><Monitor size={20} class="text-muted" />{m.settings.display}</h2>
+		<FeedbackText feedback={forms.error('display')} />
+	</div>
+	<form
+		method="POST"
+		action="?/display"
+		use:enhance={forms.submit('display')}
+		use:autosave
+		class="mt-4 flex flex-col gap-4"
+	>
+		<label class={label}>
+			<span class={labelText}>{m.settings.language}</span>
+			<select name="uiLanguage" value={data.locale}>
+				{#each LOCALES as locale (locale)}
+					<option value={locale}>{m.languages[locale]}</option>
+				{/each}
+			</select>
+		</label>
+		<label class={label}>
+			<span class={labelText}>{m.settings.soon}</span>
+			<select name="soonDays" value={String(data.soonDays)}>
+				{#each SOON_CHOICES as days (days)}
+					<option value={String(days)}>{m.settings.days(days)}</option>
+				{/each}
+			</select>
+			<span class={hint}>{m.settings.soonHint}</span>
+		</label>
 	</form>
 </section>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}><ScanLine size={20} class="text-muted" />{m.settings.scanning}</h2>
-	<form method="POST" action="?/vibration" use:enhance class="mt-2 max-w-md">
-		<button
-			name="vibration"
-			value={data.vibration ? 'off' : 'on'}
-			class="flex w-full items-center justify-between gap-4 text-left"
-			role="switch"
-			aria-checked={data.vibration}
-		>
-			<span>
-				<span class="block">{m.settings.vibration}</span>
-				<span class="block text-sm text-muted">{m.settings.vibrationHint}</span>
-			</span>
-			<span
-				class="relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors {data.vibration
-					? 'bg-accent'
-					: 'bg-line'}"
-			>
-				<span
-					class="absolute top-0.5 left-0.5 size-6 rounded-full bg-surface shadow transition-transform {data.vibration
-						? 'translate-x-5'
-						: ''}"
-				></span>
-			</span>
-		</button>
-	</form>
-</section>
-
-<section class={ui.card}>
-	<h2 class={ui.heading}><CalendarClock size={20} class="text-muted" />{m.settings.soon}</h2>
-	<p class="mt-1 text-sm text-muted">{m.settings.soonHint}</p>
-	<form method="POST" action="?/soon" use:enhance class="mt-2 flex max-w-md flex-wrap gap-2">
-		{#each SOON_CHOICES as days (days)}
-			<button
-				name="days"
-				value={days}
-				class="{choice} min-w-16 {data.soonDays === days ? chosen : 'border-line'}"
-				aria-pressed={data.soonDays === days}
-			>
-				{m.settings.days(days)}
-			</button>
-		{/each}
+<section class={card}>
+	<div class="flex min-h-7 items-center justify-between gap-3">
+		<h2 class={heading}><ScanLine size={20} class="text-muted" />{m.settings.scanning}</h2>
+		<FeedbackText feedback={forms.error('scanning')} />
+	</div>
+	<form
+		method="POST"
+		action="?/scanning"
+		use:enhance={forms.submit('scanning')}
+		use:autosave
+		class="mt-4"
+	>
+		<div class="flex items-start justify-between gap-4">
+			<label for="scanVibration" class="flex cursor-pointer flex-col gap-1">
+				<span class={labelText}>{m.settings.vibration}</span>
+				<span class={hint}>{m.settings.vibrationHint}</span>
+			</label>
+			<Switch id="scanVibration" name="scanVibration" checked={data.vibration} />
+		</div>
 	</form>
 </section>

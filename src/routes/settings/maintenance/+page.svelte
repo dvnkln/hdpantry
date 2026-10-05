@@ -3,16 +3,22 @@
 	import { enhance } from '$app/forms';
 	import { m } from '$lib/i18n/index.svelte';
 	import { FREQUENCIES, KEEP_CHOICES } from '$lib/schedule';
-	import { Archive, DatabaseBackup, Download, LoaderCircle, Trash2 } from '@lucide/svelte';
+	import FeedbackText from '$lib/components/FeedbackText.svelte';
+	import SubmitButton, { BUTTON_SECONDARY } from '$lib/components/SubmitButton.svelte';
+	import Switch from '$lib/components/Switch.svelte';
+	import { FormFeedback } from '$lib/forms.svelte';
+	import { Archive, DatabaseBackup, Download, Trash2 } from '@lucide/svelte';
 
 	let { data } = $props();
 
-	const choice =
-		'cursor-pointer rounded-lg border bg-surface px-3 py-2 text-center text-sm transition-colors hover:border-accent';
-	const chosen = 'border-accent font-semibold text-accent ring-2 ring-accent';
+	const forms = new FormFeedback();
+	const { card, heading, label, labelText, hint, actions } = ui;
 
-	// True while "Back up now" is running
-	let busy = $state(false);
+	// What the form shows right now (decides which fields are there)
+	// svelte-ignore state_referenced_locally
+	let enabled = $state(data.enabled);
+	// svelte-ignore state_referenced_locally
+	let frequency = $state(data.schedule.frequency);
 	// The backup whose deletion is being asked about
 	let asking = $state<string | null>(null);
 
@@ -29,9 +35,6 @@
 		// 2031-06-01 is a Sunday
 		return new Date(2031, 5, 1 + day).toLocaleDateString(data.locale, { weekday: 'long' });
 	}
-	function send(event: Event & { currentTarget: HTMLInputElement | HTMLSelectElement }) {
-		event.currentTarget.form?.requestSubmit();
-	}
 	let total = $derived(data.files.reduce((sum, file) => sum + file.size, 0));
 </script>
 
@@ -39,129 +42,81 @@
 
 <h1 class={ui.pageTitle}>{m.settings.maintenance}</h1>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}><DatabaseBackup size={20} class="text-muted" />{m.settings.backup}</h2>
-	<p class="mt-1 text-sm text-muted">{m.settings.backupText}</p>
+<section class={card}>
+	<h2 class={heading}><DatabaseBackup size={20} class="text-muted" />{m.settings.backup}</h2>
+	<p class="mt-1 {hint}">{m.settings.backupText}</p>
 
-	<form method="POST" action="?/toggle" use:enhance class="mt-3">
-		<button
-			name="enabled"
-			value={data.enabled ? 'off' : 'on'}
-			class="flex w-full items-center justify-between gap-4 text-left"
-			role="switch"
-			aria-checked={data.enabled}
-		>
-			<span>{m.settings.backupSwitch}</span>
-			<span
-				class="relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors {data.enabled
-					? 'bg-accent'
-					: 'bg-line'}"
+	<!-- Switch and schedule belong together: one form, saved with its button -->
+	<form
+		method="POST"
+		action="?/save"
+		use:enhance={forms.submit('backup')}
+		class="mt-4 flex flex-col gap-4"
+	>
+		<div class="flex items-center justify-between gap-4">
+			<label for="backupEnabled" class="cursor-pointer {labelText}">{m.settings.backupSwitch}</label
 			>
-				<span
-					class="absolute top-0.5 left-0.5 size-6 rounded-full bg-surface shadow transition-transform {data.enabled
-						? 'translate-x-5'
-						: ''}"
-				></span>
-			</span>
-		</button>
+			<Switch id="backupEnabled" name="enabled" bind:checked={enabled} />
+		</div>
+
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 {enabled ? '' : 'opacity-50'}">
+			<label class={label}>
+				<span class={labelText}>{m.settings.backupHow}</span>
+				<select name="frequency" bind:value={frequency}>
+					{#each FREQUENCIES as option (option)}
+						<option value={option}>{m.settings.backupFrequencies[option]}</option>
+					{/each}
+				</select>
+				{#if frequency === 'monthly'}<span class={hint}>{m.settings.backupMonthlyHint}</span>{/if}
+			</label>
+			{#if frequency === 'weekly'}
+				<label class={label}>
+					<span class={labelText}>{m.settings.backupWeekday}</span>
+					<select name="weekday" value={String(data.schedule.weekday)}>
+						{#each WEEKDAYS as day (day)}
+							<option value={String(day)}>{weekdayName(day)}</option>
+						{/each}
+					</select>
+				</label>
+			{/if}
+			<label class={label}>
+				<span class={labelText}>{m.settings.backupTime}</span>
+				<input type="time" name="time" value={data.schedule.time} required />
+			</label>
+			<label class={label}>
+				<span class={labelText}>{m.settings.backupKeep}</span>
+				<select name="keep" value={String(data.keep)}>
+					{#each KEEP_CHOICES as keep (keep)}
+						<option value={String(keep)}>{keep}</option>
+					{/each}
+				</select>
+				<span class={hint}>{m.settings.backupKeepHint}</span>
+			</label>
+		</div>
+
+		<div class={actions}>
+			<SubmitButton text={m.common.save} busy={forms.busy === 'backup'} when="changed" />
+			<FeedbackText feedback={forms.messages.backup} />
+		</div>
 	</form>
 
-	<!-- The schedule only matters while backups are on -->
-	{#if data.enabled}
-		<form
-			method="POST"
-			action="?/schedule"
-			use:enhance={() =>
-				({ update }) =>
-					update({ reset: false })}
-			class="mt-4 flex flex-col gap-4"
-		>
-			<fieldset>
-				<legend class="text-sm font-medium">{m.settings.backupHow}</legend>
-				<div class="mt-1 grid grid-cols-3 gap-2">
-					{#each FREQUENCIES as frequency (frequency)}
-						<button
-							name="frequency"
-							value={frequency}
-							class="{choice} {data.schedule.frequency === frequency ? chosen : 'border-line'}"
-							aria-pressed={data.schedule.frequency === frequency}
-						>
-							{m.settings.backupFrequencies[frequency]}
-						</button>
-					{/each}
-				</div>
-				{#if data.schedule.frequency === 'monthly'}
-					<p class="mt-1 text-sm text-muted">{m.settings.backupMonthlyHint}</p>
-				{/if}
-			</fieldset>
-			<div class="grid grid-cols-2 gap-2">
-				{#if data.schedule.frequency === 'weekly'}
-					<label class="flex flex-col gap-1">
-						<span class="text-sm font-medium">{m.settings.backupWeekday}</span>
-						<select name="weekday" value={String(data.schedule.weekday)} onchange={send}>
-							{#each WEEKDAYS as day (day)}
-								<option value={String(day)}>{weekdayName(day)}</option>
-							{/each}
-						</select>
-					</label>
-				{/if}
-				<label class="flex flex-col gap-1">
-					<span class="text-sm font-medium">{m.settings.backupTime}</span>
-					<input type="time" name="time" value={data.schedule.time} required onchange={send} />
-				</label>
-			</div>
-			<fieldset>
-				<legend class="text-sm font-medium">{m.settings.backupKeep}</legend>
-				<div class="mt-1 grid grid-cols-4 gap-2">
-					{#each KEEP_CHOICES as keep (keep)}
-						<button
-							name="keep"
-							value={keep}
-							class="{choice} {data.keep === keep ? chosen : 'border-line'}"
-							aria-pressed={data.keep === keep}
-						>
-							{keep}
-						</button>
-					{/each}
-				</div>
-				<p class="mt-1 text-sm text-muted">{m.settings.backupKeepHint}</p>
-			</fieldset>
-		</form>
-	{/if}
-
-	<div class="mt-4 flex flex-col gap-1 text-sm">
+	<div class="mt-4 flex flex-col gap-1 border-t border-line pt-4 text-sm">
 		{#if data.next}<p>{m.settings.backupNext(moment(data.next))}</p>{/if}
 		{#if data.lastError}
-			<p class="form-error" role="alert">{m.settings.backupFailed(data.lastError)}</p>
+			<p class="text-danger" role="alert">{m.settings.backupFailed(data.lastError)}</p>
 		{:else if data.lastRun}
 			<p class="text-muted">{m.settings.backupLast(moment(data.lastRun))}</p>
 		{:else}
 			<p class="text-muted">{m.settings.backupNever}</p>
 		{/if}
 	</div>
-
-	<form
-		method="POST"
-		action="?/run"
-		use:enhance={() => {
-			busy = true;
-			return async ({ update }) => {
-				await update();
-				busy = false;
-			};
-		}}
-		class="mt-3"
-	>
-		<button
-			class="inline-flex items-center gap-2 btn-secondary disabled:opacity-50"
-			disabled={busy}
-		>
-			{#if busy}
-				<LoaderCircle size={18} class="animate-spin" />{m.settings.backupRunning}
-			{:else}
-				{m.settings.backupNow}
-			{/if}
-		</button>
+	<form method="POST" action="?/run" use:enhance={forms.submit('run')} class="mt-3 {actions}">
+		<SubmitButton
+			text={forms.busy === 'run' ? m.settings.backupRunning : m.settings.backupNow}
+			busy={forms.busy === 'run'}
+			style={BUTTON_SECONDARY}
+		/>
+		<FeedbackText feedback={forms.error('run')} />
 	</form>
 </section>
 

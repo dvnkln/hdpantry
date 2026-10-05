@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { REPO, WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
+	import SubmitButton, {
+		BUTTON_PRIMARY,
+		BUTTON_SECONDARY
+	} from '$lib/components/SubmitButton.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 	import { proxySnippets } from '$lib/proxySnippets';
 	import {
@@ -130,7 +134,7 @@
 						{m.settings.removeKey}
 					</button>
 				{:else}
-					<button class="btn-secondary">{m.settings.createKey}</button>
+					<button class={BUTTON_SECONDARY}>{m.settings.createKey}</button>
 				{/if}
 			</form>
 		</div>
@@ -283,7 +287,7 @@
 				name="proxies"
 				value={[data.trustedProxies, c.peer].filter(Boolean).join(', ')}
 			/>
-			<button class="btn-primary">{m.settings.confirmProxy}</button>
+			<button class={BUTTON_PRIMARY}>{m.settings.confirmProxy}</button>
 		</form>
 	{:else if pending}
 		<!-- Docker hides the proxy's address: it proves itself with a key -->
@@ -324,12 +328,15 @@
 						spellcheck="false"
 					/>
 				</label>
-				{#if form?.error}
-					<p class="form-error" role="alert">{form.error}</p>
-				{:else if form?.saved}
-					<p class="text-sm text-good" role="status">{m.settings.proxiesSaved}</p>
-				{/if}
-				<button class="self-start btn-secondary">{m.common.save}</button>
+				<div class={ui.actions}>
+					<!-- Greyed out until the list differs from the saved one -->
+					<SubmitButton text={m.common.save} when="changed" style={BUTTON_SECONDARY} />
+					{#if form?.error}
+						<p class="text-sm text-danger" role="alert">{form.error}</p>
+					{:else if form?.saved}
+						<p class="text-sm text-good" role="status">{m.settings.proxiesSaved}</p>
+					{/if}
+				</div>
 			</form>
 		</details>
 	{/if}

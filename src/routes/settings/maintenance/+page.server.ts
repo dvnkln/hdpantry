@@ -10,6 +10,7 @@ import {
 	runBackup,
 	saveBackupSettings
 } from '$lib/server/backups';
+import { serverMessages } from '$lib/server/i18n';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = () => ({
@@ -20,32 +21,35 @@ export const load: PageServerLoad = () => ({
 	databaseSize: databaseSize()
 });
 
-// Every choice is saved as soon as it is made
 export const actions: Actions = {
-	toggle: async ({ request }) => {
-		saveBackupSettings({ enabled: (await request.formData()).get('enabled') === 'on' });
-		return { done: true };
-	},
-
-	// Only what was sent and is valid is changed
-	schedule: async ({ request }) => {
+	// Switch and schedule belong together: saved with one button. Only what is valid is changed.
+	save: async ({ request, locals }) => {
+		const t = serverMessages(locals.locale);
 		const data = await request.formData();
 		const frequency = data.get('frequency');
 		const time = String(data.get('time') ?? '');
 		const weekday = data.has('weekday') ? Number(data.get('weekday')) : NaN;
-		const keep = data.has('keep') ? Number(data.get('keep')) : NaN;
+		const keep = Number(data.get('keep'));
+		if (
+			!isFrequency(frequency) ||
+			!isTime(time) ||
+			!(KEEP_CHOICES as readonly number[]).includes(keep)
+		) {
+			return fail(400, { error: t.common.invalid });
+		}
 		saveBackupSettings({
-			...(isFrequency(frequency) && { frequency }),
-			...(isTime(time) && { time }),
-			...(Number.isInteger(weekday) && weekday >= 0 && weekday <= 6 && { weekday }),
-			...((KEEP_CHOICES as readonly number[]).includes(keep) && { keep })
+			enabled: data.get('enabled') === 'on',
+			frequency,
+			time,
+			keep,
+			...(Number.isInteger(weekday) && weekday >= 0 && weekday <= 6 && { weekday })
 		});
-		return { done: true };
+		return { message: t.settings.saved };
 	},
 
 	run: async () => {
 		const error = await runBackup();
-		return error ? fail(500, { error }) : { done: true };
+		return error ? fail(500, { error }) : { message: '' };
 	},
 
 	delete: async ({ request }) => {

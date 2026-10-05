@@ -13,6 +13,7 @@ export const de = {
 		yes: 'Ja',
 		no: 'Nein',
 		save: 'Speichern',
+		invalid: 'Das hat nicht geklappt.',
 		showPassword: 'Passwort anzeigen',
 		hidePassword: 'Passwort verbergen'
 	},
@@ -305,8 +306,9 @@ export const de = {
 		groupStock: 'Vorrat',
 		groupAdmin: 'Verwaltung',
 		general: 'Allgemein',
-		generalHint: 'Sprache, Scannen, „läuft bald ab“',
+		generalHint: 'Sprache, Scannen, Schwelle',
 		language: 'Sprache',
+		display: 'Anzeige',
 		scanning: 'Scannen',
 		vibration: 'Vibration beim Erkennen eines Codes',
 		vibrationHint:
@@ -317,7 +319,7 @@ export const de = {
 		appearance: 'Design',
 		appearanceHint: 'Farbschema, Symbole',
 		account: 'Konto',
-		accountHint: 'Benutzername, Passwort, Geräte',
+		accountHint: 'Name, Passwort, Geräte',
 		accountName: 'Benutzernamen ändern',
 		accountNameNew: 'Neuer Benutzername',
 		accountNameSave: 'Benutzername ändern',
@@ -341,7 +343,7 @@ export const de = {
 		accountDevicesLogout: 'Alle anderen Geräte abmelden',
 		accountDevicesDone: 'Alle anderen Geräte wurden abgemeldet ✓',
 		data: 'Daten',
-		dataHint: 'Export und Import',
+		dataHint: 'Export, Import',
 		dataExport: 'Export',
 		dataExportText:
 			'Lädt deinen Vorrat als Datei herunter: alle Behälter, was drin ist, der Verlauf und was die App über deine Lebensmittel gelernt hat. Konto und Einstellungen sind nicht enthalten.',
@@ -359,8 +361,9 @@ export const de = {
 		dataWrongWord: 'Zum Ersetzen bitte das Bestätigungswort eintippen.',
 		dataImported: (containers: number, filled: number) =>
 			`Import abgeschlossen: ${containers} Behälter, davon ${filled} gefüllt.`,
+		saved: 'Gespeichert ✓',
 		maintenance: 'Wartung',
-		maintenanceHint: 'Backups der Datenbank',
+		maintenanceHint: 'Backups',
 		backup: 'Backup',
 		backupText:
 			'Legt nach Zeitplan eine Kopie der ganzen Datenbank an – Vorrat, Konto und Einstellungen. Die Kopien liegen im Datenordner unter „backups“ und lassen sich hier herunterladen.',
@@ -405,7 +408,7 @@ export const de = {
 				`Die Datei ist beschädigt oder wurde verändert (Stelle: ${where}). Es wurde nichts geändert.`
 		},
 		server: 'Server',
-		serverHint: 'Übersicht, Reverse Proxy',
+		serverHint: 'Übersicht, Proxy',
 		overview: 'Übersicht',
 		allFine: 'Alles in Ordnung',
 		needsAttention: (n: number) =>
@@ -487,8 +490,8 @@ export const de = {
 		theme: 'Farbschema',
 		themeHint: '„System“ folgt der Einstellung deines Geräts.',
 		themes: { system: 'System', dark: 'Dunkel', light: 'Hell' },
-		containersShort: 'Löschen, Code ändern, zusammenführen',
-		guideShort: 'Tabelle der Haltbarkeiten mit Quellen',
+		containersShort: 'Löschen, Code, Zusammenführen',
+		guideShort: 'Haltbarkeit, Quellen',
 		aboutHint: 'Version, Links, Lizenz',
 		icons: 'Symbole',
 		iconsHint: 'Wie Lebensmittel in Listen und Formularen dargestellt werden.',
@@ -565,7 +568,7 @@ export const de = {
 
 	notifications: {
 		title: 'Benachrichtigungen',
-		navHint: 'Push-Nachrichten auf deine Geräte',
+		navHint: 'Erinnerungen, Ziele',
 		thisDevice: 'Dieses Gerät',
 		on: 'Eingeschaltet',
 		off: 'Ausgeschaltet',
@@ -583,8 +586,6 @@ export const de = {
 		enabled: 'Eingeschaltet ✓',
 		failed: 'Einschalten fehlgeschlagen. Versuche es erneut.',
 		refused: 'Dieses Gerät wurde nicht angenommen (unbekannter Push-Dienst oder zu viele Geräte).',
-		outside:
-			'Push-Nachrichten laufen über den Push-Dienst deines Browsers (z. B. Google, Apple, Mozilla). Das ist die einzige Verbindung nach außen, und nur für Geräte, die du hier einschaltest. Der Inhalt ist verschlüsselt.',
 		devices: 'Deine Geräte',
 		noDevices: 'Noch kein Gerät eingeschaltet.',
 		here: 'dieses Gerät',
@@ -649,8 +650,6 @@ export const de = {
 		version: (v: string) => `Version ${v}`,
 		versionHint: 'Was ist neu in dieser Version?',
 		text: 'Ein Vorrats-Tracker zum Selberhosten – wissen, was da ist und was zuerst gegessen werden sollte.',
-		private:
-			'hdpantry läuft auf deinem eigenen Server und nimmt von sich aus keine Verbindung nach außen auf. Die Links unten öffnen erst auf deinen Tipp hin eine andere Seite.',
 		links: 'Links',
 		docs: 'Dokumentation (Wiki)',
 		source: 'Quellcode auf GitHub',
@@ -662,7 +661,6 @@ export const de = {
 		lucide: 'Strich-Symbole, ISC-Lizenz',
 		tabler: 'weitere Strich-Symbole, MIT-Lizenz',
 		outfit: 'Schrift des Schriftzugs, SIL Open Font License',
-		bundled: 'Alles davon ist Teil der App; nichts wird von anderswo geladen.',
 		ai: 'Entwickelt mit Unterstützung von KI (Claude Code).'
 	},
 

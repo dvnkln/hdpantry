@@ -197,9 +197,7 @@
 	{:else if feedback}
 		<div class="mt-3">{@render note(feedback.ok, feedback.text)}</div>
 	{/if}
-	<!-- Said plainly: this is the one thing that leaves the own server -->
 	<p class="mt-4 text-sm text-muted">
-		{m.notifications.outside}
 		<a href="{WIKI}/Privacy-and-security" target="_blank" rel="noopener noreferrer" class={ui.link}
 			>{m.notifications.learnMore}</a
 		>

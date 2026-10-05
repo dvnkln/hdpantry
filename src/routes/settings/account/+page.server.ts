@@ -35,7 +35,7 @@ export const actions: Actions = {
 
 		// A wrong current password counts like a wrong login, with the same lock
 		const locked = loginLockedFor(ip);
-		if (locked > 0) return fail(429, { nameError: t.auth.tooManyAttempts(locked), username });
+		if (locked > 0) return fail(429, { error: t.auth.tooManyAttempts(locked), username });
 
 		const result = await changeUsername(
 			user.id,
@@ -43,14 +43,14 @@ export const actions: Actions = {
 			username,
 			String(data.get('password') ?? '')
 		);
-		if (result === 'usernameRule') return fail(400, { nameError: t.auth.usernameRule, username });
-		if (result === 'same') return fail(400, { nameError: t.settings.accountNameSame, username });
+		if (result === 'usernameRule') return fail(400, { error: t.auth.usernameRule, username });
+		if (result === 'same') return fail(400, { error: t.settings.accountNameSame, username });
 		if (result === 'wrongPassword') {
 			recordLoginFailure(ip);
-			return fail(400, { nameError: t.settings.accountWrongPassword, username });
+			return fail(400, { error: t.settings.accountWrongPassword, username });
 		}
 		clearLoginFailures(ip);
-		return { nameDone: true };
+		return { message: t.settings.accountNameSaved };
 	},
 
 	password: async (event) => {
@@ -60,7 +60,7 @@ export const actions: Actions = {
 		const data = await event.request.formData();
 
 		const locked = loginLockedFor(ip);
-		if (locked > 0) return fail(429, { passwordError: t.auth.tooManyAttempts(locked) });
+		if (locked > 0) return fail(429, { error: t.auth.tooManyAttempts(locked) });
 
 		const result = await changePassword(
 			user.id,
@@ -70,20 +70,20 @@ export const actions: Actions = {
 			String(data.get('confirm') ?? '')
 		);
 		if (result === 'tooShort') {
-			return fail(400, { passwordError: t.auth.passwordTooShort(MIN_PASSWORD_LENGTH) });
+			return fail(400, { error: t.auth.passwordTooShort(MIN_PASSWORD_LENGTH) });
 		}
-		if (result === 'differ') return fail(400, { passwordError: t.auth.passwordsDiffer });
+		if (result === 'differ') return fail(400, { error: t.auth.passwordsDiffer });
 		if (result === 'wrongPassword') {
 			recordLoginFailure(ip);
-			return fail(400, { passwordError: t.settings.accountWrongPassword });
+			return fail(400, { error: t.settings.accountWrongPassword });
 		}
 		clearLoginFailures(ip);
-		return { passwordDone: true };
+		return { message: t.settings.accountPasswordSaved };
 	},
 
 	logoutOthers: async (event) => {
 		const { user, token } = session(event);
 		deleteOtherSessions(user.id, token);
-		return { devicesDone: true };
+		return { message: serverMessages(event.locals.locale).settings.accountDevicesDone };
 	}
 };

@@ -360,7 +360,10 @@
 			<input type="hidden" name="icon" value={icon ?? ''} />
 		</div>
 
-		<Switch name="vacuumed" bind:checked={vacuumed} label={m.item.vacuumed} />
+		<div class="flex items-center justify-between gap-4">
+			<label for="vacuumed" class="cursor-pointer font-medium">{m.item.vacuumed}</label>
+			<Switch id="vacuumed" name="vacuumed" bind:checked={vacuumed} />
+		</div>
 
 		<fieldset>
 			<legend class="mb-1 text-sm font-medium">{m.item.location}</legend>

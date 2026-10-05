@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { codeLabel } from '$lib/containers';
+	import SubmitButton, {
+		BUTTON_DANGER,
+		BUTTON_PRIMARY,
+		BUTTON_SECONDARY
+	} from '$lib/components/SubmitButton.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 	import { Combine, Info, Pencil, Trash2 } from '@lucide/svelte';
 	import type { SubmitFunction } from './$types';
@@ -127,10 +132,10 @@
 								)}
 							</p>
 							<div class="mt-3 flex gap-2">
-								<button type="button" class="flex-1 btn-secondary" onclick={() => open(null)}>
+								<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={() => open(null)}>
 									{m.common.cancel}
 								</button>
-								<button class="flex-1 btn-danger">{m.settings.deleteConfirm}</button>
+								<button class="flex-1 {BUTTON_DANGER}">{m.settings.deleteConfirm}</button>
 							</div>
 						</form>
 					{:else if isOpen('code', container.id)}
@@ -158,10 +163,16 @@
 								<p class="form-error" role="alert">{form.error}</p>
 							{/if}
 							<div class="flex gap-2">
-								<button type="button" class="flex-1 btn-secondary" onclick={() => open(null)}>
+								<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={() => open(null)}>
 									{m.common.cancel}
 								</button>
-								<button class="flex-1 btn-primary" disabled={!code.trim()}>{m.common.save}</button>
+								<!-- Greyed out until the code differs from the saved one -->
+								<SubmitButton
+									text={m.common.save}
+									when="changed"
+									disabled={!code.trim()}
+									style="flex-1 {BUTTON_PRIMARY}"
+								/>
 							</div>
 						</form>
 					{:else if isOpen('merge', container.id) && container.bothFull}
@@ -178,10 +189,10 @@
 								<p class="mt-3 form-error" role="alert">{form.error}</p>
 							{/if}
 							<div class="mt-3 flex gap-2">
-								<button type="button" class="flex-1 btn-secondary" onclick={() => open(null)}>
+								<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={() => open(null)}>
 									{m.common.cancel}
 								</button>
-								<button class="flex-1 btn-primary">{m.settings.mergeConfirm}</button>
+								<button class="flex-1 {BUTTON_PRIMARY}">{m.settings.mergeConfirm}</button>
 							</div>
 						</form>
 					{/if}
@@ -216,15 +227,14 @@
 						<p class="form-error" role="alert">{form.error}</p>
 					{/if}
 					<div class="flex gap-2">
-						<button type="button" class="flex-1 btn-secondary" onclick={() => open(null)}>
+						<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={() => open(null)}>
 							{m.common.cancel}
 						</button>
-						<button
-							class="flex-1 btn-danger disabled:opacity-50"
+						<SubmitButton
+							text={m.settings.deleteAllConfirm}
 							disabled={typed.trim() !== m.settings.deleteWord}
-						>
-							{m.settings.deleteAllConfirm}
-						</button>
+							style="flex-1 {BUTTON_DANGER}"
+						/>
 					</div>
 				</form>
 			{:else}

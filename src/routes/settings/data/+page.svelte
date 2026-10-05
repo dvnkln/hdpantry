@@ -2,8 +2,12 @@
 	import { WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
 	import { MAX_BACKUP_BYTES, backupCounts, parseBackup, type BackupResult } from '$lib/backup';
+	import SubmitButton, {
+		BUTTON_DANGER,
+		BUTTON_SECONDARY
+	} from '$lib/components/SubmitButton.svelte';
 	import { m } from '$lib/i18n/index.svelte';
-	import { Download, FileDown, FileUp, LoaderCircle, TriangleAlert, Upload } from '@lucide/svelte';
+	import { Download, FileDown, FileUp, TriangleAlert, Upload } from '@lucide/svelte';
 
 	let { data, form } = $props();
 
@@ -61,11 +65,7 @@
 	<p class="mt-1 text-sm text-muted">{m.settings.dataExportText}</p>
 	<p class="mt-2 text-sm">{m.settings.dataNow(data.counts.containers, data.counts.filled)}</p>
 	<!-- A plain download from the own server -->
-	<a
-		href="/settings/data/export"
-		download
-		class="mt-3 inline-flex items-center gap-2 btn-secondary"
-	>
+	<a href="/settings/data/export" download class="mt-3 {BUTTON_SECONDARY}">
 		<Download size={18} />{m.settings.dataExportButton}
 	</a>
 </section>
@@ -86,7 +86,7 @@
 	{/if}
 
 	<label
-		class="mt-3 inline-flex cursor-pointer items-center gap-2 btn-secondary has-focus-visible:outline-2 has-focus-visible:outline-accent"
+		class="mt-3 cursor-pointer {BUTTON_SECONDARY} has-focus-visible:outline-2 has-focus-visible:outline-accent"
 	>
 		<Upload size={18} />{m.settings.dataChoose}
 		<input
@@ -165,19 +165,16 @@
 				<p class="form-error" role="alert">{form.error}</p>
 			{/if}
 			<div class="flex gap-2">
-				<button type="button" class="flex-1 btn-secondary" onclick={reset} disabled={busy}>
+				<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={reset} disabled={busy}>
 					{m.common.cancel}
 				</button>
-				<button
-					class="flex flex-1 items-center justify-center gap-2 btn-danger disabled:opacity-50"
-					disabled={busy || typed.trim() !== m.settings.dataWord}
-				>
-					{#if busy}
-						<LoaderCircle size={18} class="animate-spin" />{m.settings.dataBusy}
-					{:else}
-						{m.settings.dataReplace}
-					{/if}
-				</button>
+				<!-- Greyed out until the word is typed -->
+				<SubmitButton
+					text={busy ? m.settings.dataBusy : m.settings.dataReplace}
+					{busy}
+					disabled={typed.trim() !== m.settings.dataWord}
+					style="flex-1 {BUTTON_DANGER}"
+				/>
 			</div>
 		</form>
 	{/if}

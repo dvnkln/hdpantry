@@ -12,6 +12,7 @@ export const en: Messages = {
 		yes: 'Yes',
 		no: 'No',
 		save: 'Save',
+		invalid: 'That did not work.',
 		showPassword: 'Show password',
 		hidePassword: 'Hide password'
 	},
@@ -303,8 +304,9 @@ export const en: Messages = {
 		groupStock: 'Stock',
 		groupAdmin: 'Administration',
 		general: 'General',
-		generalHint: 'Language, scanning, “expires soon”',
+		generalHint: 'Language, scanning, threshold',
 		language: 'Language',
+		display: 'Display',
 		scanning: 'Scanning',
 		vibration: 'Vibrate when a code is recognised',
 		vibrationHint:
@@ -315,7 +317,7 @@ export const en: Messages = {
 		appearance: 'Appearance',
 		appearanceHint: 'Colour scheme, symbols',
 		account: 'Account',
-		accountHint: 'Username, password, devices',
+		accountHint: 'Name, password, devices',
 		accountName: 'Change username',
 		accountNameNew: 'New username',
 		accountNameSave: 'Change username',
@@ -339,7 +341,7 @@ export const en: Messages = {
 		accountDevicesLogout: 'Log out all other devices',
 		accountDevicesDone: 'All other devices were logged out ✓',
 		data: 'Data',
-		dataHint: 'Export and import',
+		dataHint: 'Export, import',
 		dataExport: 'Export',
 		dataExportText:
 			'Downloads your stock as a file: all containers, what is inside, the history and what the app has learned about your food. Account and settings are not included.',
@@ -357,8 +359,9 @@ export const en: Messages = {
 		dataWrongWord: 'To replace, please type the confirmation word.',
 		dataImported: (containers: number, filled: number) =>
 			`Import finished: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
+		saved: 'Saved ✓',
 		maintenance: 'Maintenance',
-		maintenanceHint: 'Backups of the database',
+		maintenanceHint: 'Backups',
 		backup: 'Backup',
 		backupText:
 			'Makes a copy of the whole database on a schedule – stock, account and settings. The copies are kept in the data folder under “backups” and can be downloaded here.',
@@ -402,7 +405,7 @@ export const en: Messages = {
 				`The file is damaged or was changed (at: ${where}). Nothing was changed.`
 		},
 		server: 'Server',
-		serverHint: 'Overview, reverse proxy',
+		serverHint: 'Overview, proxy',
 		overview: 'Overview',
 		allFine: 'Everything is fine',
 		needsAttention: (n: number) =>
@@ -482,8 +485,8 @@ export const en: Messages = {
 		theme: 'Colour scheme',
 		themeHint: '“System” follows the setting of your device.',
 		themes: { system: 'System', dark: 'Dark', light: 'Light' },
-		containersShort: 'Delete, change code, merge',
-		guideShort: 'Table of shelf lives with sources',
+		containersShort: 'Delete, code, merge',
+		guideShort: 'Shelf life, sources',
 		aboutHint: 'Version, links, licence',
 		icons: 'Symbols',
 		iconsHint: 'How food is shown in lists and forms.',
@@ -559,7 +562,7 @@ export const en: Messages = {
 
 	notifications: {
 		title: 'Notifications',
-		navHint: 'Push messages to your devices',
+		navHint: 'Reminders, targets',
 		thisDevice: 'This device',
 		on: 'Switched on',
 		off: 'Switched off',
@@ -577,8 +580,6 @@ export const en: Messages = {
 		enabled: 'Switched on ✓',
 		failed: 'Switching on failed. Please try again.',
 		refused: 'This device was not accepted (unknown push service or too many devices).',
-		outside:
-			'Push messages travel through the push service of your browser (e.g. Google, Apple, Mozilla). That is the only connection to the outside, and only for devices you switch on here. The content is encrypted.',
 		devices: 'Your devices',
 		noDevices: 'No device switched on yet.',
 		here: 'this device',
@@ -643,8 +644,6 @@ export const en: Messages = {
 		version: (v: string) => `Version ${v}`,
 		versionHint: "What's new in this version?",
 		text: 'A self-hosted pantry tracker – know what you have and what should be eaten first.',
-		private:
-			'hdpantry runs on your own server and makes no connection to the outside by itself. The links below only open another site when you tap them.',
 		links: 'Links',
 		docs: 'Documentation (wiki)',
 		source: 'Source code on GitHub',
@@ -656,7 +655,6 @@ export const en: Messages = {
 		lucide: 'line icons, ISC License',
 		tabler: 'more line icons, MIT License',
 		outfit: 'font of the wordmark, SIL Open Font License',
-		bundled: 'All of it is part of the app; nothing is loaded from elsewhere.',
 		ai: 'Built with the help of AI (Claude Code).'
 	},
 

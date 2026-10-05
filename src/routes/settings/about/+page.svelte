@@ -54,7 +54,6 @@
 		</a>
 	</div>
 	<p class="mt-1 text-sm text-muted">{m.about.text}</p>
-	<p class="mt-2 text-sm text-muted">{m.about.private}</p>
 </section>
 
 <!-- Links the reader may follow; hdpantry itself never contacts these sites -->
@@ -93,7 +92,6 @@
 			</li>
 		{/each}
 	</ul>
-	<p class="mt-4 text-sm text-muted">{m.about.bundled}</p>
 </section>
 
 <p class="mt-6 text-center text-sm text-muted">{m.about.ai}</p>
