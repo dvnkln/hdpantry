@@ -404,18 +404,46 @@ export const de = {
 			invalid: (where: string) =>
 				`Die Datei ist beschädigt oder wurde verändert (Stelle: ${where}). Es wurde nichts geändert.`
 		},
+		server: 'Server',
+		serverHint: 'Übersicht, Reverse Proxy',
+		overview: 'Übersicht',
+		allFine: 'Alles in Ordnung',
+		needsAttention: (n: number) =>
+			n === 1 ? '1 Punkt braucht Aufmerksamkeit' : `${n} Punkte brauchen Aufmerksamkeit`,
+		fix: 'Beheben',
+		checks: {
+			https: {
+				ok: (_n: number) => 'Über HTTPS geöffnet',
+				hint: (_n: number) => 'Ohne HTTPS geöffnet',
+				action: (_n: number) => ''
+			},
+			proxy: {
+				ok: (_n: number) => 'Geräte werden einzeln erkannt',
+				hint: (_n: number) => 'Alle Besucher teilen sich eine Adresse',
+				action: (_n: number) => 'Reverse Proxy nicht bestätigt'
+			},
+			tasks: {
+				ok: (_n: number) => 'Hintergrundaufgaben laufen ohne Fehler',
+				hint: (_n: number) => '',
+				action: (n: number) =>
+					n === 1
+						? '1 Hintergrundaufgabe fehlgeschlagen'
+						: `${n} Hintergrundaufgaben fehlgeschlagen`
+			},
+			logins: {
+				ok: (_n: number) => 'Keine Adresse wegen falscher Passwörter gesperrt',
+				hint: (n: number) =>
+					n === 1
+						? '1 Adresse ist wegen falscher Passwörter gesperrt'
+						: `${n} Adressen sind wegen falscher Passwörter gesperrt`,
+				action: (_n: number) => ''
+			}
+		},
+		infoVersion: 'Version',
+		infoRunning: 'Läuft seit',
+		infoItems: 'Inhalte im Vorrat',
+		infoStorage: 'Belegter Speicher',
 		connection: 'Verbindung',
-		connectionHint: 'HTTPS, Reverse Proxy',
-		https: 'HTTPS',
-		httpsOn: 'Diese Verbindung ist verschlüsselt (HTTPS)',
-		httpsOnHint:
-			'Passwort und Anmeldung sind unterwegs geschützt, die Kamera zum Scannen funktioniert.',
-		httpsOff: 'Diese Verbindung ist nicht verschlüsselt',
-		httpsOffHint:
-			'Passwort und Anmeldung gehen ungeschützt durch dein Netz, und der Browser gibt die Kamera zum Scannen nicht frei. Abhilfe: ein Reverse Proxy mit HTTPS, dessen Adresse in ORIGIN steht.',
-		origins: 'Erlaubte Adressen (ORIGIN)',
-		originsNone: 'ORIGIN ist nicht gesetzt.',
-		proxy: 'Reverse Proxy',
 		direct: 'Direkt verbunden',
 		directHint: 'Mit Reverse Proxy? Öffne diese Seite über ihn, um ihn zu bestätigen.',
 		proxyConfirmed: 'Reverse Proxy bestätigt',
@@ -538,6 +566,7 @@ export const de = {
 	about: {
 		title: 'Über',
 		version: (v: string) => `Version ${v}`,
+		versionHint: 'Was ist neu in dieser Version?',
 		text: 'Ein Vorrats-Tracker zum Selberhosten für wiederverwendbare Vakuumbehälter und -beutel mit QR-Code.',
 		private:
 			'hdpantry läuft auf deinem eigenen Server und nimmt von sich aus keine Verbindung nach außen auf. Die Links unten öffnen erst auf deinen Tipp hin eine andere Seite.',

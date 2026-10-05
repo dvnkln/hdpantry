@@ -1,7 +1,16 @@
 <script lang="ts">
 	import { ui } from '$lib/ui';
 	import { m } from '$lib/i18n/index.svelte';
-	import { BookOpen, Bug, ExternalLink, Link, ListChecks, Package, Scale } from '@lucide/svelte';
+	import {
+		BookOpen,
+		Bug,
+		ExternalLink,
+		History,
+		Link,
+		ListChecks,
+		Package,
+		Scale
+	} from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -33,9 +42,16 @@
 <section class={card}>
 	<div class="flex flex-wrap items-center gap-2">
 		<h2 class="text-lg font-semibold">hdpantry</h2>
-		<span class="rounded-full border border-line px-2 py-0.5 text-xs text-muted">
+		<a
+			href="{REPO}/releases/tag/v{data.version}"
+			target="_blank"
+			rel="noopener noreferrer"
+			title={m.about.versionHint}
+			class="inline-flex items-center gap-1 rounded-full border border-line px-2 py-0.5 text-xs text-muted transition-colors hover:border-accent hover:text-text"
+		>
 			{m.about.version(data.version)}
-		</span>
+			<History size={12} />
+		</a>
 	</div>
 	<p class="mt-1 text-sm text-muted">{m.about.text}</p>
 	<p class="mt-2 text-sm text-muted">{m.about.private}</p>

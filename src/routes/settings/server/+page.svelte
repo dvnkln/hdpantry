@@ -1,22 +1,52 @@
 <script lang="ts">
-	import { WIKI, ui } from '$lib/ui';
+	import { REPO, WIKI, ui } from '$lib/ui';
 	import { enhance } from '$app/forms';
 	import { m } from '$lib/i18n/index.svelte';
 	import { proxySnippets } from '$lib/proxySnippets';
 	import {
+		Activity,
 		Check,
 		CircleCheck,
 		Copy,
 		Eye,
 		EyeOff,
 		Info,
-		LockKeyhole,
-		LockKeyholeOpen,
 		Network,
 		TriangleAlert
 	} from '@lucide/svelte';
 
 	let { data, form } = $props();
+
+	// ---- Overview ----
+	// Where a check that is not fine can be dealt with
+	const CHECK_LINKS: Record<string, string> = {
+		https: `${WIKI}/HTTPS`,
+		proxy: '#connection',
+		tasks: '/settings/maintenance',
+		logins: ''
+	};
+	let todo = $derived(data.overview.checks.filter((check) => check.level === 'action').length);
+	function megabytes(bytes: number) {
+		const mb = bytes / (1024 * 1024);
+		return `${mb.toLocaleString(data.locale, { maximumFractionDigits: mb < 10 ? 1 : 0 })} MB`;
+	}
+	let facts = $derived([
+		{
+			label: m.settings.infoVersion,
+			value: data.overview.version,
+			href: `${REPO}/releases/tag/v${data.overview.version}`
+		},
+		{
+			label: m.settings.infoRunning,
+			value: new Date(data.overview.info.startedAt).toLocaleString(data.locale, {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			}),
+			href: ''
+		},
+		{ label: m.settings.infoItems, value: String(data.overview.info.items), href: '' },
+		{ label: m.settings.infoStorage, value: megabytes(data.overview.info.bytes), href: '' }
+	]);
 
 	// ---- How this request reached hdpantry ----
 	let c = $derived(data.connection);
@@ -65,7 +95,7 @@
 	}
 </script>
 
-<svelte:head><title>{m.settings.connection} · hdpantry</title></svelte:head>
+<svelte:head><title>{m.settings.server} · hdpantry</title></svelte:head>
 
 {#snippet step(n: number, title: string, done = false)}
 	<p class="flex items-center gap-2.5 text-sm font-medium">
@@ -156,32 +186,65 @@
 	</div>
 {/snippet}
 
-<h1 class={ui.pageTitle}>{m.settings.connection}</h1>
+<h1 class={ui.pageTitle}>{m.settings.server}</h1>
 
+<!-- Overview: is everything fine? -->
 <section class={ui.card}>
-	<h2 class={ui.heading}><LockKeyhole size={20} class="text-muted" />{m.settings.https}</h2>
-	<p class="mt-2 flex items-center gap-2 font-medium {data.https ? 'text-good' : 'text-caution'}">
-		{#if data.https}<LockKeyhole size={18} class="shrink-0" />{:else}<LockKeyholeOpen
+	<h2 class={ui.heading}><Activity size={20} class="text-muted" />{m.settings.overview}</h2>
+	<p class="mt-3 flex items-center gap-2 font-medium {todo ? 'text-caution' : 'text-good'}">
+		{#if todo}<TriangleAlert size={18} class="shrink-0" />{:else}<CircleCheck
 				size={18}
 				class="shrink-0"
 			/>{/if}
-		{data.https ? m.settings.httpsOn : m.settings.httpsOff}
+		{todo ? m.settings.needsAttention(todo) : m.settings.allFine}
 	</p>
-	<p class="mt-1.5 text-sm text-muted">
-		{data.https ? m.settings.httpsOnHint : m.settings.httpsOffHint}
-	</p>
-	<p class="mt-3 text-sm text-muted">{m.settings.origins}</p>
-	{#if data.origins.length}
-		<ul class="mt-1 text-sm">
-			{#each data.origins as origin (origin)}<li class="break-all">{origin}</li>{/each}
-		</ul>
-	{:else}
-		<p class="mt-1 text-sm">{m.settings.originsNone}</p>
-	{/if}
+	<ul class="mt-3 flex flex-col gap-1.5 text-sm">
+		{#each data.overview.checks as check (check.key)}
+			{@const link = CHECK_LINKS[check.key]}
+			<li class="flex items-start gap-2">
+				{#if check.level === 'ok'}
+					<Check size={16} class="mt-0.5 shrink-0 text-good" />
+				{:else if check.level === 'hint'}
+					<Info size={16} class="mt-0.5 shrink-0 text-muted" />
+				{:else}
+					<TriangleAlert size={16} class="mt-0.5 shrink-0 text-caution" />
+				{/if}
+				<!-- Text, then (only if not fine) a link to deal with it -->
+				<p class="min-w-0 {check.level === 'ok' ? 'text-muted' : ''}">
+					{m.settings.checks[check.key][check.level](check.count ?? 0)}
+					{#if check.level !== 'ok' && link}
+						<a
+							class="ml-1 text-muted {ui.link}"
+							href={link}
+							target={link.startsWith('http') ? '_blank' : undefined}
+							rel="noopener noreferrer"
+							>{check.level === 'action' ? m.settings.fix : m.settings.learnMore}</a
+						>
+					{/if}
+				</p>
+			</li>
+		{/each}
+	</ul>
+	<dl
+		class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-line pt-4 text-sm sm:grid-cols-4"
+	>
+		{#each facts as fact (fact.label)}
+			<div>
+				<dt class="text-xs text-muted">{fact.label}</dt>
+				<dd>
+					{#if fact.href}
+						<a class={ui.link} href={fact.href} target="_blank" rel="noopener noreferrer"
+							>{fact.value}</a
+						>
+					{:else}{fact.value}{/if}
+				</dd>
+			</div>
+		{/each}
+	</dl>
 </section>
 
-<section class={ui.card}>
-	<h2 class={ui.heading}><Network size={20} class="text-muted" />{m.settings.proxy}</h2>
+<section class={ui.card} id="connection">
+	<h2 class={ui.heading}><Network size={20} class="text-muted" />{m.settings.connection}</h2>
 
 	<!-- Status at a glance -->
 	<p

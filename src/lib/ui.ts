@@ -9,4 +9,5 @@ export const ui = {
 	link: 'underline underline-offset-2 transition-colors hover:text-accent'
 };
 
-export const WIKI = 'https://github.com/dvnkln/hdpantry/wiki';
+export const REPO = 'https://github.com/dvnkln/hdpantry';
+export const WIKI = `${REPO}/wiki`;

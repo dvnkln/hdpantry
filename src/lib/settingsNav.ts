@@ -2,9 +2,9 @@ import {
 	Boxes,
 	Database,
 	Info,
-	Network,
 	Palette,
 	Scale,
+	Server,
 	Settings2,
 	UserRound,
 	Wrench
@@ -58,11 +58,11 @@ export function settingsSections() {
 			hint: m.settings.guideShort
 		},
 		{
-			href: '/settings/connection',
+			href: '/settings/server',
 			group: 'admin',
-			icon: Network,
-			label: m.settings.connection,
-			hint: m.settings.connectionHint
+			icon: Server,
+			label: m.settings.server,
+			hint: m.settings.serverHint
 		},
 		{
 			href: '/settings/maintenance',

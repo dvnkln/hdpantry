@@ -1,15 +1,16 @@
 import { randomBytes } from 'node:crypto';
 import { fail } from '@sveltejs/kit';
+import pkg from '../../../../package.json';
 import { connectionOf } from '$lib/server/auth';
+import { serverOverview } from '$lib/server/overview';
 import { serverMessages } from '$lib/server/i18n';
-import { allowedOrigins, isHttps } from '$lib/server/origins';
 import { PROXY_KEY_HEADER, parseProxies } from '$lib/server/proxy';
 import { getSetting, setSettings } from '$lib/server/settings';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = (event) => ({
-	https: isHttps(event.request, event.url),
-	origins: allowedOrigins(),
+	// Is everything fine, plus a few facts
+	overview: { ...serverOverview(event), version: pkg.version },
 	// What hdpantry sees of this request, and the proxies entered so far
 	connection: connectionOf(event),
 	trustedProxies: parseProxies(getSetting('trustedProxies')).entries.join(', '),

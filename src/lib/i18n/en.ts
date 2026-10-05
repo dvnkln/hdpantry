@@ -401,17 +401,44 @@ export const en: Messages = {
 			invalid: (where: string) =>
 				`The file is damaged or was changed (at: ${where}). Nothing was changed.`
 		},
+		server: 'Server',
+		serverHint: 'Overview, reverse proxy',
+		overview: 'Overview',
+		allFine: 'Everything is fine',
+		needsAttention: (n: number) =>
+			n === 1 ? '1 item needs attention' : `${n} items need attention`,
+		fix: 'Fix',
+		checks: {
+			https: {
+				ok: (_n: number) => 'Opened over HTTPS',
+				hint: (_n: number) => 'Opened without HTTPS',
+				action: (_n: number) => ''
+			},
+			proxy: {
+				ok: (_n: number) => 'Devices are recognised one by one',
+				hint: (_n: number) => 'All visitors share one address',
+				action: (_n: number) => 'Reverse proxy not confirmed'
+			},
+			tasks: {
+				ok: (_n: number) => 'Background tasks run without errors',
+				hint: (_n: number) => '',
+				action: (n: number) =>
+					n === 1 ? '1 background task failed' : `${n} background tasks failed`
+			},
+			logins: {
+				ok: (_n: number) => 'No address blocked for wrong passwords',
+				hint: (n: number) =>
+					n === 1
+						? '1 address is blocked for wrong passwords'
+						: `${n} addresses are blocked for wrong passwords`,
+				action: (_n: number) => ''
+			}
+		},
+		infoVersion: 'Version',
+		infoRunning: 'Running since',
+		infoItems: 'Items in stock',
+		infoStorage: 'Storage used',
 		connection: 'Connection',
-		connectionHint: 'HTTPS, reverse proxy',
-		https: 'HTTPS',
-		httpsOn: 'This connection is encrypted (HTTPS)',
-		httpsOnHint: 'Password and login are protected on the way, and the camera works for scanning.',
-		httpsOff: 'This connection is not encrypted',
-		httpsOffHint:
-			'Password and login travel unprotected through your network, and the browser does not let the page use the camera for scanning. The way out: a reverse proxy with HTTPS whose address is listed in ORIGIN.',
-		origins: 'Allowed addresses (ORIGIN)',
-		originsNone: 'ORIGIN is not set.',
-		proxy: 'Reverse proxy',
 		direct: 'Connected directly',
 		directHint: 'Using a reverse proxy? Open this page through it to confirm it.',
 		proxyConfirmed: 'Reverse proxy confirmed',
@@ -533,6 +560,7 @@ export const en: Messages = {
 	about: {
 		title: 'About',
 		version: (v: string) => `Version ${v}`,
+		versionHint: "What's new in this version?",
 		text: 'A self-hosted pantry tracker for reusable vacuum containers and bags with a QR code.',
 		private:
 			'hdpantry runs on your own server and makes no connection to the outside by itself. The links below only open another site when you tap them.',

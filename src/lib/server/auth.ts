@@ -220,6 +220,11 @@ export function recordLoginFailure(ip: string) {
 	failures.set(ip, entry);
 }
 
+// How many addresses are blocked right now (shown in the server overview)
+export function blockedAddresses() {
+	return [...failures.values()].filter((entry) => entry.lockedUntil > Date.now()).length;
+}
+
 export function clearLoginFailures(ip: string) {
 	failures.delete(ip);
 }
