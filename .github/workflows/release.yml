@@ -1,0 +1,94 @@
+name: Release
+
+# A tag vX.Y.Z publishes the Docker image for amd64 and arm64 at ghcr.io – only after the checks
+# and tests passed.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # No release with failing checks or tests
+  check:
+    uses: ./.github/workflows/check.yml
+
+  docker:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # QEMU emulates arm64 so we can build both architectures on one runner
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # v1.2.3 -> tags 1.2.3, 1.2 and latest
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      # No build cache on purpose: a release is always built from scratch.
+      # (The app itself is built once on the runner's own processor type, see Dockerfile.)
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # After the image is published: prepare the release notes from the matching section of
+  # CHANGELOG.md (fails if there is none). The release itself is created by hand on GitHub,
+  # so it shows the owner as author (no personal access token needed) – the text to paste is
+  # in this run's summary.
+  release-notes:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      # Full history with tags, to find the previous release for the compare link
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Release notes from CHANGELOG.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          awk -v v="$VERSION" '
+            /^## / { if (found) exit; if ($2 == v) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::CHANGELOG.md has no section '## $VERSION'"
+            exit 1
+          fi
+          printf '\n---\n\n🐳 Docker image: `ghcr.io/%s:%s`\n' "$GITHUB_REPOSITORY" "$VERSION" >> notes.md
+          # Link to all changes since the previous release (v1.2.3 tags, newest first)
+          PREV=$(git tag --list 'v*' --sort=-v:refname | grep -vx "$TAG" | head -n 1)
+          if [ -n "$PREV" ]; then
+            printf '\n**Full Changelog**: https://github.com/%s/compare/%s...%s\n' "$GITHUB_REPOSITORY" "$PREV" "$TAG" >> notes.md
+          fi
+          {
+            echo "## Release notes for $TAG"
+            echo
+            echo "Create the release by hand: Releases → Draft a new release → tag \`$TAG\`, title \`$TAG\`, paste:"
+            echo
+            echo '````markdown'
+            cat notes.md
+            echo '````'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -16,6 +16,11 @@
 	const BAG: Record<FillLevel, number> = { low: 14, medium: 29, full: 44 };
 	const JAR: Record<FillLevel, number> = { low: 12, medium: 32, full: 56 };
 	let height = $derived((jar ? JAR : BAG)[level]);
+
+	// The content is drawn in the two colours of the wordmark, green at the bottom and light
+	// green at the top of the container: the fuller it is, the lighter its upper edge. Every
+	// drawing needs a colour run of its own, hence the id.
+	const id = $props.id();
 </script>
 
 <!-- Both drawings take the same room, so texts next to them line up -->
@@ -23,13 +28,20 @@
 	{#if jar}
 		<!-- A jar with a lid, seen from the side -->
 		<svg viewBox="0 0 64 84" width={size * (64 / 84)} height={size} aria-hidden="true">
+			<defs>
+				<linearGradient {id} gradientUnits="userSpaceOnUse" x1="0" y1="75.5" x2="0" y2="19.5">
+					<stop offset="0" class="[stop-color:var(--brand-from)]" />
+					<stop offset="1" class="[stop-color:var(--brand-to)]" />
+				</linearGradient>
+			</defs>
 			<rect
 				x="11.5"
 				y={75.5 - height}
 				width="41"
 				{height}
 				rx="4"
-				class="fill-accent opacity-60 transition-all duration-200"
+				fill="url(#{id})"
+				class="transition-all duration-200"
 			/>
 			<path
 				d="M9 18h46v54a6 6 0 0 1-6 6H15a6 6 0 0 1-6-6z"
@@ -42,13 +54,20 @@
 	{:else}
 		<!-- A vacuum bag seen from the front: seal strip at the top, round valve -->
 		<svg viewBox="0 0 64 72" width={size * (64 / 72)} height={size} aria-hidden="true">
+			<defs>
+				<linearGradient {id} gradientUnits="userSpaceOnUse" x1="0" y1="65" x2="0" y2="21">
+					<stop offset="0" class="[stop-color:var(--brand-from)]" />
+					<stop offset="1" class="[stop-color:var(--brand-to)]" />
+				</linearGradient>
+			</defs>
 			<rect
 				x="7"
 				y={65 - height}
 				width="50"
 				{height}
 				rx="2"
-				class="fill-accent opacity-60 transition-all duration-200"
+				fill="url(#{id})"
+				class="transition-all duration-200"
 			/>
 			<rect
 				x="4"

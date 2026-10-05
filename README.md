@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/dvnkln/hdpantry/actions/workflows/check.yml"><img src="https://img.shields.io/github/actions/workflow/status/dvnkln/hdpantry/check.yml?label=checks&style=for-the-badge" alt="Checks" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-1f7a5c?style=for-the-badge" alt="License: AGPL-3.0" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-149a6b?style=for-the-badge" alt="License: AGPL-3.0" /></a>
 </p>
 
 <p align="center">
