@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import type { ItemValues } from '$lib/items';
-import { containerOverview, deleteContainer, openTyped } from './containers';
+import { addScanned, containerOverview, deleteContainer, openTyped } from './containers';
 import { getDb } from './db';
 import { items } from './db/schema';
 import {
@@ -12,7 +12,8 @@ import {
 	recentNames,
 	removeActiveItem,
 	replaceItem,
-	updateActiveItem
+	updateActiveItem,
+	vacuumDefault
 } from './items';
 
 const lentils: ItemValues = {
@@ -123,6 +124,34 @@ it('deleting a container removes its content and history', () => {
 	deleteContainer(bag.id);
 	expect(allNames()).not.toContain('Soup');
 	expect(allNames()).not.toContain('Bread');
+});
+
+it('the switch "vacuum-sealed" starts as it fits the container', () => {
+	// typed by hand: off, then as it was the last time
+	const jar = openTyped('VAC JAR')!;
+	expect(vacuumDefault(jar)).toBe(false);
+	addItem(jar.id, { ...lentils, vacuumed: true });
+	expect(vacuumDefault(jar)).toBe(true); // replacing: what is in it now
+	removeActiveItem(jar.id);
+	expect(vacuumDefault(jar)).toBe(true);
+	addItem(jar.id, { ...lentils, vacuumed: false });
+	removeActiveItem(jar.id);
+	expect(vacuumDefault(jar)).toBe(false);
+
+	// scanned, but a code nothing is known about: the same
+	const barcode = addScanned('4006381333931', 'camera')!;
+	expect(vacuumDefault(barcode)).toBe(false);
+	addItem(barcode.id, { ...lentils, vacuumed: true });
+	expect(vacuumDefault(barcode)).toBe(true);
+	removeActiveItem(barcode.id);
+
+	// scanned and known as a vacuum container: always on, also after a content without
+	const bag = addScanned('vendor://app/storage/in/?tc=11AA11&s=m&cc=VC77', 'camera')!;
+	expect(vacuumDefault(bag)).toBe(true);
+	addItem(bag.id, { ...lentils, vacuumed: false });
+	expect(vacuumDefault(bag)).toBe(true);
+	removeActiveItem(bag.id);
+	expect(vacuumDefault(bag)).toBe(true);
 });
 
 it('recent names: the latest first, each once, eaten ones included', () => {

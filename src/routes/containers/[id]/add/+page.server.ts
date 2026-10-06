@@ -9,7 +9,8 @@ import {
 	containerHistory,
 	lastLocation,
 	recentNames,
-	replaceItem
+	replaceItem,
+	vacuumDefault
 } from '$lib/server/items';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -26,6 +27,8 @@ export const load: PageServerLoad = ({ params, locals, url }) => {
 		example: Math.random(),
 		container: { id: c.id, source: c.source },
 		location: lastLocation(),
+		// The switch "vacuum-sealed" starts as it fits this container
+		vacuumed: vacuumDefault(c),
 		// Today in the time zone of the server (TZ): suggested dates count from here
 		today: new Date().toLocaleDateString('sv-SE'),
 		memory: foodMemoryAll(),

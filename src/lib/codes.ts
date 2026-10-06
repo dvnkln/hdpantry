@@ -11,11 +11,16 @@ export type ParsedCode = {
 	size: string | null;
 	// Further code of the manufacturer (meaning unknown, possibly the product type); kept as is
 	typeCode: string | null;
+	// Whether containers with this form of code are vacuum containers: the switch
+	// "vacuum-sealed" then starts switched on when one is filled
+	vacuum: boolean;
 };
 
 // Codes that are an address with parameters, e.g. "app://something/in/?tc=11AA11&s=m&cc=AB12":
 // which parameter holds what. The address in front of the parameters does not matter.
-const PARAMETER_RULES = [{ id: 'cc', size: 's', typeCode: 'tc' }];
+// `vacuum`: what the switch "vacuum-sealed" starts with for containers of this form – to be
+// asked of the user for every new rule, never guessed.
+const PARAMETER_RULES = [{ id: 'cc', size: 's', typeCode: 'tc', vacuum: true }];
 
 // A short code as printed on a container: letters and digits only. Typed by hand it may come
 // in lower case, so these are stored in upper case.
@@ -46,11 +51,17 @@ export function parseCode(raw: string): ParsedCode | null {
 			return {
 				id: id.toUpperCase(),
 				size: SIZE.test(size) ? size.toLowerCase() : null,
-				typeCode: params.get(rule.typeCode)?.trim() || null
+				typeCode: params.get(rule.typeCode)?.trim() || null,
+				vacuum: rule.vacuum
 			};
 		}
 	}
 
-	// Any other code: its whole content is the ID.
-	return { id: SHORT_CODE.test(text) ? text.toUpperCase() : text, size: null, typeCode: null };
+	// Any other code: its whole content is the ID. Nothing is known about the container.
+	return {
+		id: SHORT_CODE.test(text) ? text.toUpperCase() : text,
+		size: null,
+		typeCode: null,
+		vacuum: false
+	};
 }

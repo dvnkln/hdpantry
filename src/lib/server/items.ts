@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
+import { parseCode } from '$lib/codes';
 import type { ItemValues, Location } from '$lib/items';
 import { getDb } from './db';
 import { containers, items } from './db/schema';
@@ -12,6 +13,17 @@ export function activeItem(containerId: number) {
 		.from(items)
 		.where(and(eq(items.containerId, containerId), isNull(items.removedAt)))
 		.get();
+}
+
+// What the switch "vacuum-sealed" starts with when the container is filled:
+// - a scanned container whose code says it is a vacuum container: always on (they are hardly
+//   ever used without, so one time without is not remembered),
+// - any other container: as it was the last time (what is in it now, else what was taken out
+//   last), and off for one that was never filled.
+export function vacuumDefault(container: { id: number; manual: boolean; rawContent: string }) {
+	if (!container.manual && parseCode(container.rawContent)?.vacuum) return true;
+	const last = activeItem(container.id) ?? containerHistory(container.id, 1)[0];
+	return last?.vacuumed ?? false;
 }
 
 // What was in the container before, the latest first – shown when it is filled again.

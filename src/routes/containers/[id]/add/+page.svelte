@@ -22,7 +22,7 @@
 		initial={{
 			name: '',
 			note: null,
-			vacuumed: true,
+			vacuumed: data.vacuumed,
 			location: data.location,
 			bestBefore: null,
 			dateManual: false,
