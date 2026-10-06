@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
-import { and, asc, count, eq, isNotNull, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { parseCode } from '$lib/codes';
-import type { CodeSource } from '$lib/containers';
+import type { CodeSource, Pick } from '$lib/containers';
 import type { Locale } from '$lib/i18n/index.svelte';
 import { getDb } from './db';
 import { containers, items } from './db/schema';
@@ -176,6 +176,50 @@ export function containerOverview() {
 			history: history.get(c.id) ?? 0
 		};
 	});
+}
+
+// All containers to choose from when recording without the camera – so a container that was
+// typed in by hand is found again and keeps its history. With what is in each one now and
+// what was taken out last; those used last come first.
+export function containersToPick(): Pick[] {
+	const db = getDb();
+	const now = new Map<number, { name: string; at: number }>();
+	const last = new Map<number, { name: string; at: number }>();
+	const rows = db
+		.select({
+			containerId: items.containerId,
+			name: items.name,
+			createdAt: items.createdAt,
+			removedAt: items.removedAt
+		})
+		.from(items)
+		.orderBy(desc(items.removedAt), desc(items.id))
+		.all();
+	for (const row of rows) {
+		if (row.removedAt === null) {
+			now.set(row.containerId, { name: row.name, at: row.createdAt.getTime() });
+		} else if (!last.has(row.containerId)) {
+			last.set(row.containerId, { name: row.name, at: row.removedAt.getTime() });
+		}
+	}
+	return db
+		.select()
+		.from(containers)
+		.all()
+		.map((c) => ({
+			id: c.id,
+			code: c.code,
+			size: c.size,
+			manual: c.manual,
+			content: now.get(c.id)?.name ?? null,
+			last: last.get(c.id)?.name ?? null,
+			used: Math.max(now.get(c.id)?.at ?? 0, last.get(c.id)?.at ?? 0, c.createdAt.getTime())
+		}))
+		.sort((a, b) => b.used - a.used || b.id - a.id)
+		.map(({ used, ...container }) => {
+			void used;
+			return container;
+		});
 }
 
 // Also removes what is and was in it.

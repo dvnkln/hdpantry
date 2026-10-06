@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { and, eq, isNull } from 'drizzle-orm';
 import type { ItemValues } from '$lib/items';
 import {
 	addScanned,
 	changeCode,
 	containerOverview,
+	containersToPick,
 	convertToScanned,
 	deleteAllContainers,
 	deleteContainer,
@@ -13,6 +15,8 @@ import {
 	openScanned,
 	openTyped
 } from './containers';
+import { getDb } from './db';
+import { items } from './db/schema';
 import { activeItem, addItem, containerHistory, removeActiveItem } from './items';
 
 const RAW = 'vendor://app/storage/in/?tc=11AA11&s=m&cc=AB12';
@@ -125,6 +129,31 @@ describe('a scanned code that was typed before', () => {
 			code: 'AB12',
 			twin: true
 		});
+	});
+});
+
+describe('containers to pick from without the camera', () => {
+	it('all of them, the one used last first, with what is and was in them', () => {
+		const jar = openTyped('pick jar')!;
+		addItem(jar.id, food('Honey'));
+		removeActiveItem(jar.id);
+		const box = openTyped('pick box')!;
+		addItem(box.id, food('Nuts'));
+		const fresh = openTyped('pick new')!;
+		const list = containersToPick();
+		const of = (id: number) => list.find((c) => c.id === id)!;
+		expect(of(jar.id)).toMatchObject({ manual: true, content: null, last: 'Honey' });
+		expect(of(box.id)).toMatchObject({ content: 'Nuts', last: null });
+		expect(of(fresh.id)).toMatchObject({ content: null, last: null });
+		expect(list.some((c) => !c.manual)).toBe(true);
+		// used last = first (times are kept to the second, so this one is set a day ahead)
+		addItem(jar.id, food('Jam'));
+		getDb()
+			.update(items)
+			.set({ createdAt: new Date(Date.now() + 86_400_000) })
+			.where(and(eq(items.containerId, jar.id), isNull(items.removedAt)))
+			.run();
+		expect(containersToPick()[0]).toMatchObject({ id: jar.id, content: 'Jam', last: 'Honey' });
 	});
 });
 

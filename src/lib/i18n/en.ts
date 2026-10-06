@@ -95,7 +95,19 @@ export const en: Messages = {
 		photoFailed: 'The photo could not be read.',
 		manual: 'Type a code',
 		manualHint: 'The short code is usually printed below the QR code on the container.',
+		create: 'Create',
+		createHint: 'This code is new – a new container will be created.',
+		openHint: (content) =>
+			content
+				? `This container exists – in it: ${content}.`
+				: 'This container exists – it is empty.',
 		other: 'Record without camera',
+		kinds: 'Filter by kind',
+		typedGroup: 'By hand',
+		scannedGroup: 'Scanned',
+		empty: 'empty',
+		emptyLast: (name) => `empty · ${name}`,
+		more: (n) => `${n} more`,
 		open: 'Open',
 		failed: 'That did not work. Please try again.',
 		unreadable: 'hdpantry cannot use this code (empty or too long).',
@@ -121,7 +133,6 @@ export const en: Messages = {
 		title: 'Check a code',
 		intro:
 			'Shows exactly what a code contains – helpful when a code is not recognised as expected. Nothing is saved here; a web address in a code is never opened.',
-		add: 'Add',
 		results: (n: number) => `Codes read (${n})`,
 		empty: 'No code read yet.',
 		copy: 'Copy',
@@ -129,14 +140,13 @@ export const en: Messages = {
 		clear: 'Clear',
 		length: (n: number) => `${n} characters`,
 		isUrl: 'Web address',
-		sources: { camera: 'Camera', photo: 'Photo', manual: 'Typed' },
+		sources: { camera: 'Camera', photo: 'Photo' },
 		formats: {
 			qr_code: 'QR code',
 			data_matrix: 'Data Matrix',
 			ean_13: 'Barcode (EAN-13)',
 			ean_8: 'Barcode (EAN-8)',
-			code_128: 'Barcode (Code 128)',
-			manual: 'Text'
+			code_128: 'Barcode (Code 128)'
 		}
 	},
 

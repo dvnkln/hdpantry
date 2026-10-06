@@ -97,7 +97,20 @@ export const de = {
 		photoFailed: 'Das Foto konnte nicht gelesen werden.',
 		manual: 'Code eintippen',
 		manualHint: 'Der Kurzcode steht meist unter dem QR-Code auf dem Behälter.',
+		create: 'Anlegen',
+		createHint: 'Diesen Code gibt es noch nicht – es wird ein neuer Behälter angelegt.',
+		openHint: (content: string | null) =>
+			content
+				? `Diesen Behälter gibt es schon – darin: ${content}.`
+				: 'Diesen Behälter gibt es schon – er ist leer.',
 		other: 'Ohne Kamera erfassen',
+		// The containers offered below the field for typing
+		kinds: 'Nach Art filtern',
+		typedGroup: 'Manuell',
+		scannedGroup: 'Gescannt',
+		empty: 'leer',
+		emptyLast: (name: string) => `leer · ${name}`,
+		more: (n: number) => (n === 1 ? '1 weiterer' : `${n} weitere`),
 		open: 'Öffnen',
 		failed: 'Das hat nicht geklappt. Bitte noch einmal versuchen.',
 		unreadable: 'Mit diesem Code kann hdpantry nichts anfangen (leer oder zu lang).',
@@ -123,7 +136,6 @@ export const de = {
 		title: 'Code prüfen',
 		intro:
 			'Zeigt, was genau in einem Code steht – hilfreich, wenn ein Code nicht wie erwartet erkannt wird. Gespeichert wird hier nichts; eine Web-Adresse im Code wird nie geöffnet.',
-		add: 'Hinzufügen',
 		results: (n: number) => `Gelesene Codes (${n})`,
 		empty: 'Noch kein Code gelesen.',
 		copy: 'Kopieren',
@@ -131,14 +143,13 @@ export const de = {
 		clear: 'Leeren',
 		length: (n: number) => `${n} Zeichen`,
 		isUrl: 'Web-Adresse',
-		sources: { camera: 'Kamera', photo: 'Foto', manual: 'Eingetippt' },
+		sources: { camera: 'Kamera', photo: 'Foto' },
 		formats: {
 			qr_code: 'QR-Code',
 			data_matrix: 'Data Matrix',
 			ean_13: 'Strichcode (EAN-13)',
 			ean_8: 'Strichcode (EAN-8)',
-			code_128: 'Strichcode (Code 128)',
-			manual: 'Text'
+			code_128: 'Strichcode (Code 128)'
 		}
 	},
 

@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { codeLabel, isCodeSource, type CodeSource } from '$lib/containers';
 import {
 	addScanned,
+	containersToPick,
 	convertToScanned,
 	openScanned,
 	openTyped,
@@ -9,7 +10,7 @@ import {
 } from '$lib/server/containers';
 import { serverMessages } from '$lib/server/i18n';
 import { activeItem, containerHistory } from '$lib/server/items';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 // A full container shows its content; an empty one asks right away what goes in.
 function pageOf(container: Container) {
@@ -27,6 +28,15 @@ async function read(request: Request) {
 		twinId: Number(data.get('twin'))
 	};
 }
+
+// The containers there are, to choose from when recording without the camera. Tapping one is
+// like scanning it: a full one shows its content, an empty one asks what goes in.
+export const load: PageServerLoad = () => ({
+	containers: containersToPick().map((c) => ({
+		...c,
+		href: c.content === null ? `/containers/${c.id}/add` : `/containers/${c.id}`
+	}))
+});
 
 export const actions: Actions = {
 	// A code was read. It leads on without any question – except when a scanned code was

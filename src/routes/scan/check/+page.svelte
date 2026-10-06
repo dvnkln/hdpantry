@@ -5,7 +5,7 @@
 	import { looksLikeUrl, readCode, type Code } from '$lib/scanner';
 	import { ArrowLeft, Camera, Check, Copy, ImageUp, Trash2 } from '@lucide/svelte';
 
-	type Source = 'camera' | 'photo' | 'manual';
+	type Source = 'camera' | 'photo';
 	type Entry = Code & { id: number; source: Source };
 
 	// Everything scanned since the page was opened, newest first. Nothing is saved.
@@ -13,7 +13,6 @@
 	let nextId = 1;
 
 	let cameraOn = $state(false);
-	let manual = $state('');
 	let photoMessage = $state('');
 	let copied = $state<number | 'all' | null>(null);
 
@@ -43,14 +42,6 @@
 			console.error('Reading the photo failed', err);
 			photoMessage = m.scan.photoFailed;
 		}
-	}
-
-	function onManual(event: SubmitEvent) {
-		event.preventDefault();
-		const text = manual.trim();
-		if (!text) return;
-		add({ text, format: 'manual' }, 'manual');
-		manual = '';
 	}
 
 	// Line breaks and other invisible characters, made visible: "a\nb"
@@ -122,21 +113,6 @@
 					<p class="mt-2 text-sm text-muted" role="status">{photoMessage}</p>
 				{/if}
 			</div>
-
-			<form class="flex flex-col gap-1" onsubmit={onManual}>
-				<label for="manual" class="text-sm font-medium">{m.scan.manual}</label>
-				<div class="flex gap-2">
-					<input
-						id="manual"
-						bind:value={manual}
-						autocomplete="off"
-						autocapitalize="off"
-						spellcheck="false"
-						class="min-w-0 flex-1 font-mono"
-					/>
-					<button class="btn-primary" disabled={!manual.trim()}>{m.scanCheck.add}</button>
-				</div>
-			</form>
 		</section>
 
 		<section aria-live="polite">
