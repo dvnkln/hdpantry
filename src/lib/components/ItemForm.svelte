@@ -40,6 +40,7 @@
 		from,
 		memory = {},
 		history = [],
+		recent = [],
 		submitLabel,
 		cancelHref,
 		error = '',
@@ -60,6 +61,8 @@
 		memory?: Memory;
 		// Earlier contents of this container, the latest first: tapping one takes it as a template
 		history?: Template[];
+		// Names recorded last in the whole stock: tapping one takes the name and goes on
+		recent?: string[];
 		submitLabel: string;
 		cancelHref: string;
 		error?: string;
@@ -262,6 +265,29 @@
 						</li>
 					{/each}
 				</ul>
+			</section>
+		{/if}
+
+		<!-- Below the history of the container, never in its place: what was in this container
+		     before has to stay in view (e.g. not to mix animal and vegan food) -->
+		{#if recent.length}
+			<section>
+				<h2 class="text-sm font-semibold text-muted">{m.item.recent}</h2>
+				<div class="mt-2 flex flex-wrap gap-2">
+					{#each recent as entry (entry)}
+						<button
+							type="button"
+							class="rounded-full border border-line bg-surface px-3.5 py-1.5 transition-colors hover:border-accent"
+							onclick={() => {
+								name = entry;
+								guess();
+								step = 2;
+							}}
+						>
+							{entry}
+						</button>
+					{/each}
+				</div>
 			</section>
 		{/if}
 	{:else}

@@ -8,6 +8,7 @@ import {
 	addItem,
 	containerHistory,
 	lastLocation,
+	recentNames,
 	replaceItem
 } from '$lib/server/items';
 import type { Actions, PageServerLoad } from './$types';
@@ -28,6 +29,7 @@ export const load: PageServerLoad = ({ params, locals, url }) => {
 		// Today in the time zone of the server (TZ): suggested dates count from here
 		today: new Date().toLocaleDateString('sv-SE'),
 		memory: foodMemoryAll(),
+		recent: recentNames(),
 		history: containerHistory(c.id).map((item) => ({
 			id: item.id,
 			name: item.name,

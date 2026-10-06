@@ -9,6 +9,7 @@ import {
 	containerHistory,
 	lastLocation,
 	listStock,
+	recentNames,
 	removeActiveItem,
 	replaceItem,
 	updateActiveItem
@@ -122,4 +123,17 @@ it('deleting a container removes its content and history', () => {
 	deleteContainer(bag.id);
 	expect(allNames()).not.toContain('Soup');
 	expect(allNames()).not.toContain('Bread');
+});
+
+it('recent names: the latest first, each once, eaten ones included', () => {
+	const bag = openTyped('RN01')!;
+	addItem(bag.id, { ...lentils, name: 'Goulash' });
+	removeActiveItem(bag.id);
+	addItem(bag.id, { ...lentils, name: ' goulash ' });
+	const names = recentNames();
+	expect(names[0]).toBe('goulash');
+	expect(names.filter((n) => n.toLowerCase() === 'goulash')).toHaveLength(1);
+	expect(names.length).toBeGreaterThan(1);
+	expect(recentNames(2)).toHaveLength(2);
+	removeActiveItem(bag.id);
 });

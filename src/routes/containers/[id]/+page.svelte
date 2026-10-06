@@ -7,17 +7,34 @@
 	import { codeLabel } from '$lib/containers';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
+	import { expiry, type ExpiryLevel } from '$lib/stock';
 	import { Pencil, Replace } from '@lucide/svelte';
 
 	let { data } = $props();
 	let container = $derived(data.container);
 	let item = $derived(data.item);
 	let confirmEaten = $state(false);
+
+	// How long it still keeps: the first thing this page is opened for, in the colours of the list
+	let due = $derived(expiry(item?.bestBefore ?? null, data.today, data.soonDays));
+	const BOX: Record<ExpiryLevel, string> = {
+		expired: 'border-danger/40 bg-danger/10',
+		soon: 'border-warn/40 bg-warn/10',
+		fine: 'border-line bg-surface',
+		none: 'border-line bg-surface'
+	};
+	const TONE: Record<ExpiryLevel, string> = {
+		expired: 'text-danger',
+		soon: 'text-warn',
+		fine: '',
+		none: 'text-muted'
+	};
 </script>
 
 <svelte:head><title>{item?.name ?? codeLabel(container)} · hdpantry</title></svelte:head>
 
-<main class="mx-auto max-w-md px-4 py-6">
+<!-- pb-32 keeps the content clear of the buttons at the lower edge -->
+<main class="mx-auto max-w-md px-4 py-6 {item ? 'pb-32 lg:pb-6' : ''}">
 	{#if item}
 		{@const Icon = LOCATION_ICONS[item.location]}
 		<div class="flex items-center gap-3">
@@ -34,9 +51,25 @@
 		</div>
 		{#if item.note}<p class="break-words text-muted">{item.note}</p>{/if}
 
-		<section class="mt-4 flex items-center gap-4 rounded-xl border border-line bg-surface p-4">
+		<section
+			class="mt-4 flex items-center justify-between gap-4 rounded-xl border px-4 py-3.5 {BOX[
+				due.level
+			]}"
+		>
+			<p>
+				<span class="block text-[13px] text-muted">
+					{m.item.bestBefore}
+					{#if item.bestBefore}{formatDate(item.bestBefore)}{/if}
+				</span>
+				<span class="block text-[26px] leading-tight font-bold {TONE[due.level]}">
+					{due.days === null ? m.item.noDate : m.home.relative(due.days)}
+				</span>
+			</p>
 			<FillGauge level={item.fill} source={container.source} size={64} />
-			<dl class="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
+		</section>
+
+		<section class="mt-4 rounded-xl border border-line bg-surface p-4">
+			<dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
 				{#if item.category && item.category !== 'other'}
 					<dt class="text-muted">{m.item.category}</dt>
 					<dd>{m.categories[item.category]}</dd>
@@ -46,8 +79,6 @@
 					<Icon size={16} class="shrink-0 text-muted" />
 					{m.locations[item.location]}
 				</dd>
-				<dt class="text-muted">{m.item.bestBefore}</dt>
-				<dd>{item.bestBefore ? formatDate(item.bestBefore) : m.item.noDate}</dd>
 				<dt class="text-muted">{m.item.fill}</dt>
 				<dd>
 					{[
@@ -64,36 +95,48 @@
 			</dl>
 		</section>
 
-		{#if confirmEaten}
-			<div class="mt-4 rounded-xl border border-line bg-surface p-4">
-				<p class="text-sm">{m.item.eatenQuestion(item.name)}</p>
-				<form method="POST" action="?/eaten" use:enhance class="mt-3 flex gap-2">
-					<button type="button" class="flex-1 btn-secondary" onclick={() => (confirmEaten = false)}>
-						{m.common.cancel}
-					</button>
-					<button class="flex-1 btn-primary">{m.item.eatenConfirm}</button>
-				</form>
+		<!-- The two things one comes here to do: on phones at the lower edge, where the thumb is;
+		     on wide screens right below the details -->
+		<div
+			class="fixed inset-x-0 bottom-0 z-10 bg-linear-to-t from-bg from-65% to-transparent px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:static lg:mt-4 lg:bg-none lg:p-0"
+		>
+			<div class="mx-auto max-w-md">
+				{#if confirmEaten}
+					<div class="rounded-xl border border-line bg-surface p-4">
+						<p class="text-sm">{m.item.eatenQuestion(item.name)}</p>
+						<form method="POST" action="?/eaten" use:enhance class="mt-3 flex gap-2">
+							<button
+								type="button"
+								class="flex-1 btn-secondary"
+								onclick={() => (confirmEaten = false)}
+							>
+								{m.common.cancel}
+							</button>
+							<button class="flex-1 btn-primary">{m.item.eatenConfirm}</button>
+						</form>
+					</div>
+				{:else}
+					<div class="flex gap-2">
+						<button
+							type="button"
+							class="flex flex-1 items-center justify-center gap-2 btn-secondary"
+							onclick={() => (confirmEaten = true)}
+						>
+							<EatenIcon size={24} />
+							{m.item.eaten}
+						</button>
+						<!-- Eaten and filled again in one go -->
+						<a
+							href="/containers/{container.id}/add?replace=1"
+							class="flex flex-1 items-center justify-center gap-2 btn-primary"
+						>
+							<Replace size={18} />
+							{m.item.replace}
+						</a>
+					</div>
+				{/if}
 			</div>
-		{:else}
-			<div class="mt-4 flex gap-2">
-				<button
-					type="button"
-					class="flex flex-1 items-center justify-center gap-2 btn-secondary"
-					onclick={() => (confirmEaten = true)}
-				>
-					<EatenIcon size={24} />
-					{m.item.eaten}
-				</button>
-				<!-- Eaten and filled again in one go -->
-				<a
-					href="/containers/{container.id}/add?replace=1"
-					class="flex flex-1 items-center justify-center gap-2 btn-primary"
-				>
-					<Replace size={18} />
-					{m.item.replace}
-				</a>
-			</div>
-		{/if}
+		</div>
 	{:else}
 		<h1 class="text-2xl font-bold">{m.containers.emptyTitle}</h1>
 		<a href="/containers/{container.id}/add" class="mt-4 block btn-primary text-center">

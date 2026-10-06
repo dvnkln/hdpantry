@@ -36,6 +36,7 @@
 		from={data.today}
 		memory={data.memory}
 		history={data.history}
+		recent={data.recent}
 		submitLabel={m.item.add}
 		cancelHref={data.replacing ? `/containers/${data.container.id}` : '/'}
 		error={form?.error}

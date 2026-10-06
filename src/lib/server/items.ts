@@ -105,6 +105,27 @@ export function replaceItem(containerId: number, values: ItemValues) {
 	});
 }
 
+// The names recorded last, each once, the latest first – offered below the name field, so
+// what comes back again and again does not have to be typed.
+export function recentNames(limit = 8) {
+	const rows = getDb()
+		.select({ name: items.name })
+		.from(items)
+		.orderBy(desc(items.id))
+		.limit(200)
+		.all();
+	const seen = new Set<string>();
+	const names: string[] = [];
+	for (const { name } of rows) {
+		const key = name.trim().toLowerCase();
+		if (!key || seen.has(key)) continue;
+		seen.add(key);
+		names.push(name.trim());
+		if (names.length === limit) break;
+	}
+	return names;
+}
+
 // Where the latest content was put – preselected in the form.
 export function lastLocation(): Location {
 	const row = getDb()

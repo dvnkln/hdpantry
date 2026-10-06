@@ -74,6 +74,10 @@ export const en: Messages = {
 								? 'expired yesterday'
 								: `expired ${-days} days ago`,
 		expired: 'expired',
+		marks: {
+			expired: (n) => `${n} expired`,
+			soon: (n) => `${n} soon`
+		},
 		sortBy: 'Sort by',
 		sortKeys: { date: 'Best before', name: 'Name', location: 'Stored in' },
 		reverse: 'Reverse the order',
@@ -234,6 +238,7 @@ export const en: Messages = {
 		eatenQuestion: (name: string) => `“${name}” is eaten? The container will be empty.`,
 		eatenConfirm: 'Yes, eaten',
 		history: 'Last in this container',
+		recent: 'Recently recorded',
 		name: 'Name',
 		// Shown in the empty name field, a different one each time: food and dishes only
 		nameExamples: [

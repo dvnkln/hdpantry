@@ -8,6 +8,7 @@
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATIONS, type Location } from '$lib/items';
 	import { LOCATION_ICONS } from '$lib/locations';
+	import { ui } from '$lib/ui';
 	import {
 		expiry,
 		isSortKey,
@@ -16,7 +17,7 @@
 		type ExpiryLevel,
 		type SortKey
 	} from '$lib/stock';
-	import { ArrowDownUp, ChevronDown, ChevronUp, PackageOpen } from '@lucide/svelte';
+	import { ArrowDownUp, ChevronDown, ChevronUp, PackageOpen, ScanLine } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -31,6 +32,8 @@
 		return isSortKey(value) ? value : 'date';
 	});
 	let descending = $derived(page.url.searchParams.get('dir') === 'desc');
+	// The choice of the order on phones; closed again once one is picked
+	let sortMenu = $state<HTMLDetailsElement>();
 
 	function href(change: { place?: Location | null; sort?: SortKey; descending?: boolean }) {
 		const next = { place, sort, descending, ...change };
@@ -89,6 +92,12 @@
 		<PackageOpen size={48} class="text-muted" />
 		<h1 class="mt-4 text-xl font-bold">{m.home.empty}</h1>
 		<p class="mt-2 text-sm text-muted">{m.home.emptyHint}</p>
+		<!-- The first step right where the eye is, not in a corner -->
+		<a href="/scan" class="mt-7 flex w-full items-center justify-center gap-2 btn-primary py-4!">
+			<ScanLine size={22} />
+			{m.home.scan}
+		</a>
+		<a href="/scan?manual" class="mt-4 text-sm {ui.link} text-muted">{m.scan.other}</a>
 	</main>
 {:else}
 	<main class="mx-auto max-w-screen-xl px-4 py-4">
@@ -117,29 +126,66 @@
 			{/each}
 		</nav>
 
-		<div class="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-			<p class="text-sm text-muted">{m.home.summary(shown.length, soon, expired)}</p>
-			<!-- Phones sort here; on wide screens the column headings do it -->
-			<div class="flex items-center gap-1 text-sm lg:hidden">
-				<span class="text-muted">{m.home.sortBy}</span>
-				{#each SORT_KEYS as key (key)}
-					<a
-						href={sortHref(key)}
-						class="flex items-center gap-0.5 rounded-md px-2 py-1 transition-colors hover:text-text {key ===
-						sort
-							? 'bg-surface font-semibold'
-							: 'text-muted'}"
-						aria-current={key === sort ? 'true' : undefined}
-						data-sveltekit-noscroll
+		<div class="mt-3 flex items-center justify-between gap-3">
+			<!-- What needs attention, in the colours of the list; without any, just the number -->
+			<p class="sr-only">{m.home.summary(shown.length, soon, expired)}</p>
+			<div
+				class="flex min-w-0 flex-wrap items-center gap-1.5 text-xs font-semibold min-[380px]:text-[13px]"
+				aria-hidden="true"
+			>
+				{#if expired}
+					<span
+						class="flex items-center gap-1.5 rounded-full bg-danger/15 px-2 py-0.5 whitespace-nowrap text-danger"
 					>
-						{m.home.sortKeys[key]}
-						{#if key === sort}
-							{#if descending}<ChevronDown size={14} />{:else}<ChevronUp size={14} />{/if}
-							<span class="sr-only">{m.home.reverse}</span>
-						{/if}
-					</a>
-				{/each}
+						<span class="size-1.5 rounded-full bg-danger"></span>{m.home.marks.expired(expired)}
+					</span>
+				{/if}
+				{#if soon}
+					<span
+						class="flex items-center gap-1.5 rounded-full bg-warn/15 px-2 py-0.5 whitespace-nowrap text-warn"
+					>
+						<span class="size-1.5 rounded-full bg-warn"></span>{m.home.marks.soon(soon)}
+					</span>
+				{/if}
+				{#if !expired && !soon}
+					<span class="text-sm font-normal text-muted">{m.home.summary(shown.length, 0, 0)}</span>
+				{/if}
 			</div>
+			<!-- Phones sort here, with one button that opens the choice; on wide screens the column
+			     headings do it -->
+			<details bind:this={sortMenu} class="relative shrink-0 text-sm lg:hidden">
+				<summary
+					class="flex list-none items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 font-semibold transition-colors hover:border-accent [&::-webkit-details-marker]:hidden"
+					aria-label="{m.home.sortBy} {m.home.sortKeys[sort]}"
+				>
+					{#if descending}<ChevronDown size={14} />{:else}<ChevronUp size={14} />{/if}
+					{m.home.sortKeys[sort]}
+					<ChevronDown size={14} class="text-muted" />
+				</summary>
+				<div
+					class="absolute right-0 z-20 mt-1 flex min-w-44 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-lg"
+				>
+					{#each SORT_KEYS as key (key)}
+						<a
+							href={sortHref(key)}
+							class="flex items-center justify-between gap-3 px-3 py-2.5 whitespace-nowrap transition-colors hover:bg-bg {key ===
+							sort
+								? 'font-semibold'
+								: ''}"
+							aria-current={key === sort ? 'true' : undefined}
+							data-sveltekit-noscroll
+							onclick={() => sortMenu?.removeAttribute('open')}
+						>
+							{m.home.sortKeys[key]}
+							{#if key === sort}
+								<!-- Tapping the current one turns the order around -->
+								<ArrowDownUp size={15} class="shrink-0 text-muted" />
+								<span class="sr-only">{m.home.reverse}</span>
+							{/if}
+						</a>
+					{/each}
+				</div>
+			</details>
 		</div>
 
 		{#if shown.length === 0}
@@ -156,7 +202,16 @@
 								item.expiry.level
 							]}"
 						>
-							<FoodIcon icon={item.iconKey} size={36} />
+							<!-- The fill level as a small mark at the symbol: leaves the room on the right
+							     to place and amount, which were cut off otherwise -->
+							<span class="relative mr-1 shrink-0">
+								<FoodIcon icon={item.iconKey} size={36} />
+								<span
+									class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface px-px pt-0.5 leading-none"
+								>
+									<FillGauge level={item.fill} source={item.source} size={19} />
+								</span>
+							</span>
 							<span class="min-w-0 flex-1">
 								<span class="block truncate font-semibold">{item.name}</span>
 								<span class="flex items-center gap-1.5 text-sm text-muted">
@@ -182,7 +237,6 @@
 									<span class="text-muted">–</span>
 								{/if}
 							</span>
-							<FillGauge level={item.fill} source={item.source} size={30} />
 						</a>
 					</li>
 				{/each}

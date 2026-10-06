@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { applyAction, deserialize, enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import CameraScanner from '$lib/components/CameraScanner.svelte';
 	import type { CodeSource } from '$lib/containers';
 	import { m } from '$lib/i18n/index.svelte';
@@ -12,7 +13,8 @@
 	let message = $state('');
 	let busy = $state(false);
 	// Typing a code and reading a photo only appear on request
-	let otherWays = $state(false);
+	// (asked for right away with /scan?manual, e.g. from the empty stock)
+	let otherWays = $state(page.url.searchParams.has('manual'));
 
 	// A scanned code that was typed in by hand before: the typed container, and what was scanned
 	type Twin = { id: number; label: string; content: string | null; history: number };
@@ -20,7 +22,7 @@
 
 	// Phones start the camera right away; on a computer it is only a button.
 	onMount(() => {
-		cameraOn = window.matchMedia('(pointer: coarse)').matches;
+		cameraOn = !otherWays && window.matchMedia('(pointer: coarse)').matches;
 	});
 
 	// Hands the code to the server, which leads on to the container – no question in between.

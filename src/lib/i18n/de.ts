@@ -75,6 +75,11 @@ export const de = {
 								? 'seit gestern abgelaufen'
 								: `seit ${-days} Tagen abgelaufen`,
 		expired: 'abgelaufen',
+		// Small marks above the list
+		marks: {
+			expired: (n: number) => `${n} abgelaufen`,
+			soon: (n: number) => `${n} bald`
+		},
 		sortBy: 'Sortieren nach',
 		sortKeys: { date: 'Haltbar bis', name: 'Name', location: 'Lagerort' },
 		reverse: 'Reihenfolge umkehren',
@@ -235,6 +240,7 @@ export const de = {
 		eatenQuestion: (name: string) => `„${name}“ ist gegessen? Der Behälter ist danach leer.`,
 		eatenConfirm: 'Ja, gegessen',
 		history: 'Zuletzt in diesem Behälter',
+		recent: 'Zuletzt erfasst',
 		name: 'Name',
 		// Shown in the empty name field, a different one each time: food and dishes only
 		nameExamples: [

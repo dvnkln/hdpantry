@@ -32,7 +32,9 @@
 	// First part of the address, e.g. "containers" for /containers/3
 	let section = $derived(page.url.pathname.split('/')[1]);
 	// The big scan button belongs to the stock list only
-	let scanButton = $derived(page.url.pathname === '/');
+	// The scan button belongs to the stock list. An empty stock has its own, in the middle of
+	// the page.
+	let scanButton = $derived(page.url.pathname === '/' && (page.data.stock?.length ?? 0) > 0);
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -75,13 +77,19 @@
 	</div>
 
 	{#if scanButton}
-		<a
-			href="/scan"
-			class="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-10 flex items-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent shadow-lg transition-transform hover:scale-105 active:scale-95"
+		<!-- Phones: a bar along the lower edge the list fades out behind, so no entry is half
+		     covered. Wide screens have room for a button in the corner. -->
+		<div
+			class="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center bg-linear-to-t from-bg from-60% to-transparent px-4 pt-7 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:inset-x-auto lg:right-4 lg:bg-none lg:px-0 lg:pt-0"
 		>
-			<ScanLine size={22} />
-			{m.home.scan}
-		</a>
+			<a
+				href="/scan"
+				class="pointer-events-auto flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent transition-transform hover:scale-[1.02] active:scale-95 lg:w-auto lg:shadow-lg"
+			>
+				<ScanLine size={22} />
+				{m.home.scan}
+			</a>
+		</div>
 	{/if}
 {:else}
 	{@render children()}
