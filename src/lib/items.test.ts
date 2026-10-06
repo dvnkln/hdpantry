@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isDate, readItemForm, scaleAmount } from './items';
+import { isDate, matchNames, readItemForm, scaleAmount } from './items';
 
 function form(values: Record<string, string>) {
 	const data = new FormData();
@@ -122,4 +122,22 @@ it('only accepts real calendar days', () => {
 	expect(isDate('2027-02-29')).toBe(false);
 	expect(isDate('2027-13-01')).toBe(false);
 	expect(isDate('2027-1-1')).toBe(false);
+});
+
+describe('names offered below the name field', () => {
+	const names = ['Provolone', 'Lentil soup', 'Carrots', 'Chili', 'Chicken soup', 'Rice'];
+	it('nothing typed: the ones recorded last', () => {
+		expect(matchNames(names, '', 3)).toEqual(['Provolone', 'Lentil soup', 'Carrots']);
+		expect(matchNames(names, '   ')).toEqual(names);
+	});
+	it('while typing: what begins like it first, then what contains it', () => {
+		expect(matchNames(names, 'ch')).toEqual(['Chili', 'Chicken soup']);
+		expect(matchNames(names, 'SOUP')).toEqual(['Lentil soup', 'Chicken soup']);
+		expect(matchNames(names, 'ri')).toEqual(['Rice']);
+		expect(matchNames(names, 'c', 2)).toEqual(['Carrots', 'Chili']);
+	});
+	it('offers nothing that does not fit, and not what is typed already', () => {
+		expect(matchNames(names, 'xyz')).toEqual([]);
+		expect(matchNames(names, 'rice')).toEqual([]);
+	});
 });

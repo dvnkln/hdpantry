@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { containerOf } from '$lib/server/containers';
-import { activeItem, removeActiveItem } from '$lib/server/items';
+import { activeItem, containerHistory, removeActiveItem } from '$lib/server/items';
 import { soonDays } from '$lib/server/settings';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -23,6 +23,12 @@ export const load: PageServerLoad = ({ params, locals }) => {
 					createdAt: item.createdAt.toISOString()
 				}
 			: null,
+		// What was in this container before, the latest first – so one can see what it was used for
+		history: containerHistory(c.id).map((entry) => ({
+			id: entry.id,
+			name: entry.name,
+			createdAt: entry.createdAt.toISOString()
+		})),
 		// Today in the time zone of the server (TZ): decides what counts as expired
 		today: new Date().toLocaleDateString('sv-SE'),
 		soonDays: soonDays(),

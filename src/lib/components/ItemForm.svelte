@@ -14,7 +14,8 @@
 		scaleAmount,
 		type FillLevel,
 		type ItemValues,
-		type Unit
+		type Unit,
+		matchNames
 	} from '$lib/items';
 	import {
 		CATEGORIES,
@@ -61,7 +62,7 @@
 		memory?: Memory;
 		// Earlier contents of this container, the latest first: tapping one takes it as a template
 		history?: Template[];
-		// Names recorded last in the whole stock: tapping one takes the name and goes on
+		// Names recorded last in the whole stock, the latest first: offered below the name field
 		recent?: string[];
 		submitLabel: string;
 		cancelHref: string;
@@ -76,6 +77,12 @@
 	let step = $state<1 | 2>(nameFirst ? 1 : 2);
 	// svelte-ignore state_referenced_locally
 	let name = $state(initial.name);
+	// Names offered below the field in the first step
+	let offered = $derived(matchNames(recent, name));
+	// What was in this container before is always in view – the latest three; older entries
+	// open on request, so the page stays short for a container that is used a lot
+	const HISTORY_SHOWN = 3;
+	let allHistory = $state(false);
 	// svelte-ignore state_referenced_locally
 	let note = $state(initial.note ?? '');
 	// svelte-ignore state_referenced_locally
@@ -231,6 +238,35 @@
 			autofocus={nameFirst}
 			class={step === 1 ? 'py-4 text-lg' : ''}
 		/>
+		{#if step === 1 && offered.length}
+			<!-- Names recorded before, in one line right where one types: the latest ones, narrowed
+			     down while typing. Swiped sideways, without a scroll bar; fades out on the right. -->
+			<div class="relative mt-2">
+				<div
+					class="flex [scrollbar-width:none] gap-2 overflow-x-auto pr-8 [&::-webkit-scrollbar]:hidden"
+					role="group"
+					aria-label={m.item.recent}
+				>
+					{#each offered as entry (entry)}
+						<button
+							type="button"
+							class="shrink-0 rounded-full border border-line bg-surface px-3.5 py-1.5 whitespace-nowrap transition-colors hover:border-accent"
+							onclick={() => {
+								name = entry;
+								guess();
+								step = 2;
+							}}
+						>
+							{entry}
+						</button>
+					{/each}
+				</div>
+				<span
+					class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-bg to-transparent"
+					aria-hidden="true"
+				></span>
+			</div>
+		{/if}
 		{#if step === 2}
 			<!-- The note: a quiet line right under the name, no frame, no heading -->
 			<input
@@ -252,7 +288,7 @@
 			<section>
 				<h2 class="text-sm font-semibold text-muted">{m.item.history}</h2>
 				<ul class="mt-2 overflow-hidden rounded-xl border border-line bg-surface">
-					{#each history as entry (entry.id)}
+					{#each allHistory ? history : history.slice(0, HISTORY_SHOWN) as entry (entry.id)}
 						<li class="border-b border-line last:border-b-0">
 							<button
 								type="button"
@@ -265,29 +301,11 @@
 						</li>
 					{/each}
 				</ul>
-			</section>
-		{/if}
-
-		<!-- Below the history of the container, never in its place: what was in this container
-		     before has to stay in view (e.g. not to mix animal and vegan food) -->
-		{#if recent.length}
-			<section>
-				<h2 class="text-sm font-semibold text-muted">{m.item.recent}</h2>
-				<div class="mt-2 flex flex-wrap gap-2">
-					{#each recent as entry (entry)}
-						<button
-							type="button"
-							class="rounded-full border border-line bg-surface px-3.5 py-1.5 transition-colors hover:border-accent"
-							onclick={() => {
-								name = entry;
-								guess();
-								step = 2;
-							}}
-						>
-							{entry}
-						</button>
-					{/each}
-				</div>
+				{#if !allHistory && history.length > HISTORY_SHOWN}
+					<button type="button" class="mt-1 btn-quiet text-sm" onclick={() => (allHistory = true)}>
+						{m.item.moreHistory(history.length - HISTORY_SHOWN)}
+					</button>
+				{/if}
 			</section>
 		{/if}
 	{:else}

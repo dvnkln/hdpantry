@@ -14,6 +14,8 @@
 	let container = $derived(data.container);
 	let item = $derived(data.item);
 	let confirmEaten = $state(false);
+	// How the container got into the app, said in a word behind its name
+	let how = $derived(container.manual ? m.containers.typed : m.containers.scanned);
 
 	// How long it still keeps: the first thing this page is opened for, in the colours of the list
 	let due = $derived(expiry(item?.bestBefore ?? null, data.today, data.soonDays));
@@ -92,6 +94,11 @@
 				<dd>{item.vacuumed ? m.common.yes : m.common.no}</dd>
 				<dt class="text-muted">{m.item.since}</dt>
 				<dd>{formatDate(item.createdAt)}</dd>
+				<dt class="text-muted">{m.containers.container}</dt>
+				<dd>
+					{codeLabel(container)}
+					<span class="text-muted">({how})</span>
+				</dd>
 			</dl>
 		</section>
 
@@ -144,10 +151,28 @@
 		</a>
 	{/if}
 
-	<!-- The container itself: two quiet lines -->
-	<p class="mt-8 text-sm text-muted">
-		{m.containers.container}
-		<span class="font-medium text-text">{codeLabel(container)}</span>
-	</p>
-	<p class="text-sm text-muted">{container.manual ? m.containers.typed : m.containers.scanned}</p>
+	{#if !item}
+		<!-- An empty container has no box of details: its name stands here as one quiet line -->
+		<p class="mt-8 text-sm text-muted">
+			{m.containers.container}
+			<span class="font-medium text-text">{codeLabel(container)}</span>
+			({how})
+		</p>
+	{/if}
+
+	<!-- What was in this container before: to see what it was used for (only to look at here;
+	     taking an entry as a template happens when filling it) -->
+	{#if data.history.length}
+		<section class="mt-6">
+			<h2 class="text-sm font-semibold text-muted">{m.item.history}</h2>
+			<ul class="mt-2 overflow-hidden rounded-xl border border-line bg-surface">
+				{#each data.history as entry (entry.id)}
+					<li class="flex items-center gap-3 border-b border-line px-4 py-3 last:border-b-0">
+						<span class="min-w-0 flex-1 truncate font-medium">{entry.name}</span>
+						<span class="shrink-0 text-sm text-muted">{formatDate(entry.createdAt)}</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 </main>

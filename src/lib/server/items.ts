@@ -106,13 +106,14 @@ export function replaceItem(containerId: number, values: ItemValues) {
 }
 
 // The names recorded last, each once, the latest first – offered below the name field, so
-// what comes back again and again does not have to be typed.
-export function recentNames(limit = 8) {
+// what comes back again and again does not have to be typed. More than are shown at once:
+// typing narrows them down (matchNames() in $lib/items).
+export function recentNames(limit = 60) {
 	const rows = getDb()
 		.select({ name: items.name })
 		.from(items)
 		.orderBy(desc(items.id))
-		.limit(200)
+		.limit(500)
 		.all();
 	const seen = new Set<string>();
 	const names: string[] = [];

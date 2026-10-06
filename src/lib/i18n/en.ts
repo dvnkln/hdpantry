@@ -239,6 +239,7 @@ export const en: Messages = {
 		eatenConfirm: 'Yes, eaten',
 		history: 'Last in this container',
 		recent: 'Recently recorded',
+		moreHistory: (n) => `Show ${n} more`,
 		name: 'Name',
 		// Shown in the empty name field, a different one each time: food and dishes only
 		nameExamples: [

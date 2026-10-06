@@ -126,3 +126,20 @@ export function readItemForm(
 		}
 	};
 }
+
+// Names offered below the name field. Nothing typed yet: the ones recorded last. While typing:
+// those that fit, first the ones that begin like it, then the ones that contain it – upper and
+// lower case do not matter. What is typed already is not offered again.
+export function matchNames(names: readonly string[], typed: string, limit = 8) {
+	const wanted = typed.trim().toLowerCase();
+	if (!wanted) return names.slice(0, limit);
+	const starts: string[] = [];
+	const contains: string[] = [];
+	for (const name of names) {
+		const lower = name.toLowerCase();
+		if (lower === wanted) continue;
+		if (lower.startsWith(wanted)) starts.push(name);
+		else if (lower.includes(wanted)) contains.push(name);
+	}
+	return [...starts, ...contains].slice(0, limit);
+}

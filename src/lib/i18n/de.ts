@@ -241,6 +241,7 @@ export const de = {
 		eatenConfirm: 'Ja, gegessen',
 		history: 'Zuletzt in diesem Behälter',
 		recent: 'Zuletzt erfasst',
+		moreHistory: (n: number) => (n === 1 ? '1 weiteren anzeigen' : `${n} weitere anzeigen`),
 		name: 'Name',
 		// Shown in the empty name field, a different one each time: food and dishes only
 		nameExamples: [
