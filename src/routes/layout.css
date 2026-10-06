@@ -236,3 +236,323 @@ body {
 	font-size: 0.875rem;
 	color: var(--danger);
 }
+
+/* ---- "Stock in the cabinet" (StorageScene.svelte) ----
+   The list of one place of storage drawn inside its fridge, freezer or cabinet, seen from the
+   front. The furniture keeps the colours one knows it in – nearly the same in the light and the
+   dark scheme, only a little dimmed in the dark one – so the entries inside always use dark
+   text on a light interior. These are colours of a drawing, not of the interface. */
+.scene {
+	--body: #eef1f3;
+	--body2: #c9d1d7;
+	--in: #fbfcfc;
+	--shelf: #8fcabf;
+	--shelf2: #d7efe9;
+	--ink: #39434a;
+	--drawer: #a9cbe0;
+	/* the entries inside */
+	--text: #1b211d;
+	--muted: #56615a;
+	/* expired / soon: the red and the yellow of the stock list, as marks with their own text
+	   colour – as plain text on the light interior they would have to turn dark and dull */
+	--flag-red: #e0443a;
+	--flag-yellow: #f2c14e;
+	--dim: 0%;
+	--surface: color-mix(in srgb, var(--in), #000 var(--dim));
+	--line: #d5dcd9;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	margin-top: 0.75rem;
+	/* until the room on the screen is measured: roughly what is free on a phone */
+	min-height: calc(100dvh - 19rem);
+	border: 10px solid color-mix(in srgb, var(--body), #000 var(--dim));
+	border-radius: 22px;
+	background: color-mix(in srgb, var(--in), #000 var(--dim));
+	color: var(--text);
+	box-shadow:
+		0 0 0 1px var(--body2),
+		0 8px 20px rgb(0 0 0 / 0.22);
+}
+/* A little dimmed in the dark scheme – only the surfaces, so the colours of the entries
+   (expired, soon) stay exactly what they are */
+[data-theme='dark'] .scene {
+	--dim: 9%;
+}
+@media (prefers-color-scheme: dark) {
+	[data-theme='system'] .scene {
+		--dim: 9%;
+	}
+}
+.scene[data-place='freezer'] {
+	--body: #e6edf2;
+	--body2: #bccbd6;
+	--in: #dff0fa;
+	--ink: #2f4756;
+	--line: #bcdcee;
+}
+.scene[data-place='pantry'] {
+	--body: #b98d5e;
+	--body2: #8f6a43;
+	--in: #f4e8d4;
+	--shelf: #a97c4d;
+	--shelf2: #c79c6c;
+	--ink: #fff6e8;
+	--line: #dcc9a9;
+	--muted: #6a5c48;
+}
+.scene-cap {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 7px 12px;
+	border-bottom: 1px solid var(--body2);
+	background: color-mix(in srgb, var(--body), #000 var(--dim));
+	color: var(--ink);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+.scene[data-place='pantry'] .scene-cap {
+	/* a hint of wood grain */
+	background:
+		repeating-linear-gradient(90deg, rgb(0 0 0 / 0.05) 0 2px, transparent 2px 11px),
+		color-mix(in srgb, var(--body), #000 var(--dim));
+}
+.scene-in {
+	position: relative;
+	display: flex;
+	min-height: 0;
+	flex: 1;
+	flex-direction: column;
+	padding-top: 6px;
+}
+/* the light lies behind the entries, never over their text */
+.scene-in > * {
+	position: relative;
+	z-index: 1;
+}
+.scene-rest {
+	min-height: 0;
+	flex: 1;
+}
+.scene-feet {
+	position: absolute;
+	right: 18px;
+	bottom: -17px;
+	left: 18px;
+	display: flex;
+	height: 7px;
+	justify-content: space-between;
+}
+.scene-feet i {
+	width: 34px;
+	height: 7px;
+	border-radius: 0 0 4px 4px;
+	background: var(--body2);
+}
+
+/* Fridge: glass shelves, warm light from above, a vegetable drawer at the bottom */
+.scene[data-place='fridge'] .scene-in::before,
+.scene[data-place='zero'] .scene-in::before {
+	position: absolute;
+	inset: 0 0 auto 0;
+	z-index: 0;
+	height: 170px;
+	background: radial-gradient(ellipse 75% 100% at 50% 0, rgb(255 244 205 / 0.75), transparent 72%);
+	content: '';
+	pointer-events: none;
+}
+.scene[data-place='fridge'] li {
+	border-bottom: 3px solid var(--shelf);
+	box-shadow:
+		0 3px 0 var(--shelf2),
+		0 6px 8px -4px rgb(0 0 0 / 0.12);
+}
+.scene[data-place='fridge'] .scene-rest {
+	background: repeating-linear-gradient(
+		to bottom,
+		transparent 0 72px,
+		var(--shelf) 72px 75px,
+		var(--shelf2) 75px 78px
+	);
+}
+.scene-crisper {
+	position: absolute;
+	right: 8px;
+	bottom: 8px;
+	left: 8px;
+	height: 92px;
+	border: 2px solid #b9d9d2;
+	border-radius: 8px 8px 12px 12px;
+	background: linear-gradient(rgb(215 240 234 / 0.92), rgb(196 228 221 / 0.92));
+}
+.scene-crisper::before {
+	position: absolute;
+	top: 10px;
+	left: 50%;
+	width: 92px;
+	height: 9px;
+	margin-left: -46px;
+	border-radius: 5px;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px #b9d9d2;
+	content: '';
+}
+
+/* Zero-degree zone: the same fridge, seen at its big clear drawers */
+.scene-above {
+	height: 30px;
+	margin-bottom: 8px;
+	border-bottom: 3px solid var(--shelf);
+	box-shadow: 0 3px 0 var(--shelf2);
+	opacity: 0.55;
+}
+.scene-drawer {
+	position: relative;
+	margin: 0 8px 10px;
+	padding-top: 26px;
+	border: 2px solid var(--drawer);
+	border-radius: 8px 8px 12px 12px;
+	background: linear-gradient(rgb(226 241 250 / 0.8), rgb(206 229 243 / 0.8));
+}
+/* front panel with its grip */
+.scene-drawer::before {
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 24px;
+	border-bottom: 2px solid var(--drawer);
+	border-radius: 6px 6px 0 0;
+	background: linear-gradient(#f7fbfd, #dcebf4);
+	content: '';
+}
+.scene-drawer::after {
+	position: absolute;
+	top: 8px;
+	left: 50%;
+	width: 96px;
+	height: 8px;
+	margin-left: -48px;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px var(--drawer);
+	content: '';
+}
+.scene-tag {
+	position: absolute;
+	top: 4px;
+	right: 10px;
+	z-index: 1;
+	padding: 0 6px;
+	border-radius: 4px;
+	background: #2f6f9f;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 16px;
+}
+.scene-empty {
+	height: 96px;
+}
+
+/* Freezer: icy inside, frost at the edges, every entry in a milky drawer with a grip */
+.scene[data-place='freezer'] .scene-in {
+	padding-top: 10px;
+	box-shadow: inset 0 0 26px 8px rgb(255 255 255 / 0.85);
+}
+.scene[data-place='freezer'] ul {
+	gap: 8px;
+	padding: 0 8px;
+}
+.scene[data-place='freezer'] li,
+.scene[data-place='freezer'] .scene-drawer {
+	position: relative;
+	padding-top: 8px;
+	border: 2px solid #9fcfe8;
+	border-radius: 10px;
+	background: linear-gradient(rgb(255 255 255 / 0.82), rgb(232 246 253 / 0.72));
+}
+.scene[data-place='freezer'] li::before,
+.scene[data-place='freezer'] .scene-drawer::after {
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	width: 54px;
+	height: 6px;
+	margin-left: -27px;
+	border-radius: 3px;
+	background: #c7e3f2;
+	box-shadow: inset 0 0 0 1px #9fcfe8;
+	content: '';
+}
+.scene[data-place='freezer'] .scene-drawer {
+	margin: 8px 8px 0;
+	padding: 0;
+}
+.scene[data-place='freezer'] .scene-drawer::before {
+	content: none;
+}
+.scene[data-place='freezer'] .scene-empty {
+	height: 66px;
+}
+
+/* Pantry: a wooden cabinet with thick boards */
+.scene[data-place='pantry'] li {
+	border-bottom: 9px solid var(--shelf);
+	box-shadow:
+		inset 0 -1px 0 rgb(0 0 0 / 0.12),
+		0 5px 7px -3px rgb(0 0 0 / 0.22);
+}
+.scene[data-place='pantry'] .scene-rest {
+	background: repeating-linear-gradient(
+		to bottom,
+		transparent 0 70px,
+		var(--shelf2) 70px 71px,
+		var(--shelf) 71px 80px,
+		rgb(0 0 0 / 0.08) 80px 83px
+	);
+}
+.scene[data-place='pantry'] .scene-feet i {
+	height: 9px;
+}
+
+/* Expired and soon inside the furniture: a short coloured bar that stays clear of shelf and
+   drawer edges, a light wash over the row, and the date in words as a small mark */
+.scene li[data-level='expired'] {
+	--flag: var(--flag-red);
+	--flag-ink: #fff;
+}
+.scene li[data-level='soon'] {
+	--flag: var(--flag-yellow);
+	--flag-ink: #3a2a00;
+}
+.scene li[data-level='expired'] a,
+.scene li[data-level='soon'] a {
+	position: relative;
+	padding-left: 1.25rem;
+	background: color-mix(in srgb, var(--flag) 10%, transparent);
+}
+.scene li[data-level='expired'] a::before,
+.scene li[data-level='soon'] a::before {
+	position: absolute;
+	top: 12px;
+	bottom: 12px;
+	left: 7px;
+	width: 4px;
+	border-radius: 2px;
+	background: var(--flag);
+	content: '';
+}
+.scene-when {
+	display: block;
+}
+.scene li[data-level='expired'] .scene-when,
+.scene li[data-level='soon'] .scene-when {
+	display: inline-block;
+	margin-bottom: 2px;
+	padding: 0 7px;
+	border-radius: 999px;
+	background: var(--flag);
+	color: var(--flag-ink);
+	font-weight: 600;
+}

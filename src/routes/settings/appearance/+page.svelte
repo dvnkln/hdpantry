@@ -3,12 +3,13 @@
 	import { autosave } from '$lib/autosave';
 	import FeedbackText from '$lib/components/FeedbackText.svelte';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import Switch from '$lib/components/Switch.svelte';
 	import ThemePreview from '$lib/components/ThemePreview.svelte';
 	import { FormFeedback } from '$lib/forms.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 	import { THEMES, THEME_KEYS, type Theme } from '$lib/themes';
 	import { ui } from '$lib/ui';
-	import { Palette, Utensils } from '@lucide/svelte';
+	import { Palette, Refrigerator, Utensils } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -94,5 +95,25 @@
 				</span>
 			</label>
 		{/each}
+	</form>
+</section>
+
+<section class={card}>
+	<div class="flex min-h-7 items-center justify-between gap-3">
+		<h2 class={heading}><Refrigerator size={20} class="text-muted" />{m.settings.scene}</h2>
+		<FeedbackText feedback={forms.error('scene')} />
+	</div>
+	<form
+		method="POST"
+		action="?/scene"
+		use:enhance={forms.submit('scene')}
+		use:autosave
+		class="mt-3 flex items-start justify-between gap-4"
+	>
+		<label for="stockScene" class="flex cursor-pointer flex-col gap-1">
+			<span class="text-sm font-medium">{m.settings.sceneSwitch}</span>
+			<span class={hint}>{m.settings.sceneHint}</span>
+		</label>
+		<Switch id="stockScene" name="stockScene" checked={data.scene} />
 	</form>
 </section>

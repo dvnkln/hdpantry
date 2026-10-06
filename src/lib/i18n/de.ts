@@ -335,7 +335,7 @@ export const de = {
 		soonHint: 'Ab wie vielen Tagen vor dem Datum ein Inhalt im Vorrat hervorgehoben wird.',
 		days: (n: number) => (n === 1 ? '1 Tag' : `${n} Tage`),
 		appearance: 'Design',
-		appearanceHint: 'Farbschema, Symbole',
+		appearanceHint: 'Farbschema, Symbole, Möbel',
 		account: 'Konto',
 		accountHint: 'Name, Passwort, Geräte',
 		accountName: 'Benutzernamen ändern',
@@ -489,6 +489,10 @@ export const de = {
 		icons: 'Symbole',
 		iconsHint: 'Wie Lebensmittel in Listen und Formularen dargestellt werden.',
 		iconStyles: { color: 'Farbig', line: 'Schlicht' },
+		scene: 'Vorrat im Schrank',
+		sceneSwitch: 'Lagerort als Möbel zeichnen',
+		sceneHint:
+			'Wählst du im Vorrat einen Lagerort, steht die Liste in einem gezeichneten Kühlschrank, Gefrierschrank oder Vorratsschrank. Nur am Handy und Tablet; bei „Alle“ bleibt die Liste, wie sie ist.',
 		guide: 'Richtwerte',
 		guideHint:
 			'Wie lange hdpantry welches Lebensmittel für haltbar hält, je nach Lagerort – mit Quellen.',

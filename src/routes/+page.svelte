@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import FillGauge from '$lib/components/FillGauge.svelte';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import StorageScene from '$lib/components/StorageScene.svelte';
 	import { codeLabel } from '$lib/containers';
 	import { suggestIcon } from '$lib/food/dictionary';
 	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
@@ -32,6 +33,8 @@
 		return isSortKey(value) ? value : 'date';
 	});
 	let descending = $derived(page.url.searchParams.get('dir') === 'desc');
+	// The furniture is drawn for one place of storage, never for "all"
+	let scene = $derived(data.scene ? place : null);
 	// The choice of the order on phones; closed again once one is picked
 	let sortMenu = $state<HTMLDetailsElement>();
 
@@ -86,6 +89,60 @@
 </script>
 
 <svelte:head><title>{m.home.title} · hdpantry</title></svelte:head>
+
+{#snippet cards(inScene: boolean)}
+	<ul class={inScene ? 'grid grid-cols-1' : 'mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 lg:hidden'}>
+		{#each shown as item (item.id)}
+			{@const Icon = LOCATION_ICONS[item.location]}
+			<!-- Inside furniture the level is marked by the drawing itself (data-level, see .scene
+			     in layout.css): the coloured edge of a card would cut through shelves and drawers -->
+			<li data-level={inScene ? item.expiry.level : undefined}>
+				<a
+					href="/containers/{item.containerId}"
+					class="flex items-center gap-3 p-3 transition-colors {inScene
+						? 'hover:bg-black/5'
+						: `rounded-xl border border-line bg-surface hover:border-accent ${EDGE[item.expiry.level]}`}"
+				>
+					<!-- The fill level as a small mark at the symbol: leaves the room on the right
+							     to place and amount, which were cut off otherwise -->
+					<span class="relative mr-1 shrink-0">
+						<FoodIcon icon={item.iconKey} size={36} />
+						<span
+							class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface px-px pt-0.5 leading-none"
+						>
+							<FillGauge level={item.fill} source={item.source} size={19} />
+						</span>
+					</span>
+					<span class="min-w-0 flex-1">
+						<span class="block truncate font-semibold">{item.name}</span>
+						<span class="flex items-center gap-1.5 text-sm text-muted">
+							<Icon size={14} class="shrink-0" />
+							<span class="truncate">
+								{[
+									m.locations[item.location],
+									item.amount !== null && item.unit ? formatAmount(item.amount, item.unit) : ''
+								]
+									.filter(Boolean)
+									.join(' · ')}
+							</span>
+						</span>
+					</span>
+					<span class="shrink-0 text-right text-sm">
+						{#if item.bestBefore && item.expiry.days !== null}
+							<!-- Short on cards, so the name keeps its room; the date below says when -->
+							<span class={inScene ? 'scene-when' : `block ${TONE[item.expiry.level]}`}>
+								{item.expiry.days < 0 ? m.home.expired : m.home.relative(item.expiry.days)}
+							</span>
+							<span class="block text-xs text-muted">{formatDate(item.bestBefore)}</span>
+						{:else}
+							<span class="text-muted">–</span>
+						{/if}
+					</span>
+				</a>
+			</li>
+		{/each}
+	</ul>
+{/snippet}
 
 {#if data.stock.length === 0}
 	<main class="mx-auto flex max-w-md flex-col items-center px-4 pt-16 text-center">
@@ -188,59 +245,27 @@
 			</details>
 		</div>
 
+		{#if scene}
+			<!-- The place of storage drawn as furniture around the cards (phones and tablets) -->
+			<div class="lg:hidden">
+				<StorageScene place={scene}>
+					{#if shown.length === 0}
+						<p class="px-3 py-6 text-center text-sm text-muted">{m.home.nothingHere}</p>
+					{:else}
+						{@render cards(true)}
+					{/if}
+				</StorageScene>
+			</div>
+		{/if}
 		{#if shown.length === 0}
-			<p class="mt-8 text-center text-sm text-muted">{m.home.nothingHere}</p>
+			<p class="mt-8 text-center text-sm text-muted {scene ? 'max-lg:hidden' : ''}">
+				{m.home.nothingHere}
+			</p>
 		{:else}
-			<!-- Phones and tablets: cards -->
-			<ul class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 lg:hidden">
-				{#each shown as item (item.id)}
-					{@const Icon = LOCATION_ICONS[item.location]}
-					<li>
-						<a
-							href="/containers/{item.containerId}"
-							class="flex items-center gap-3 rounded-xl border border-line bg-surface p-3 transition-colors hover:border-accent {EDGE[
-								item.expiry.level
-							]}"
-						>
-							<!-- The fill level as a small mark at the symbol: leaves the room on the right
-							     to place and amount, which were cut off otherwise -->
-							<span class="relative mr-1 shrink-0">
-								<FoodIcon icon={item.iconKey} size={36} />
-								<span
-									class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface px-px pt-0.5 leading-none"
-								>
-									<FillGauge level={item.fill} source={item.source} size={19} />
-								</span>
-							</span>
-							<span class="min-w-0 flex-1">
-								<span class="block truncate font-semibold">{item.name}</span>
-								<span class="flex items-center gap-1.5 text-sm text-muted">
-									<Icon size={14} class="shrink-0" />
-									<span class="truncate">
-										{[
-											m.locations[item.location],
-											item.amount !== null && item.unit ? formatAmount(item.amount, item.unit) : ''
-										]
-											.filter(Boolean)
-											.join(' · ')}
-									</span>
-								</span>
-							</span>
-							<span class="shrink-0 text-right text-sm">
-								{#if item.bestBefore && item.expiry.days !== null}
-									<!-- Short on cards, so the name keeps its room; the date below says when -->
-									<span class="block {TONE[item.expiry.level]}">
-										{item.expiry.days < 0 ? m.home.expired : m.home.relative(item.expiry.days)}
-									</span>
-									<span class="block text-xs text-muted">{formatDate(item.bestBefore)}</span>
-								{:else}
-									<span class="text-muted">–</span>
-								{/if}
-							</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
+			{#if !scene}
+				<!-- Phones and tablets: cards -->
+				{@render cards(false)}
+			{/if}
 
 			<!-- Wide screens: a table, sorted by its column headings -->
 			<div class="mt-3 hidden overflow-x-auto rounded-xl border border-line bg-surface lg:block">

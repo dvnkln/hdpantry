@@ -7,7 +7,10 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = () => {
 	const theme = getSetting('theme');
-	return { theme: isTheme(theme) ? theme : DEFAULT_THEME };
+	return {
+		theme: isTheme(theme) ? theme : DEFAULT_THEME,
+		scene: getSetting('stockScene') === 'on'
+	};
 };
 
 // Every choice is saved the moment it is made (see $lib/autosave)
@@ -18,6 +21,12 @@ export const actions: Actions = {
 		if (!isTheme(theme)) return fail(400, { error: serverMessages(locals.locale).common.invalid });
 		setSettings({ theme });
 		rememberTheme(cookies, request, url, theme);
+		return {};
+	},
+	// The stock list of a place of storage drawn inside its fridge, freezer or cabinet
+	scene: async ({ request }) => {
+		const on = (await request.formData()).get('stockScene') === 'on';
+		setSettings({ stockScene: on ? 'on' : 'off' });
 		return {};
 	},
 	// How food symbols are drawn

@@ -7,6 +7,9 @@ import { settings } from './db/schema';
 const DEFAULTS = {
 	uiLanguage: 'en', // interface language: 'en' | 'de' (chosen in the first-run wizard)
 	iconStyle: 'color', // food symbols: 'color' (Twemoji) | 'line' (line icons)
+	// The stock list of one place of storage drawn inside that fridge, freezer or cabinet
+	// (see StorageScene.svelte): 'on' | 'off'
+	stockScene: 'off',
 	theme: 'system', // colour scheme, see $lib/themes ('system' follows the device)
 	scanVibration: 'on', // short vibration when a code is recognised: 'on' | 'off'
 	soonDays: '3', // "expires soon" means within this many days
