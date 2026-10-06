@@ -1,5 +1,5 @@
 import { fail, redirect, type RequestEvent } from '@sveltejs/kit';
-import { isNotifyMode } from '$lib/reminders';
+import { isNotifyMode, isSoonRepeat } from '$lib/reminders';
 import { removeChannel, saveChannel, setChannelEnabled } from '$lib/server/channels';
 import { serverMessages } from '$lib/server/i18n';
 import { notifyUser, prefsFor, sampleMessage, savePrefs } from '$lib/server/notifications';
@@ -38,12 +38,20 @@ export const actions: Actions = {
 		const data = await event.request.formData();
 		const mode = data.get('mode');
 		const hour = Number(data.get('hour'));
-		if (!isNotifyMode(mode) || !Number.isInteger(hour) || hour < 0 || hour > 23) {
+		const soonRepeat = data.get('soonRepeat');
+		if (
+			!isNotifyMode(mode) ||
+			!isSoonRepeat(soonRepeat) ||
+			!Number.isInteger(hour) ||
+			hour < 0 ||
+			hour > 23
+		) {
 			return fail(400, { error: t.common.invalid });
 		}
 		savePrefs(user.id, {
 			mode,
 			hour,
+			soonRepeat,
 			kinds: {
 				soon: data.get('soon') === 'on',
 				today: data.get('today') === 'on',

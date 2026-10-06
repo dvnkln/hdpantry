@@ -39,7 +39,9 @@ const DEFAULTS = {
 	// Which occasions are announced
 	notifySoon: 'on',
 	notifyToday: 'on',
-	notifyExpired: 'off'
+	notifyExpired: 'off',
+	// 'once' | 'daily': how often "expires soon" is told
+	notifySoonRepeat: 'once'
 } as const;
 
 export type SettingKey = keyof typeof DEFAULTS;

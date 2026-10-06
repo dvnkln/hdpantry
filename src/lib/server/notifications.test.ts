@@ -93,7 +93,8 @@ beforeEach(() => {
 		notifyFrom: '2031-01-01',
 		notifySoon: 'on',
 		notifyToday: 'on',
-		notifyExpired: 'on'
+		notifyExpired: 'on',
+		notifySoonRepeat: 'once'
 	});
 	vi.mocked(fetch).mockImplementation(async () => new Response(null, { status: 201 }));
 });
@@ -108,12 +109,17 @@ describe('what is due', () => {
 		expect(what()).toEqual(['Soup:expired', 'Fish:today', 'Cheese:soon']);
 	});
 
-	it('does not announce "soon" for what was stored inside the threshold', () => {
+	it('announces "soon" the morning after for what was stored inside the threshold', () => {
 		store('Fresh soup', plus(2), 0); // put away today, good for two days
 		store('Old cheese', plus(2), 30); // reached the threshold yesterday: caught up
-		expect(what()).toEqual(['Old cheese:soon']);
-		// ... but its date itself is announced
-		expect(what(plus(2))).toContain('Fresh soup:today');
+		store('Leftovers', plus(1), 1); // put away yesterday, one day left
+		store('Milk', plus(1), 0); // put away today: tomorrow is its date already
+		expect(what()).toEqual(['Leftovers:soon', 'Old cheese:soon']);
+		// the soup follows tomorrow; the milk only has its date
+		expect(what(plus(1))).toEqual(
+			expect.arrayContaining(['Fresh soup:soon', 'Milk:today', 'Leftovers:today'])
+		);
+		expect(what(plus(1))).not.toContain('Milk:soon');
 	});
 
 	it('follows the threshold chosen in the settings', () => {
@@ -153,6 +159,35 @@ describe('what is due', () => {
 		expect(prefsFor(me).from).toBe(DAY);
 		// expired "today" still counts, the date of yesterday does not
 		expect(dueReminders(me, DAY).map((d) => d.covers)).toEqual([['expired']]);
+	});
+
+	it('told daily, "soon" comes every day from the threshold until the date', async () => {
+		device();
+		savePrefs(me, { soonRepeat: 'daily' });
+		store('Cheese', plus(3));
+		store('Soup', plus(2), 0); // stored today: from tomorrow on
+		const told = async (day: string) => {
+			const due = dueReminders(me, day).map((d) => `${d.name}:${d.kind}`);
+			await notifyUser(me, at(day));
+			// nothing twice on the same day
+			expect(dueReminders(me, day)).toEqual([]);
+			return due;
+		};
+		expect(await told(DAY)).toEqual(['Cheese:soon']);
+		expect(await told(plus(1))).toEqual(['Soup:soon', 'Cheese:soon']);
+		expect(await told(plus(2))).toEqual(['Soup:today', 'Cheese:soon']);
+		expect(await told(plus(3))).toEqual(['Soup:expired', 'Cheese:today']);
+		// a day nobody was told about is not caught up: only the message of the day
+		store('Rice', plus(10));
+		expect(dueReminders(me, plus(9)).filter((d) => d.name === 'Rice')).toHaveLength(1);
+	});
+
+	it('told once, "soon" stays a single message', async () => {
+		device();
+		store('Cheese', plus(3));
+		await notifyUser(me, at(DAY));
+		expect(what(plus(1))).toEqual([]);
+		expect(what(plus(2))).toEqual([]);
 	});
 
 	it('never mentions what was eaten', () => {

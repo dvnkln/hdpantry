@@ -47,7 +47,7 @@ Working today:
 - 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
 - 📅 **Shelf life** – the kind of food and a symbol are suggested from its name (German and English; your corrections are remembered). Suitable places of storage are marked, unsuitable ones locked, and a best-before date is suggested from the kind of food, the place and whether it is vacuum-sealed – [guide values, not a guarantee](#-shelf-life).
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
-- 🔔 **Reminders** – a message before something expires, on the day and after, one by one or as one summary a day from an hour you choose. No extra app, no third-party account – or, if you prefer, through Pushover, ntfy or a webhook (Gotify, Apprise, Home Assistant, …).
+- 🔔 **Reminders** – a message before something expires (once or every day), on the day and after, one by one or as one summary a day from an hour you choose. No extra app, no third-party account – or, if you prefer, through Pushover, ntfy or a webhook (Gotify, Apprise, Home Assistant, …).
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
 - 🛠️ **Maintenance built in** – optional scheduled backups of the database that you can download.
 - 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.

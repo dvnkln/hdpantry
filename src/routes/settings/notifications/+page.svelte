@@ -6,7 +6,7 @@
 	import TargetList from '$lib/components/TargetList.svelte';
 	import { FormFeedback } from '$lib/forms.svelte';
 	import { m } from '$lib/i18n/index.svelte';
-	import { NOTIFY_MODES, REMINDER_KINDS, type ReminderKind } from '$lib/reminders';
+	import { NOTIFY_MODES, REMINDER_KINDS, SOON_REPEATS, type ReminderKind } from '$lib/reminders';
 	import { WIKI, ui } from '$lib/ui';
 	import { CalendarClock, Send } from '@lucide/svelte';
 
@@ -18,9 +18,14 @@
 	// What is chosen right now (decides whether hour and occasions are shown)
 	// svelte-ignore state_referenced_locally
 	let mode = $state(data.prefs.mode);
+	// "Expires soon" can be told once or every day; the choice sits in its row while it is on
+	// svelte-ignore state_referenced_locally
+	let soonOn = $state(data.prefs.kinds.soon);
+	// svelte-ignore state_referenced_locally
+	let soonRepeat = $state(data.prefs.soonRepeat);
 	function kindHint(kind: ReminderKind) {
 		return kind === 'soon'
-			? m.notifications.kindHints.soon(data.soonDays)
+			? m.notifications.kindHints.soon(data.soonDays, soonRepeat === 'daily')
 			: m.notifications.kindHints[kind];
 	}
 </script>
@@ -57,6 +62,7 @@
 		<!-- Hour and occasions only matter while reminders are on; switched off, they are kept -->
 		{#if mode === 'off'}
 			<input type="hidden" name="hour" value={data.prefs.hour} />
+			<input type="hidden" name="soonRepeat" value={soonRepeat} />
 			{#each REMINDER_KINDS as kind (kind)}
 				{#if data.prefs.kinds[kind]}<input type="hidden" name={kind} value="on" />{/if}
 			{/each}
@@ -74,11 +80,46 @@
 				<div class="mt-1 flex flex-col divide-y divide-line">
 					{#each REMINDER_KINDS as kind (kind)}
 						<div class="flex items-start justify-between gap-4 py-2.5">
-							<label for="kind-{kind}" class="flex cursor-pointer flex-col gap-1">
-								<span class="text-sm">{m.notifications.kinds[kind]}</span>
-								<span class={hint}>{kindHint(kind)}</span>
-							</label>
-							<Switch id="kind-{kind}" name={kind} checked={data.prefs.kinds[kind]} />
+							<div class="flex flex-col gap-1">
+								<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+									<label for="kind-{kind}" class="cursor-pointer text-sm">
+										{m.notifications.kinds[kind]}
+									</label>
+									{#if kind === 'soon'}
+										<!-- Once or every day: a small two-part toggle next to the name -->
+										{#if soonOn}
+											<span
+												role="radiogroup"
+												aria-label={m.notifications.repeat}
+												class="inline-flex rounded-full border border-line bg-surface p-0.5 text-xs"
+											>
+												{#each SOON_REPEATS as option (option)}
+													<label
+														class="rounded-full px-2.5 py-0.5 text-muted transition-colors hover:text-text has-checked:bg-accent has-checked:text-on-accent has-focus-visible:outline-2 has-focus-visible:outline-accent"
+													>
+														<input
+															type="radio"
+															name="soonRepeat"
+															value={option}
+															bind:group={soonRepeat}
+															class="sr-only"
+														/>
+														{m.notifications.repeats[option]}
+													</label>
+												{/each}
+											</span>
+										{:else}
+											<input type="hidden" name="soonRepeat" value={soonRepeat} />
+										{/if}
+									{/if}
+								</div>
+								<label for="kind-{kind}" class="cursor-pointer {hint}">{kindHint(kind)}</label>
+							</div>
+							{#if kind === 'soon'}
+								<Switch id="kind-{kind}" name={kind} bind:checked={soonOn} />
+							{:else}
+								<Switch id="kind-{kind}" name={kind} checked={data.prefs.kinds[kind]} />
+							{/if}
 						</div>
 					{/each}
 				</div>

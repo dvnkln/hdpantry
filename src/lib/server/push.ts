@@ -243,7 +243,10 @@ export async function sendPush(
 			const request = webpush.generateRequestDetails(
 				{ endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } },
 				JSON.stringify(message),
-				{ vapidDetails, TTL: KEEP_SECONDS }
+				// "high": deliver now, also to a phone that is asleep. With the default ("normal")
+				// Android holds a message back until the phone is next used – a reminder due at six
+				// in the morning then only shows when the app is opened.
+				{ vapidDetails, TTL: KEEP_SECONDS, urgency: 'high' }
 			);
 			const res = await fetch(request.endpoint, {
 				method: 'POST',

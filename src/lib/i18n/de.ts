@@ -587,14 +587,18 @@ export const de = {
 			expired: 'Ist abgelaufen'
 		},
 		kindHints: {
-			soon: (days: number) =>
+			soon: (days: number, daily: boolean) =>
 				days === 1
 					? 'Einen Tag vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.'
-					: `${days} Tage vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.`,
+					: daily
+						? `Jeden Tag, ab ${days} Tagen vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.`
+						: `${days} Tage vor dem Haltbarkeitsdatum – die Schwelle aus „Allgemein“.`,
 			today: 'Am Tag des Haltbarkeitsdatums.',
 			expired: 'Einmal am Tag danach.'
 		},
-		what: 'Was schon beim Erfassen kurz vor dem Ablauf steht, meldet sich nicht sofort.',
+		what: 'Was schon beim Erfassen kurz vor dem Ablauf steht, meldet sich erst am nächsten Morgen.',
+		repeat: 'Wie oft',
+		repeats: { once: 'Einmal', daily: 'Täglich' },
 		// Where to: the list of targets
 		targets: 'Ziele',
 		noTargets: 'Noch kein Ziel. Füge dieses Gerät hinzu, Pushover, ntfy oder einen Webhook.',

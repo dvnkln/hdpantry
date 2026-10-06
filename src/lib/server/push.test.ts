@@ -175,6 +175,8 @@ describe('sendPush', () => {
 		expect(init.method).toBe('POST');
 		expect(headers['Content-Encoding']).toBe('aes128gcm');
 		expect(headers.Authorization).toContain(`k=${pushPublicKey()}`);
+		// Delivered at once, also to a phone that is asleep
+		expect(headers.Urgency).toBe('high');
 		// The text itself is not readable in what is sent
 		expect(Buffer.from(init.body as Uint8Array).toString('latin1')).not.toContain('hdpantry');
 		expect(listDevices(me).every((d) => d.lastOkAt !== null)).toBe(true);

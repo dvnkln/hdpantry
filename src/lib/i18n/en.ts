@@ -581,14 +581,18 @@ export const en: Messages = {
 			expired: 'Has expired'
 		},
 		kindHints: {
-			soon: (days: number) =>
+			soon: (days: number, daily: boolean) =>
 				days === 1
 					? 'One day before the best-before date – the threshold from “General”.'
-					: `${days} days before the best-before date – the threshold from “General”.`,
+					: daily
+						? `Every day, from ${days} days before the best-before date – the threshold from “General”.`
+						: `${days} days before the best-before date – the threshold from “General”.`,
 			today: 'On the best-before date.',
 			expired: 'Once, on the day after.'
 		},
-		what: 'Something that is close to its date when you record it does not report itself right away.',
+		what: 'Something that is close to its date when you record it reports itself the next morning.',
+		repeat: 'How often',
+		repeats: { once: 'Once', daily: 'Daily' },
 		// Where to: the list of targets
 		targets: 'Targets',
 		noTargets: 'No target yet. Add this device, Pushover, ntfy or a webhook.',

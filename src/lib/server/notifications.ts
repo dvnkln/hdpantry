@@ -1,7 +1,14 @@
 import { and, eq, isNull, lt } from 'drizzle-orm';
 import { isLocale, type Locale } from '$lib/i18n/index.svelte';
 import type { Location } from '$lib/items';
-import { REMINDER_KINDS, isNotifyMode, type NotifyMode, type ReminderKind } from '$lib/reminders';
+import {
+	REMINDER_KINDS,
+	isNotifyMode,
+	isSoonRepeat,
+	type NotifyMode,
+	type ReminderKind,
+	type SoonRepeat
+} from '$lib/reminders';
 import { daysUntil } from '$lib/stock';
 import { getDb } from './db';
 import { items, notificationsSent, users } from './db/schema';
@@ -9,8 +16,8 @@ import { serverMessages } from './i18n';
 import { deliver, hasEnabledTarget, type Notice } from './targets';
 import { getSetting, setSettings, soonDays } from './settings';
 
-// Reminds of what is about to expire: the day a content reaches the "expires soon" threshold,
-// the day of its best-before date, and the day after. Only the day is known, not a time, so
+// Reminds of what is about to expire: the day a content reaches the "expires soon" threshold
+// (or every day from then on), the day of its best-before date, and the day after. Only the day is known, not a time, so
 // the messages of a day are sent from an hour the user chooses.
 
 const today = (now = new Date()) => now.toLocaleDateString('sv-SE');
@@ -28,10 +35,12 @@ export function prefsFor(userId: number) {
 	void userId;
 	const mode = getSetting('notifyMode');
 	const hour = Number(getSetting('notifyHour'));
+	const repeat = getSetting('notifySoonRepeat');
 	return {
 		mode: (isNotifyMode(mode) ? mode : 'off') as NotifyMode,
 		hour: Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : 9,
 		from: getSetting('notifyFrom'),
+		soonRepeat: (isSoonRepeat(repeat) ? repeat : 'once') as SoonRepeat,
 		kinds: {
 			soon: getSetting('notifySoon') === 'on',
 			today: getSetting('notifyToday') === 'on',
@@ -51,6 +60,7 @@ export function savePrefs(
 		on?: boolean;
 		// all three occasions at once (the settings form)
 		kinds?: Record<ReminderKind, boolean>;
+		soonRepeat?: SoonRepeat;
 	},
 	now = new Date()
 ) {
@@ -67,6 +77,7 @@ export function savePrefs(
 			notifyToday: values.kinds.today ? 'on' : 'off',
 			notifyExpired: values.kinds.expired ? 'on' : 'off'
 		}),
+		...(values.soonRepeat !== undefined && { notifySoonRepeat: values.soonRepeat }),
 		...(switchedOn && { notifyFrom: today(now) })
 	});
 }
@@ -87,23 +98,26 @@ export type Due = {
 	covers: ReminderKind[];
 	// Best-before date, and how many days it is away on the day of the message (negative = past)
 	date: string;
+	// The date "soon" is noted as told under: the best-before date, or – told daily – the day
+	soonDate: string;
 	days: number;
 };
 
-// The day an occasion falls on for a content. `soon` has none if the content was only stored
-// on or after that day: something with a short shelf life would otherwise report itself the
-// moment it is put away.
+// The day an occasion falls on for a content. `soon` is never told on the day something is
+// stored (a soup that keeps for two days would report itself the moment it is put away): what
+// is stored inside the threshold is told the morning after. On the best-before date itself
+// `today` takes over.
 function occasionDay(kind: ReminderKind, bestBefore: string, storedOn: string, threshold: number) {
 	if (kind === 'today') return bestBefore;
 	if (kind === 'expired') return addDays(bestBefore, 1);
-	const day = addDays(bestBefore, -threshold);
-	return storedOn >= day ? null : day;
+	const day = [addDays(bestBefore, -threshold), addDays(storedOn, 1)].sort().at(-1)!;
+	return day < bestBefore ? day : null;
 }
 
 // What is to be announced now: per content the latest occasion of the last days that is
 // switched on and was not announced yet. Sorted like the stock list: what expires first.
 export function dueReminders(userId: number, day = today()): Due[] {
-	const { from, kinds } = prefsFor(userId);
+	const { from, kinds, soonRepeat } = prefsFor(userId);
 	const since = [addDays(day, -CATCH_UP_DAYS), from].sort().at(-1)!;
 	const threshold = soonDays();
 	const db = getDb();
@@ -127,10 +141,17 @@ export function dueReminders(userId: number, day = today()): Due[] {
 		if (!item.bestBefore) continue;
 		const bestBefore = item.bestBefore;
 		const storedOn = today(item.createdAt);
+		const daily = soonRepeat === 'daily';
 		const fresh = REMINDER_KINDS.filter((kind) => {
-			if (!kinds[kind] || sent.has(`${item.id}:${kind}:${bestBefore}`)) return false;
+			if (!kinds[kind]) return false;
 			const on = occasionDay(kind, bestBefore, storedOn, threshold);
-			return on !== null && on >= since && on <= day;
+			if (on === null) return false;
+			// Told daily: every day from its first one on counts anew (a missed day is not
+			// caught up – the message of today says it all)
+			if (kind === 'soon' && daily) {
+				return on <= day && day < bestBefore && !sent.has(`${item.id}:soon:${day}`);
+			}
+			return on >= since && on <= day && !sent.has(`${item.id}:${kind}:${bestBefore}`);
 		});
 		if (fresh.length === 0) continue;
 		due.push({
@@ -141,6 +162,7 @@ export function dueReminders(userId: number, day = today()): Due[] {
 			kind: fresh.at(-1)!, // REMINDER_KINDS is in the order of time
 			covers: fresh,
 			date: bestBefore,
+			soonDate: daily ? day : bestBefore,
 			days: daysUntil(bestBefore, day)
 		});
 	}
@@ -224,6 +246,7 @@ export function sampleMessage(userId: number, day = today()): Notice {
 			kind,
 			covers: [kind],
 			date: item.bestBefore!,
+			soonDate: item.bestBefore!,
 			days
 		};
 	});
@@ -251,7 +274,12 @@ export function sampleMessage(userId: number, day = today()): Notice {
 
 function markSent(userId: number, due: Due[]) {
 	const values = due.flatMap((d) =>
-		d.covers.map((kind) => ({ userId, itemId: d.itemId, kind, date: d.date }))
+		d.covers.map((kind) => ({
+			userId,
+			itemId: d.itemId,
+			kind,
+			date: kind === 'soon' ? d.soonDate : d.date
+		}))
 	);
 	for (let i = 0; i < values.length; i += 200) {
 		getDb()
