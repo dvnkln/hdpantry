@@ -7,8 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/dvnkln/hdpantry/actions/workflows/check.yml"><img src="https://img.shields.io/github/actions/workflow/status/dvnkln/hdpantry/check.yml?label=checks&style=for-the-badge" alt="Checks" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-647f55?style=for-the-badge" alt="License: AGPL-3.0" /></a>
+  <a href="https://github.com/dvnkln/hdpantry/releases"><img src="https://img.shields.io/github/v/release/dvnkln/hdpantry?label=version&style=for-the-badge&color=647f55" alt="Version" /></a>
+  <a href="https://github.com/dvnkln/hdpantry/pkgs/container/hdpantry"><img src="https://img.shields.io/github/actions/workflow/status/dvnkln/hdpantry/release.yml?label=docker%20image&style=for-the-badge&logo=docker&logoColor=white" alt="Docker image" /></a>
+  <a href="https://github.com/dvnkln/hdpantry/actions/workflows/check.yml"><img src="https://img.shields.io/github/actions/workflow/status/dvnkln/hdpantry/check.yml?branch=main&label=checks&style=for-the-badge&logo=github&logoColor=white" alt="Checks" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-a39b55?style=for-the-badge" alt="License: AGPL-3.0" /></a>
 </p>
 
 <p align="center">
@@ -19,15 +21,13 @@
   <img src="docs/screenshots/devices.jpg" alt="hdpantry on a desktop screen and two phones" />
 </p>
 
-> [!NOTE]
-> 🚧 **Early development.** Scanning, recording what is inside, shelf-life suggestions, the stock list, export and import and the settings work. There is no release and no published image yet – for now it is built from the source code.
-
 ## 📖 Documentation
 
 The guides live in the **[wiki](https://github.com/dvnkln/hdpantry/wiki)**:
 
 - 🐳 [Installation](https://github.com/dvnkln/hdpantry/wiki/Installation) – Docker Compose and the `.env` file
 - 🔐 [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS) – reverse proxy, `ORIGIN`, why the camera needs it, installing as an app
+- ⬆️ [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating)
 - 📅 [Shelf life guide values](https://github.com/dvnkln/hdpantry/wiki/Shelf-life-guide-values) – what the suggested dates are worth and where they come from
 - 🔔 [Notifications](https://github.com/dvnkln/hdpantry/wiki/Notifications) – reminders on your devices, through Pushover, ntfy or a webhook
 - 📤 [Export and import](https://github.com/dvnkln/hdpantry/wiki/Export-and-import) – your stock as a file
@@ -36,11 +36,9 @@ The guides live in the **[wiki](https://github.com/dvnkln/hdpantry/wiki)**:
 - 🔑 [Reset your password](https://github.com/dvnkln/hdpantry/wiki/Reset-your-password)
 - 💻 [Development](https://github.com/dvnkln/hdpantry/wiki/Development) – running hdpantry from source
 
-What's planned for later: [Roadmap](ROADMAP.md).
+What changed in each version: [Changelog](CHANGELOG.md). What's planned: [Roadmap](ROADMAP.md).
 
 ## ✨ Features
-
-Working today:
 
 - 📷 **Scan** – hold a code in front of the camera and hdpantry leads on right away, without a button or a question: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too. Any QR code will do.
 - 🥡 **Containers** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten – or replace it in one go – and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
@@ -49,13 +47,10 @@ Working today:
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
 - 🔔 **Reminders** – a message before something expires (once or every day), on the day and after, one by one or as one summary a day from an hour you choose. No extra app, no third-party account – or, if you prefer, through Pushover, ntfy or a webhook (Gotify, Apprise, Home Assistant, …).
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
+- 🧊 **Stock in the cabinet** – a bit of fun you can switch on: pick a place of storage and the list stands inside a drawn fridge, freezer or wooden cabinet.
 - 🛠️ **Maintenance built in** – background tasks you can see and schedule, and optional backups of the database that you can download.
 - 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts. hdpantry connects to nothing outside – unless you set up notifications: then messages go to the targets you added, and nowhere else. [Who sees what](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
-
-Being built for the first version:
-
-- 📦 **A published image** – so installing no longer means building from source.
 
 ## 📅 Shelf life
 
@@ -75,17 +70,23 @@ hdpantry suggests a best-before date so you keep track of what to eat first. **T
 
 ## 🐳 Quick start
 
-There is no published image yet. To try the current state, build it from source:
-
-1. Clone the repository and create a `.env` file in it (template: [`.env.example`](.env.example)) with a random `SECRET`, your time zone and `ORIGIN` – **exactly** the address you open the app with, e.g. `http://192.168.1.50:3001`.
-
-2. Build and start it, then open that address. On first start you create your account.
+1. Create a folder and download the two files hdpantry needs – the [`docker-compose.yml`](docker-compose.yml) and a template for your settings, saved as `.env`:
 
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+   mkdir hdpantry && cd hdpantry
+   curl -fsSLO https://raw.githubusercontent.com/dvnkln/hdpantry/main/docker-compose.yml
+   curl -fsSL -o .env https://raw.githubusercontent.com/dvnkln/hdpantry/main/.env.example
    ```
 
-The camera scanner needs HTTPS (a rule of the browsers); hdpantry expects a reverse proxy for that – see [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS).
+2. Open `.env` and fill it in: a random `SECRET`, your time zone and `ORIGIN` – **exactly** the address you open the app with, e.g. `http://192.168.1.50:3000`. The file explains every line.
+
+3. Start it and open that address. On first start you create your account.
+
+   ```bash
+   docker compose up -d
+   ```
+
+The camera scanner needs HTTPS (a rule of the browsers); hdpantry expects a reverse proxy for that – see [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS). What every setting means: **[Installation guide](https://github.com/dvnkln/hdpantry/wiki/Installation)**.
 
 ## 🙏 Credits
 
