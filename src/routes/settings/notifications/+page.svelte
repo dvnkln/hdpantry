@@ -134,8 +134,11 @@
 	<h2 class={heading}><Send size={20} class="text-muted" />{m.notifications.targets}</h2>
 	<TargetList targets={data.targets} publicKey={data.publicKey} paused={mode === 'off'} />
 	<p class="mt-4 {hint}">
-		<a class={ui.link} href="{WIKI}/Privacy-and-security" target="_blank" rel="noopener noreferrer"
-			>{m.notifications.learnMore}</a
+		<a
+			class={ui.link}
+			href="{WIKI}/Privacy-and-security#notifications"
+			target="_blank"
+			rel="noopener noreferrer">{m.notifications.learnMore}</a
 		>
 	</p>
 </section>
