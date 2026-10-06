@@ -17,8 +17,8 @@
 	const JAR: Record<FillLevel, number> = { low: 12, medium: 32, full: 56 };
 	let height = $derived((jar ? JAR : BAG)[level]);
 
-	// The content is drawn in the two colours of the wordmark, green at the bottom and light
-	// green at the top of the container: the fuller it is, the lighter its upper edge. Every
+	// The content is drawn in a muted green of its own (--fill-from/--fill-to in layout.css),
+	// darker at the bottom and lighter at the top: the fuller it is, the lighter its upper edge. Every
 	// drawing needs a colour run of its own, hence the id.
 	const id = $props.id();
 </script>
@@ -30,8 +30,8 @@
 		<svg viewBox="0 0 64 84" width={size * (64 / 84)} height={size} aria-hidden="true">
 			<defs>
 				<linearGradient {id} gradientUnits="userSpaceOnUse" x1="0" y1="75.5" x2="0" y2="19.5">
-					<stop offset="0" class="[stop-color:var(--brand-from)]" />
-					<stop offset="1" class="[stop-color:var(--brand-to)]" />
+					<stop offset="0" class="[stop-color:var(--fill-from)]" />
+					<stop offset="1" class="[stop-color:var(--fill-to)]" />
 				</linearGradient>
 			</defs>
 			<rect
@@ -56,8 +56,8 @@
 		<svg viewBox="0 0 64 72" width={size * (64 / 72)} height={size} aria-hidden="true">
 			<defs>
 				<linearGradient {id} gradientUnits="userSpaceOnUse" x1="0" y1="65" x2="0" y2="21">
-					<stop offset="0" class="[stop-color:var(--brand-from)]" />
-					<stop offset="1" class="[stop-color:var(--brand-to)]" />
+					<stop offset="0" class="[stop-color:var(--fill-from)]" />
+					<stop offset="1" class="[stop-color:var(--fill-to)]" />
 				</linearGradient>
 			</defs>
 			<rect

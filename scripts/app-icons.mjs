@@ -68,8 +68,8 @@ await write(
 	0,
 	false,
 	`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="192" height="192">
-	<defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#149a6b"/><stop offset="1" stop-color="#b3d94d"/></linearGradient></defs>
-	<rect width="48" height="48" fill="#111513"/>
+	<defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="22" y2="22"><stop offset="0" stop-color="#8fae7c"/><stop offset="1" stop-color="#ece3b7"/></linearGradient></defs>
+	<rect width="48" height="48" fill="#141511"/>
 	<g transform="translate(12.1 12.1) scale(0.95)" fill="none" stroke="url(#g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 		<path d="M16 14v2.2l1.6 1"/><path d="M16 2v3"/><path d="M21 7.338V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h2.338"/><path d="M3 9h5.859"/><path d="M8 2v3"/><circle cx="16" cy="16" r="6"/>
 	</g>

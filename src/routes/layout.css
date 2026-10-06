@@ -7,22 +7,27 @@
    'light', 'dark' or 'system' (follows the device). It also works on any other element – the
    previews in the settings use that. */
 :root {
-	/* Gradient of the "hd" in the wordmark – the same in every scheme */
-	--brand-from: #149a6b;
-	--brand-to: #b3d94d;
+	/* Start of the gradient of the "hd" in the wordmark: the sage green of the logo. Where it
+	   ends depends on the scheme (--brand-to below): cream would vanish on a light background. */
+	--brand-from: #647f55;
+	/* What is in a container (FillGauge): a muted green of its own, the same in every scheme –
+	   deliberately not the colours of logo and buttons, so not everything is tone on tone */
+	--fill-from: #4f8a5f;
+	--fill-to: #c2d9a0;
 }
 
 :root,
 [data-theme='light'],
 [data-theme='system'] {
 	color-scheme: light;
-	--bg: #f6f7f4;
+	--bg: #f6f6f0;
 	--surface: #ffffff;
-	--line: #dfe3dc;
+	--line: #e0e2d4;
 	--text: #1b211d;
-	--muted: #5d6b62;
-	--accent: #1f7a5c;
+	--muted: #656a5a;
+	--accent: #4f6b45;
 	--on-accent: #ffffff;
+	--brand-to: #a39b55;
 	--danger: #b3261e;
 	--warn: #8a5a00;
 	--good: #2c8a4b;
@@ -32,13 +37,14 @@
 
 [data-theme='dark'] {
 	color-scheme: dark;
-	--bg: #111513;
-	--surface: #1a201d;
-	--line: #2c3530;
+	--bg: #141511;
+	--surface: #1d1f19;
+	--line: #32352b;
 	--text: #e8ede9;
-	--muted: #9aa79f;
-	--accent: #5fd0a5;
-	--on-accent: #0c1a14;
+	--muted: #a4a897;
+	--accent: #b9cda7;
+	--on-accent: #131b0f;
+	--brand-to: #ece3b7;
 	--danger: #ff8a80;
 	--warn: #f2c14e;
 	--good: #6fd08c;
@@ -49,13 +55,14 @@
 @media (prefers-color-scheme: dark) {
 	[data-theme='system'] {
 		color-scheme: dark;
-		--bg: #111513;
-		--surface: #1a201d;
-		--line: #2c3530;
+		--bg: #141511;
+		--surface: #1d1f19;
+		--line: #32352b;
 		--text: #e8ede9;
-		--muted: #9aa79f;
-		--accent: #5fd0a5;
-		--on-accent: #0c1a14;
+		--muted: #a4a897;
+		--accent: #b9cda7;
+		--on-accent: #131b0f;
+		--brand-to: #ece3b7;
 		--danger: #ff8a80;
 		--warn: #f2c14e;
 		--good: #6fd08c;

@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 
 // Colour of the logo: shown while the installed app starts, before the page and its own
 // colour scheme are there. Fits light and dark devices alike.
-const BRAND = '#149a6b';
+const BRAND = '#647f55';
 
 // Tells the browser how to install hdpantry as an app. Reachable without being logged in
 // (see PUBLIC_PATHS in hooks.server.ts): the browser fetches it without the login cookie.

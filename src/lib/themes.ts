@@ -4,9 +4,9 @@
 // bar: colour of the browser's own bar on phones – [on light devices, on dark devices]
 export const THEMES = {
 	// Follows the device
-	system: { bar: ['#f6f7f4', '#111513'] },
-	dark: { bar: ['#111513', '#111513'] },
-	light: { bar: ['#f6f7f4', '#f6f7f4'] }
+	system: { bar: ['#f6f6f0', '#141511'] },
+	dark: { bar: ['#141511', '#141511'] },
+	light: { bar: ['#f6f6f0', '#f6f6f0'] }
 } as const;
 
 export type Theme = keyof typeof THEMES;
