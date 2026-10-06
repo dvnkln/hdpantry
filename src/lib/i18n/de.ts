@@ -363,32 +363,7 @@ export const de = {
 			`Import abgeschlossen: ${containers} Behälter, davon ${filled} gefüllt.`,
 		saved: 'Gespeichert ✓',
 		maintenance: 'Wartung',
-		maintenanceHint: 'Backups',
-		backup: 'Backup',
-		backupText:
-			'Legt nach Zeitplan eine Kopie der ganzen Datenbank an – Vorrat, Konto und Einstellungen. Die Kopien liegen im Datenordner unter „backups“ und lassen sich hier herunterladen.',
-		backupSwitch: 'Automatisch nach Zeitplan',
-		backupHow: 'Wie oft',
-		backupFrequencies: { daily: 'Täglich', weekly: 'Wöchentlich', monthly: 'Monatlich' },
-		backupMonthlyHint: 'Monatlich heißt: am Ersten des Monats.',
-		backupWeekday: 'Wochentag',
-		backupTime: 'Uhrzeit',
-		backupKeep: 'Wie viele Backups behalten',
-		backupKeepHint: 'Ältere Backups werden gelöscht.',
-		backupNext: (when: string) => `Nächstes Backup: ${when}`,
-		backupLast: (when: string) => `Letztes Backup: ${when}`,
-		backupNever: 'Bisher wurde kein Backup angelegt.',
-		backupFailed: (error: string) => `Fehlgeschlagen: ${error}`,
-		backupNow: 'Jetzt ausführen',
-		backupRunning: 'Läuft gerade …',
-		backupFiles: 'Vorhandene Backups',
-		backupNone: 'Noch keine Backups vorhanden.',
-		backupDownload: 'Herunterladen',
-		backupDeleteQuestion: 'Dieses Backup löschen?',
-		backupSizes: (database: string, backups: string) =>
-			`Datenbank: ${database} · Backups gesamt: ${backups}`,
-		backupRestore: 'Wie man ein Backup zurückspielt, steht in der Dokumentation:',
-		backupRestoreLink: 'Backups and restore',
+		maintenanceHint: 'Aufgaben, Speicher, Backups',
 		dataBusy: 'Wird importiert …',
 		dataNowColumn: 'Jetzt',
 		dataAfterColumn: 'Danach',
@@ -566,6 +541,68 @@ export const de = {
 			'Eigene vorsichtige Schätzung für vakuumierte Lebensmittel (keine öffentliche Stelle veröffentlicht dazu Zahlen)'
 	},
 
+	maintenance: {
+		intro: (timeZone: string) =>
+			`Diese Aufgaben laufen automatisch im Hintergrund. Uhrzeiten gelten in der Zeitzone des Servers (${timeZone}).`,
+		tasks: {
+			notifications: {
+				name: 'Benachrichtigungen senden',
+				description:
+					'Schickt die Erinnerungen an das, was bald abläuft – jeweils ab der Uhrzeit, die unter „Benachrichtigungen“ gewählt ist. Läuft immer; sind die Erinnerungen dort aus, passiert nichts.'
+			},
+			optimize: {
+				name: 'Datenbank-Pflege',
+				description: 'Räumt die Datenbank auf und macht die Datei kompakter.'
+			},
+			sessions: {
+				name: 'Abgelaufene Anmeldungen löschen',
+				description: 'Entfernt Anmeldungen, die ohnehin nicht mehr gültig sind.'
+			},
+			backup: {
+				name: 'Backup',
+				description: 'Speichert eine Kopie der Datenbank im Ordner /data/backups.'
+			}
+		},
+		frequency: 'Wie oft',
+		frequencies: {
+			hourly: 'Stündlich',
+			daily: 'Täglich',
+			weekly: 'Wöchentlich',
+			monthly: 'Monatlich'
+		},
+		time: 'Uhrzeit',
+		weekday: 'Wochentag',
+		resetSchedule: 'Zurück zum Standard-Zeitplan',
+		hourlyHint: 'Immer zur vollen Stunde.',
+		monthlyHint: 'Immer am 1. des Monats.',
+		lastRun: (date: string) => `Zuletzt: ${date}`,
+		neverRun: 'Noch nie ausgeführt',
+		nextRun: (date: string) => `Nächster Lauf: ${date}`,
+		freed: (size: string) => `${size} freigegeben`,
+		// What a task looks after takes this much space (not: what a run would free)
+		stored: {
+			optimize: (size: string) => `Größe der Datenbank: ${size}`,
+			backup: (size: string) => `Backups gesamt: ${size}`
+		},
+		off: 'Ausgeschaltet',
+		failed: 'Fehlgeschlagen:',
+		running: 'Läuft gerade …',
+		runNow: 'Jetzt ausführen',
+		done: 'Erledigt ✓',
+		stillRunning:
+			'Läuft im Hintergrund weiter – das Ergebnis steht nach dem Neuladen der Seite hier.',
+		keep: 'Wie viele Backups behalten',
+		volumeHint:
+			'Sicherst du stattdessen das ganze Docker-Volume? Dann kopiere es bei gestopptem Container – oder immer die drei Dateien hdpantry.db, hdpantry.db-wal und hdpantry.db-shm zusammen. Sonst kann die Kopie der Datenbank unvollständig sein.',
+		backups: 'Vorhandene Backups',
+		noBackups: 'Noch keine Backups vorhanden.',
+		download: 'Herunterladen',
+		deleteQuestion: 'Dieses Backup löschen?',
+		deleteAll: 'Alle löschen',
+		deleteAllConfirm: 'Wirklich alle löschen?',
+		restoreHint: 'Wie man ein Backup zurückspielt, steht in der Dokumentation:',
+		restoreLink: 'Backups and restore'
+	},
 	notifications: {
 		title: 'Benachrichtigungen',
 		navHint: 'Erinnerungen, Ziele',

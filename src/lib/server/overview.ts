@@ -1,10 +1,11 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { count, isNull } from 'drizzle-orm';
 import { blockedAddresses, connectionOf } from './auth';
-import { backupSettings, backupState, databaseSize, listBackups } from './backups';
+import { databaseSize, listBackups } from './backups';
 import { getDb } from './db';
 import { items } from './db/schema';
 import { isHttps } from './origins';
+import { listTasks } from './scheduler';
 
 // The overview on Settings → Server: a few checks that tell whether everything is fine.
 // 'ok' = fine, 'hint' = worth knowing, 'action' = something should be done.
@@ -47,8 +48,8 @@ export function serverOverview(event: RequestEvent) {
 		checks: evaluate({
 			https: isHttps(event.request, event.url),
 			connection: connectionOf(event),
-			// The only background task so far is the scheduled backup
-			failedTasks: backupSettings().enabled && backupState().lastError !== null ? 1 : 0,
+			// Tasks under Settings → Maintenance whose last run went wrong
+			failedTasks: listTasks().filter((task) => task.enabled && task.lastError).length,
 			blockedAddresses: blockedAddresses()
 		}),
 		info: {

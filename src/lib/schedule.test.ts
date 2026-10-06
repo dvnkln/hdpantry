@@ -5,11 +5,16 @@ import { isDue, isTime, latestSlot, nextSlot, type Schedule } from './schedule';
 const at = (text: string) => new Date(text);
 const local = (date: Date) => date.toLocaleString('sv-SE').slice(0, 16);
 
+const hourly: Schedule = { frequency: 'hourly', time: '00:00', weekday: 0 };
 const daily: Schedule = { frequency: 'daily', time: '03:00', weekday: 1 };
 const weekly: Schedule = { frequency: 'weekly', time: '03:00', weekday: 1 }; // Mondays
 const monthly: Schedule = { frequency: 'monthly', time: '03:00', weekday: 1 };
 
 describe('planned times', () => {
+	it('hourly: the start of the hour', () => {
+		expect(local(latestSlot(hourly, at('2031-03-12T10:59')))).toBe('2031-03-12 10:00');
+		expect(local(nextSlot(hourly, at('2031-03-12T23:20')))).toBe('2031-03-13 00:00');
+	});
 	it('daily: today once the time has passed, otherwise yesterday', () => {
 		expect(local(latestSlot(daily, at('2031-03-12T10:00')))).toBe('2031-03-12 03:00');
 		expect(local(latestSlot(daily, at('2031-03-12T02:59')))).toBe('2031-03-11 03:00');

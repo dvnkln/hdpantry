@@ -15,18 +15,9 @@ const DEFAULTS = {
 	trustedProxies: '',
 	// Secret a reverse proxy sends to prove itself where addresses do not help (see proxy.ts)
 	proxyKey: '',
-	// Automatic database backup (see backups.ts): off by default, schedule as in $lib/schedule
-	backupEnabled: 'off',
-	backupFrequency: 'daily',
-	backupTime: '03:00',
-	backupWeekday: '1',
-	backupKeep: '7', // this many are kept, older ones are deleted
-	// Kept by the app itself: when the schedule was last changed, and how the last run went
-	// (points in time in milliseconds)
-	backupChangedAt: '0',
-	backupLastRun: '',
-	backupLastMs: '',
-	backupLastError: '',
+	// Backups (see backups.ts): this many are kept, older ones are deleted. When they are made
+	// is the schedule of the task (table `tasks`).
+	backupKeep: '7',
 	// Key pair of this installation for push notifications (VAPID), created on first use. The
 	// public part goes to the browsers, the private part signs every message (see push.ts).
 	vapidPublicKey: '',

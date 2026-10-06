@@ -49,7 +49,7 @@ Working today:
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
 - 🔔 **Reminders** – a message before something expires (once or every day), on the day and after, one by one or as one summary a day from an hour you choose. No extra app, no third-party account – or, if you prefer, through Pushover, ntfy or a webhook (Gotify, Apprise, Home Assistant, …).
 - 📤 **Export and import** – your whole stock with its history as one readable file (JSON). Importing replaces the stock, after a clear warning.
-- 🛠️ **Maintenance built in** – optional scheduled backups of the database that you can download.
+- 🛠️ **Maintenance built in** – background tasks you can see and schedule, and optional backups of the database that you can download.
 - 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.
 - 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts. hdpantry connects to nothing outside – unless you set up notifications: then messages go to the targets you added, and nowhere else. [Who sees what](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
 

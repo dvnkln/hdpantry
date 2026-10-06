@@ -171,3 +171,20 @@ export const notificationChannels = sqliteTable(
 	},
 	(table) => [index('notification_channels_user').on(table.userId)]
 );
+
+// Background tasks (reminders, clean-up, backup): schedule and result of the last run.
+// Rows are created with default values when first needed (see server/scheduler.ts).
+export const tasks = sqliteTable('tasks', {
+	key: text('key').primaryKey(),
+	enabled: integer('enabled', { mode: 'boolean' }).notNull(),
+	frequency: text('frequency').$type<'hourly' | 'daily' | 'weekly' | 'monthly'>().notNull(),
+	time: text('time').notNull(), // "HH:MM", time zone of the server (TZ)
+	weekday: integer('weekday').notNull(), // 0 = Sunday, only used for "weekly"
+	// When the schedule was last changed: times before that do not count as missed
+	changedAt: integer('changed_at', { mode: 'timestamp' }).notNull(),
+	lastRunAt: integer('last_run_at', { mode: 'timestamp' }),
+	lastDurationMs: integer('last_duration_ms'),
+	// Disk space the last run freed (clean-up tasks only)
+	lastFreedBytes: integer('last_freed_bytes'),
+	lastError: text('last_error')
+});

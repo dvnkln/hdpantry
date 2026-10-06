@@ -89,6 +89,19 @@ CREATE TABLE `settings` (
 	`value` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `tasks` (
+	`key` text PRIMARY KEY NOT NULL,
+	`enabled` integer NOT NULL,
+	`frequency` text NOT NULL,
+	`time` text NOT NULL,
+	`weekday` integer NOT NULL,
+	`changed_at` integer NOT NULL,
+	`last_run_at` integer,
+	`last_duration_ms` integer,
+	`last_freed_bytes` integer,
+	`last_error` text
+);
+--> statement-breakpoint
 CREATE TABLE `users` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`username` text NOT NULL,

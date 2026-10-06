@@ -318,19 +318,25 @@ export async function notifyUser(userId: number, now = new Date()) {
 	return sentMessages;
 }
 
-// Called by the scheduler once an hour: everyone who switched the reminders on.
+// The task "notifications" of the scheduler, once an hour: everyone who switched the reminders
+// on. Throws if it went wrong for somebody, so the task is shown as failed. (A single target
+// that cannot be reached is not a failure: that is noted at the target.)
 export async function sendDueNotifications(now = new Date()) {
 	const everyone = getDb().select({ id: users.id }).from(users).all();
+	let failure: unknown = null;
 	for (const { id } of everyone) {
 		try {
 			await notifyUser(id, now);
 		} catch (err) {
 			console.error(`Reminders for user ${id} failed`, err);
+			failure ??= err;
 		}
 	}
+
 	// What was announced long ago can be forgotten (it is far outside the days looked at)
 	getDb()
 		.delete(notificationsSent)
 		.where(and(lt(notificationsSent.date, addDays(today(now), -30))))
 		.run();
+	if (failure) throw failure;
 }

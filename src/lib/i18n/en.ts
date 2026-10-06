@@ -361,32 +361,7 @@ export const en: Messages = {
 			`Import finished: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
 		saved: 'Saved ✓',
 		maintenance: 'Maintenance',
-		maintenanceHint: 'Backups',
-		backup: 'Backup',
-		backupText:
-			'Makes a copy of the whole database on a schedule – stock, account and settings. The copies are kept in the data folder under “backups” and can be downloaded here.',
-		backupSwitch: 'Automatically on a schedule',
-		backupHow: 'How often',
-		backupFrequencies: { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' },
-		backupMonthlyHint: 'Monthly means: on the first of the month.',
-		backupWeekday: 'Day of the week',
-		backupTime: 'Time',
-		backupKeep: 'How many backups to keep',
-		backupKeepHint: 'Older backups are deleted.',
-		backupNext: (when: string) => `Next backup: ${when}`,
-		backupLast: (when: string) => `Last backup: ${when}`,
-		backupNever: 'No backup has been made yet.',
-		backupFailed: (error: string) => `Failed: ${error}`,
-		backupNow: 'Run now',
-		backupRunning: 'Running …',
-		backupFiles: 'Existing backups',
-		backupNone: 'No backups yet.',
-		backupDownload: 'Download',
-		backupDeleteQuestion: 'Delete this backup?',
-		backupSizes: (database: string, backups: string) =>
-			`Database: ${database} · Backups in total: ${backups}`,
-		backupRestore: 'How to restore a backup is described in the documentation:',
-		backupRestoreLink: 'Backups and restore',
+		maintenanceHint: 'Tasks, storage, backups',
 		dataBusy: 'Importing …',
 		dataNowColumn: 'Now',
 		dataAfterColumn: 'Afterwards',
@@ -560,6 +535,61 @@ export const en: Messages = {
 			'Own cautious estimate for vacuum-sealed food (no public body publishes such figures)'
 	},
 
+	maintenance: {
+		intro: (timeZone) =>
+			`These tasks run automatically in the background. Times are in the server's time zone (${timeZone}).`,
+		tasks: {
+			notifications: {
+				name: 'Send notifications',
+				description:
+					'Sends the reminders about what expires soon – from the hour chosen under “Notifications”. Always runs; with reminders switched off there, nothing happens.'
+			},
+			optimize: {
+				name: 'Database care',
+				description: 'Tidies up the database and makes the file more compact.'
+			},
+			sessions: {
+				name: 'Delete expired logins',
+				description: 'Removes logins that are no longer valid anyway.'
+			},
+			backup: {
+				name: 'Backup',
+				description: 'Saves a copy of the database in the folder /data/backups.'
+			}
+		},
+		frequency: 'How often',
+		frequencies: { hourly: 'Hourly', daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' },
+		time: 'Time',
+		weekday: 'Weekday',
+		resetSchedule: 'Back to the default schedule',
+		hourlyHint: 'At the start of every hour.',
+		monthlyHint: 'On the 1st of every month.',
+		lastRun: (date) => `Last run: ${date}`,
+		neverRun: 'Never run yet',
+		nextRun: (date) => `Next run: ${date}`,
+		freed: (size) => `${size} freed`,
+		stored: {
+			optimize: (size) => `Database size: ${size}`,
+			backup: (size) => `All backups: ${size}`
+		},
+		off: 'Switched off',
+		failed: 'Failed:',
+		running: 'Running …',
+		runNow: 'Run now',
+		done: 'Done ✓',
+		stillRunning: 'Still running in the background – reload the page later to see the result.',
+		keep: 'How many backups to keep',
+		volumeHint:
+			'Do you back up the whole Docker volume instead? Then copy it while the container is stopped – or always copy the three files hdpantry.db, hdpantry.db-wal and hdpantry.db-shm together. Otherwise the copy of the database may be incomplete.',
+		backups: 'Existing backups',
+		noBackups: 'No backups yet.',
+		download: 'Download',
+		deleteQuestion: 'Delete this backup?',
+		deleteAll: 'Delete all',
+		deleteAllConfirm: 'Really delete all?',
+		restoreHint: 'How to restore a backup is described in the documentation:',
+		restoreLink: 'Backups and restore'
+	},
 	notifications: {
 		title: 'Notifications',
 		navHint: 'Reminders, targets',
