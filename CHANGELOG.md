@@ -2,7 +2,14 @@
 
 All notable changes to hdpantry. Each version is also published as a [GitHub release](https://github.com/dvnkln/hdpantry/releases) with a ready-to-use Docker image.
 
-<!-- Changes since the last release are collected under "## 0.2.0 – 2026-10-11
+<!-- Changes since the last release are collected right below this comment, under a second-level
+     heading "Upcoming release" – it only exists while there are such changes. On release it
+     becomes "X.Y.Z – date". Sections (leave out empty ones): ✨ New, 🔧 Improved, 🐛 Fixed,
+     🗑️ Removed, and on release ⬆️ Updating (what users have to do when updating).
+     This comment spells no heading out with its "#" signs on purpose: a search for the heading
+     must not land in here (it did, and a release section ended up hidden inside the comment). -->
+
+## 0.2.0 – 2026-10-11
 
 Scanning gets a second way in: besides QR codes and barcodes, hdpantry can now read a code that is printed as text.
 
