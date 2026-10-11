@@ -145,19 +145,39 @@ body {
 }
 
 /* Main button (filled) and error box of forms */
-/* Note under a name: plain text line, a thin line appears only while typing */
+/* Note under a name: a small symbol and a plain text line; a thin line appears only while
+   typing. Starts at the left edge like the other optional lines of the form. */
 @utility note-line {
-	border: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
 	border-bottom: 1px solid transparent;
-	border-radius: 0;
-	background: transparent;
-	padding: 0.25rem 0.125rem;
-	font-size: 0.9375rem;
+	padding: 0.125rem 0;
 	color: var(--muted);
-	&:focus-visible {
-		outline: none;
-		border-bottom-color: var(--accent);
+	transition:
+		color 100ms,
+		border-color 100ms;
+	& input {
+		min-width: 0;
+		flex: 1;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		padding: 0.125rem 0;
+		font-size: 0.875rem;
 		color: var(--text);
+		outline: none;
+		&::placeholder {
+			color: var(--muted);
+			opacity: 1;
+		}
+	}
+	&:hover {
+		color: var(--text);
+	}
+	&:focus-within {
+		border-bottom-color: var(--accent);
+		color: var(--accent);
 	}
 }
 /* Small fields for the optional amount */

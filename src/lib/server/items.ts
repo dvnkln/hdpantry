@@ -6,6 +6,12 @@ import { containers, items } from './db/schema';
 
 export type Item = typeof items.$inferSelect;
 
+// The day a content went in (YYYY-MM-DD): the one set by hand, else the day it was recorded,
+// in the time zone of the server (TZ).
+export function sinceOf(item: { storedOn: string | null; createdAt: Date }) {
+	return item.storedOn ?? item.createdAt.toLocaleDateString('sv-SE');
+}
+
 // What is in the container right now, if anything.
 export function activeItem(containerId: number) {
 	return getDb()
@@ -56,7 +62,8 @@ export function listStock() {
 			code: containers.code,
 			size: containers.size,
 			source: containers.source,
-			createdAt: items.createdAt
+			createdAt: items.createdAt,
+			storedOn: items.storedOn
 		})
 		.from(items)
 		.innerJoin(containers, eq(items.containerId, containers.id))

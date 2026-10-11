@@ -280,7 +280,7 @@ export const en: Messages = {
 		],
 		namePlaceholder: (example: string) => `e.g. ${example}`,
 		note: 'Note',
-		notePlaceholder: 'Add a note (optional)',
+		notePlaceholder: 'Add a note',
 		vacuumed: 'Vacuum-sealed',
 		location: 'Stored in',
 		bestBeforeOptional: 'Best before (optional)',
@@ -305,10 +305,15 @@ export const en: Messages = {
 		bestBefore: 'Best before',
 		noDate: 'No date',
 		since: 'Since',
+		storedSince: 'Stored since',
+		today: 'today',
+		sinceChange: 'Change since when it is stored',
+		sinceReset: 'Back to today',
 		problems: {
 			name: 'Please enter a name.',
 			location: 'Please choose where it is stored.',
 			date: 'The date is not valid.',
+			since: '“Since” must be a valid date and cannot be in the future.',
 			fill: 'Please choose a fill level.',
 			amount: 'Amount: please enter a number above 0 (99999 at most) and a unit.'
 		}

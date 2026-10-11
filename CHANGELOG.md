@@ -7,6 +7,12 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      "## X.Y.Z – date". Sections (leave out empty ones): ### ✨ New, ### 🔧 Improved, ### 🐛 Fixed,
      ### 🗑️ Removed, and on release ### ⬆️ Updating (what users have to do when updating). -->
 
+## Upcoming release
+
+### ✨ New
+
+- **Since** – recording something that has been in the freezer for a few days? Set the day it went in; the suggested best-before date counts from there. It can be corrected later, too
+
 ## 0.1.0 – 2026-10-06
 
 First release.

@@ -12,7 +12,7 @@
 	<ItemForm
 		initial={data.item}
 		source={data.container.source}
-		from={data.from}
+		today={data.today}
 		memory={data.memory}
 		submitLabel={m.common.save}
 		cancelHref="/containers/{data.container.id}"

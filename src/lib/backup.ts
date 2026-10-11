@@ -20,7 +20,8 @@ import {
 
 export const BACKUP_APP = 'hdpantry';
 // Raised whenever the file changes shape; older files must stay readable
-export const BACKUP_FORMAT = 1;
+// 2: contents may carry `storedOn` (files of format 1 have none)
+export const BACKUP_FORMAT = 2;
 // Larger files are refused (start.js allows uploads a bit above this)
 export const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
 const MAX_TEXT = 2000;
@@ -37,6 +38,8 @@ export type BackupItem = {
 	fill: FillLevel;
 	amount: number | null;
 	unit: Unit | null;
+	// The day it went in (YYYY-MM-DD) if set by hand; null = the day of createdAt
+	storedOn: string | null;
 	// Points in time as ISO text; removedAt null = still in the container
 	createdAt: string;
 	removedAt: string | null;
@@ -105,6 +108,8 @@ function readItem(value: unknown, where: string): BackupItem {
 	if (!isRecord(value)) bad(where);
 	const bestBefore = optionalText(value.bestBefore, `${where}.bestBefore`);
 	if (bestBefore !== null && !isDate(bestBefore)) bad(`${where}.bestBefore`);
+	const storedOn = optionalText(value.storedOn, `${where}.storedOn`);
+	if (storedOn !== null && !isDate(storedOn)) bad(`${where}.storedOn`);
 	const category = value.category ?? null;
 	if (category !== null && !isCategory(category)) bad(`${where}.category`);
 	// A symbol this version does not know is dropped, not refused
@@ -127,6 +132,7 @@ function readItem(value: unknown, where: string): BackupItem {
 		fill: oneOf(value.fill, FILL_LEVELS, `${where}.fill`),
 		amount: amount as number | null,
 		unit: unit === null ? null : oneOf(unit, UNITS, `${where}.unit`),
+		storedOn,
 		createdAt: moment(value.createdAt, `${where}.createdAt`),
 		removedAt:
 			value.removedAt === null || value.removedAt === undefined

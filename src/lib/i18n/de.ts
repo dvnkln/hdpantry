@@ -283,7 +283,7 @@ export const de = {
 		],
 		namePlaceholder: (example: string) => `z. B. ${example}`,
 		note: 'Notiz',
-		notePlaceholder: 'Notiz hinzufügen (optional)',
+		notePlaceholder: 'Notiz hinzufügen',
 		vacuumed: 'Vakuumiert',
 		location: 'Lagerort',
 		bestBeforeOptional: 'Haltbar bis (optional)',
@@ -309,10 +309,15 @@ export const de = {
 		bestBefore: 'Haltbar bis',
 		noDate: 'Kein Datum',
 		since: 'Seit',
+		storedSince: 'Gelagert seit',
+		today: 'heute',
+		sinceChange: 'Ändern, seit wann es gelagert ist',
+		sinceReset: 'Zurück auf heute',
 		problems: {
 			name: 'Bitte einen Namen eingeben.',
 			location: 'Bitte einen Lagerort wählen.',
 			date: 'Das Datum ist ungültig.',
+			since: '„Seit“ muss ein gültiges Datum sein und darf nicht in der Zukunft liegen.',
 			fill: 'Bitte einen Füllstand wählen.',
 			amount: 'Menge: bitte eine Zahl größer als 0 (höchstens 99999) und eine Einheit.'
 		}

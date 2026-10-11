@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ItemValues } from '$lib/items';
 import { addScanned, containerOverview, deleteContainer, openTyped } from './containers';
 import { getDb } from './db';
@@ -12,6 +12,7 @@ import {
 	recentNames,
 	removeActiveItem,
 	replaceItem,
+	sinceOf,
 	updateActiveItem,
 	vacuumDefault
 } from './items';
@@ -23,6 +24,7 @@ const lentils: ItemValues = {
 	location: 'freezer',
 	bestBefore: '2027-01-15',
 	dateManual: false,
+	storedOn: null,
 	category: 'other',
 	icon: null,
 	fill: 'medium',
@@ -165,4 +167,22 @@ it('recent names: the latest first, each once, eaten ones included', () => {
 	expect(names.length).toBeGreaterThan(1);
 	expect(recentNames(2)).toHaveLength(2);
 	removeActiveItem(bag.id);
+});
+
+describe('since when a content is in its container', () => {
+	it('is the day it was recorded unless set by hand, and can be corrected', () => {
+		const c = addScanned('SINCE-1', 'camera')!;
+		const added = addItem(c.id, lentils)!;
+		expect(added.storedOn).toBeNull();
+		expect(sinceOf(added)).toBe(added.createdAt.toLocaleDateString('sv-SE'));
+
+		updateActiveItem(c.id, { ...lentils, storedOn: '2026-09-01' });
+		expect(sinceOf(activeItem(c.id)!)).toBe('2026-09-01');
+		expect(listStock().find((item) => item.containerId === c.id)?.storedOn).toBe('2026-09-01');
+
+		// Replacing starts anew: the new content has its own day
+		const next = replaceItem(c.id, { ...lentils, name: 'Peas', storedOn: '2026-10-01' });
+		expect(sinceOf(next)).toBe('2026-10-01');
+		expect(containerHistory(c.id, 1)[0].storedOn).toBe('2026-09-01');
+	});
 });

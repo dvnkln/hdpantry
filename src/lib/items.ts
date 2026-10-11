@@ -25,6 +25,8 @@ export type ItemValues = {
 	bestBefore: string | null;
 	// The date was typed by hand, not suggested
 	dateManual: boolean;
+	// The day the content went in, YYYY-MM-DD; null = the day it is recorded
+	storedOn: string | null;
 	// Kind of food ('other' = not known) and its symbol
 	category: Category;
 	icon: string | null;
@@ -34,7 +36,7 @@ export type ItemValues = {
 	unit: Unit | null;
 };
 
-export type ItemProblem = 'name' | 'location' | 'date' | 'fill' | 'amount';
+export type ItemProblem = 'name' | 'location' | 'date' | 'since' | 'fill' | 'amount';
 
 // A real calendar day in the form YYYY-MM-DD
 export function isDate(text: string) {
@@ -74,9 +76,11 @@ function oneLine(value: FormDataEntryValue | null, max: number) {
 		.slice(0, max);
 }
 
-// Reads the form. Returns the values, or which field is wrong.
+// Reads the form. Returns the values, or which field is wrong. `today` (YYYY-MM-DD): the content
+// cannot have gone in later than that.
 export function readItemForm(
-	data: FormData
+	data: FormData,
+	today: string
 ): { values: ItemValues; problem?: undefined } | { problem: ItemProblem; values?: undefined } {
 	const name = oneLine(data.get('name'), MAX_ITEM_NAME);
 	if (!name) return { problem: 'name' };
@@ -91,6 +95,9 @@ export function readItemForm(
 
 	const date = String(data.get('bestBefore') ?? '').trim();
 	if (date && !isDate(date)) return { problem: 'date' };
+
+	const storedOn = String(data.get('storedOn') ?? '').trim();
+	if (storedOn && (!isDate(storedOn) || storedOn > today)) return { problem: 'since' };
 
 	const fill = String(data.get('fill') ?? '');
 	if (!(FILL_LEVELS as readonly string[]).includes(fill)) return { problem: 'fill' };
@@ -118,6 +125,7 @@ export function readItemForm(
 			location: location as Location,
 			bestBefore: date || null,
 			dateManual: data.get('dateManual') === '1',
+			storedOn: storedOn || null,
 			category,
 			icon: oneLine(data.get('icon'), MAX_ICON_NAME) || null,
 			fill: fill as FillLevel,

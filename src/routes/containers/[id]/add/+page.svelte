@@ -26,6 +26,7 @@
 			location: data.location,
 			bestBefore: null,
 			dateManual: false,
+			storedOn: null,
 			category: 'other',
 			icon: null,
 			fill: 'full',
@@ -33,7 +34,7 @@
 			unit: null
 		}}
 		source={data.container.source}
-		from={data.today}
+		today={data.today}
 		memory={data.memory}
 		history={data.history}
 		recent={data.recent}

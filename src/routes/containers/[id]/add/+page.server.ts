@@ -10,9 +10,13 @@ import {
 	lastLocation,
 	recentNames,
 	replaceItem,
+	sinceOf,
 	vacuumDefault
 } from '$lib/server/items';
 import type { Actions, PageServerLoad } from './$types';
+
+// Today in the time zone of the server (TZ)
+const today = () => new Date().toLocaleDateString('sv-SE');
 
 export const load: PageServerLoad = ({ params, locals, url }) => {
 	const c = containerOf(params.id, locals.locale);
@@ -30,7 +34,7 @@ export const load: PageServerLoad = ({ params, locals, url }) => {
 		// The switch "vacuum-sealed" starts as it fits this container
 		vacuumed: vacuumDefault(c),
 		// Today in the time zone of the server (TZ): suggested dates count from here
-		today: new Date().toLocaleDateString('sv-SE'),
+		today: today(),
 		memory: foodMemoryAll(),
 		recent: recentNames(),
 		history: containerHistory(c.id).map((item) => ({
@@ -44,7 +48,7 @@ export const load: PageServerLoad = ({ params, locals, url }) => {
 			fill: item.fill,
 			amount: item.amount,
 			unit: item.unit,
-			createdAt: item.createdAt.toISOString()
+			since: sinceOf(item)
 		}))
 	};
 };
@@ -53,7 +57,7 @@ export const actions: Actions = {
 	default: async ({ params, request, locals, url }) => {
 		const t = serverMessages(locals.locale);
 		const c = containerOf(params.id, locals.locale);
-		const { values, problem } = readItemForm(await request.formData());
+		const { values, problem } = readItemForm(await request.formData(), today());
 		if (!values) return fail(400, { error: t.item.problems[problem] });
 		if (url.searchParams.has('replace')) replaceItem(c.id, values);
 		else if (!addItem(c.id, values)) return fail(409, { error: t.item.alreadyFull });

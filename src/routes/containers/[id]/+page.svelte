@@ -93,7 +93,7 @@
 				<dt class="text-muted">{m.item.vacuumed}</dt>
 				<dd>{item.vacuumed ? m.common.yes : m.common.no}</dd>
 				<dt class="text-muted">{m.item.since}</dt>
-				<dd>{formatDate(item.createdAt)}</dd>
+				<dd>{formatDate(item.since)}</dd>
 				<dt class="text-muted">{m.containers.container}</dt>
 				<dd>
 					{codeLabel(container)}
@@ -169,7 +169,7 @@
 				{#each data.history as entry (entry.id)}
 					<li class="flex items-center gap-3 border-b border-line px-4 py-3 last:border-b-0">
 						<span class="min-w-0 flex-1 truncate font-medium">{entry.name}</span>
-						<span class="shrink-0 text-sm text-muted">{formatDate(entry.createdAt)}</span>
+						<span class="shrink-0 text-sm text-muted">{formatDate(entry.since)}</span>
 					</li>
 				{/each}
 			</ul>

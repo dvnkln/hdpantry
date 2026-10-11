@@ -1,0 +1,1 @@
+ALTER TABLE `items` ADD `stored_on` text;

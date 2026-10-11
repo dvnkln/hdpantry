@@ -38,6 +38,7 @@ export function exportBackup(now = new Date()): Backup {
 						fill: item.fill,
 						amount: item.amount,
 						unit: item.unit,
+						storedOn: item.storedOn,
 						createdAt: item.createdAt.toISOString(),
 						removedAt: item.removedAt?.toISOString() ?? null
 					}))

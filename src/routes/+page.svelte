@@ -361,7 +361,7 @@
 									{codeLabel(item)}
 								</td>
 								<td class="hidden p-3 whitespace-nowrap text-muted xl:table-cell">
-									{formatDate(item.createdAt)}
+									{formatDate(item.since)}
 								</td>
 							</tr>
 						{/each}

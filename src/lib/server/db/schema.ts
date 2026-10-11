@@ -80,6 +80,9 @@ export const items = sqliteTable(
 		createdAt: integer('created_at', { mode: 'timestamp' })
 			.notNull()
 			.$defaultFn(() => new Date()),
+		// The day the content went in, YYYY-MM-DD, if it is not the day it was recorded
+		// (something that has been in the freezer for a while); empty = the day of created_at
+		storedOn: text('stored_on'),
 		// Empty = still in the container
 		removedAt: integer('removed_at', { mode: 'timestamp' })
 	},

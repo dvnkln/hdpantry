@@ -15,13 +15,21 @@ const cheese = {
 	location: 'fridge',
 	bestBefore: '2031-03-01',
 	dateManual: true,
+	storedOn: '2031-01-20',
 	category: 'cheese_hard',
 	icon: 'cheese-wedge',
 	fill: 'medium',
 	amount: 250,
 	unit: 'g'
 } as const;
-const soup = { ...cheese, name: 'Lentil soup', note: null, category: 'other', icon: null } as const;
+const soup = {
+	...cheese,
+	name: 'Lentil soup',
+	note: null,
+	category: 'other',
+	icon: null,
+	storedOn: null
+} as const;
 
 // An export as text, optionally changed first – the way a damaged file would arrive
 function fileWith(change: (data: Backup) => void = () => {}) {
@@ -100,6 +108,29 @@ describe('reading an export file', () => {
 	});
 	it('refuses a file from a newer version', () => {
 		expect(problemOf(fileWith((d) => (d.format = BACKUP_FORMAT + 1)))).toEqual({ kind: 'newer' });
+	});
+	it('reads a file of the first format, which has no day the content went in', () => {
+		const old = fileWith((d) => {
+			d.format = 1;
+			for (const container of d.containers) {
+				for (const item of container.items) delete (item as { storedOn?: unknown }).storedOn;
+			}
+		});
+		const parsed = parseBackup(old);
+		expect(parsed.ok).toBe(true);
+		if (!parsed.ok) return;
+		const all = parsed.backup.containers.flatMap((container) => container.items);
+		expect(all.length).toBeGreaterThan(0);
+		expect(all.every((item) => item.storedOn === null)).toBe(true);
+	});
+	it('refuses a day that is none', () => {
+		const problem = problemOf(
+			fileWith((d) => {
+				const filled = d.containers.find((container) => container.items.length > 0)!;
+				filled.items[0].storedOn = '2031-02-30';
+			})
+		);
+		expect(problem).toMatchObject({ kind: 'invalid' });
 	});
 	it('names the place that is damaged', () => {
 		const where = (change: (data: Backup) => void) => {

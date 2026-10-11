@@ -27,6 +27,7 @@ const food = (name: string): ItemValues => ({
 	location: 'fridge',
 	bestBefore: null,
 	dateManual: false,
+	storedOn: null,
 	category: 'other',
 	icon: null,
 	fill: 'full',

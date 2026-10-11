@@ -7,11 +7,14 @@ function form(values: Record<string, string>) {
 	return data;
 }
 const base = { name: 'Lentils', location: 'freezer', fill: 'medium' };
+const TODAY = '2026-10-10';
+// The form as the server reads it on that day
+const read = (data: FormData) => readItemForm(data, TODAY);
 
 describe('reading the form', () => {
 	it('takes a complete entry', () => {
 		expect(
-			readItemForm(
+			read(
 				form({
 					...base,
 					name: '  Lentil   soup ',
@@ -29,6 +32,7 @@ describe('reading the form', () => {
 			location: 'freezer',
 			bestBefore: '2027-01-15',
 			dateManual: false,
+			storedOn: null,
 			category: 'other',
 			icon: null,
 			fill: 'medium',
@@ -37,7 +41,7 @@ describe('reading the form', () => {
 		});
 	});
 	it('note, date and amount are optional; the switch may be off', () => {
-		expect(readItemForm(form({ ...base, unit: 'kg' })).values).toMatchObject({
+		expect(read(form({ ...base, unit: 'kg' })).values).toMatchObject({
 			note: null,
 			vacuumed: false,
 			bestBefore: null,
@@ -46,7 +50,7 @@ describe('reading the form', () => {
 		});
 	});
 	it('takes kind of food, symbol and whether the date was typed by hand', () => {
-		const { values } = readItemForm(
+		const { values } = read(
 			form({
 				...base,
 				category: 'fish_raw',
@@ -56,38 +60,43 @@ describe('reading the form', () => {
 			})
 		);
 		expect(values).toMatchObject({ category: 'fish_raw', icon: 'fish', dateManual: true });
-		expect(readItemForm(form({ ...base, category: 'nonsense' })).values?.category).toBe('other');
+		expect(read(form({ ...base, category: 'nonsense' })).values?.category).toBe('other');
 	});
 	it('refuses a place that must not be used for the kind of food', () => {
-		expect(readItemForm(form({ ...base, category: 'fish_raw', location: 'pantry' })).problem).toBe(
+		expect(read(form({ ...base, category: 'fish_raw', location: 'pantry' })).problem).toBe(
 			'location'
 		);
-		expect(
-			readItemForm(form({ ...base, category: 'bread', location: 'pantry' })).values
-		).toBeTruthy();
+		expect(read(form({ ...base, category: 'bread', location: 'pantry' })).values).toBeTruthy();
 	});
 	it('accepts decimals with comma or point', () => {
-		expect(readItemForm(form({ ...base, amount: '1,5', unit: 'kg' })).values).toMatchObject({
+		expect(read(form({ ...base, amount: '1,5', unit: 'kg' })).values).toMatchObject({
 			amount: 1.5,
 			unit: 'kg'
 		});
-		expect(readItemForm(form({ ...base, amount: '0.333', unit: 'l' })).values?.amount).toBe(0.33);
+		expect(read(form({ ...base, amount: '0.333', unit: 'l' })).values?.amount).toBe(0.33);
 	});
 	it('names the field that is wrong', () => {
-		expect(readItemForm(form({ ...base, name: '   ' })).problem).toBe('name');
-		expect(readItemForm(form({ ...base, location: 'garage' })).problem).toBe('location');
-		expect(readItemForm(form({ ...base, bestBefore: '15.01.2027' })).problem).toBe('date');
-		expect(readItemForm(form({ ...base, fill: 'overflowing' })).problem).toBe('fill');
+		expect(read(form({ ...base, name: '   ' })).problem).toBe('name');
+		expect(read(form({ ...base, location: 'garage' })).problem).toBe('location');
+		expect(read(form({ ...base, bestBefore: '15.01.2027' })).problem).toBe('date');
+		expect(read(form({ ...base, fill: 'overflowing' })).problem).toBe('fill');
 		for (const amount of ['0', '-5', 'many', '100000']) {
-			expect(readItemForm(form({ ...base, amount, unit: 'g' })).problem).toBe('amount');
+			expect(read(form({ ...base, amount, unit: 'g' })).problem).toBe('amount');
 		}
-		expect(readItemForm(form({ ...base, amount: '5', unit: 'buckets' })).problem).toBe('amount');
-		expect(readItemForm(form({ ...base, amount: '5' })).problem).toBe('amount');
+		expect(read(form({ ...base, amount: '5', unit: 'buckets' })).problem).toBe('amount');
+		expect(read(form({ ...base, amount: '5' })).problem).toBe('amount');
+	});
+	it('takes the day the content went in, up to today', () => {
+		expect(read(form(base)).values?.storedOn).toBeNull();
+		expect(read(form({ ...base, storedOn: '' })).values?.storedOn).toBeNull();
+		expect(read(form({ ...base, storedOn: '2026-10-05' })).values?.storedOn).toBe('2026-10-05');
+		expect(read(form({ ...base, storedOn: TODAY })).values?.storedOn).toBe(TODAY);
+		expect(read(form({ ...base, storedOn: '2026-10-11' })).problem).toBe('since');
+		expect(read(form({ ...base, storedOn: '05.10.2026' })).problem).toBe('since');
+		expect(read(form({ ...base, storedOn: '2026-02-30' })).problem).toBe('since');
 	});
 	it('cuts overlong texts', () => {
-		const { values } = readItemForm(
-			form({ ...base, name: 'x'.repeat(500), note: 'y'.repeat(900) })
-		);
+		const { values } = read(form({ ...base, name: 'x'.repeat(500), note: 'y'.repeat(900) }));
 		expect(values?.name).toHaveLength(80);
 		expect(values?.note).toHaveLength(300);
 	});

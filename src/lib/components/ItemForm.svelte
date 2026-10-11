@@ -11,6 +11,7 @@
 		MAX_ITEM_NAME,
 		MAX_ITEM_NOTE,
 		UNITS,
+		isDate,
 		scaleAmount,
 		type FillLevel,
 		type ItemValues,
@@ -29,16 +30,19 @@
 	import { ICONS } from '$lib/food/icons';
 	import { shelfLife, suggestDate } from '$lib/food/shelfLife';
 	import { LOCATION_ICONS } from '$lib/locations';
-	import { ChevronDown, Plus } from '@lucide/svelte';
+	import { CalendarClock, ChevronDown, NotebookPen, Plus, X } from '@lucide/svelte';
 
-	type Template = Omit<ItemValues, 'bestBefore' | 'dateManual'> & { id: number; createdAt: string };
+	type Template = Omit<ItemValues, 'bestBefore' | 'dateManual' | 'storedOn'> & {
+		id: number;
+		since: string;
+	};
 	type Memory = Record<string, { category: Category; icon: string | null }>;
 
 	let {
 		initial,
 		source = null,
 		nameFirst = false,
-		from,
+		today,
 		memory = {},
 		history = [],
 		recent = [],
@@ -56,8 +60,9 @@
 		source?: CodeSource | null;
 		// Ask only for the name first; the rest appears after Enter (new content)
 		nameFirst?: boolean;
-		// The day the content went in (YYYY-MM-DD): suggested dates count from here
-		from: string;
+		// Today (YYYY-MM-DD) in the time zone of the server: the day the content went in, unless
+		// `initial.storedOn` or the user says otherwise
+		today: string;
 		// What the user corrected earlier: kind of food and symbol by simplified name
 		memory?: Memory;
 		// Earlier contents of this container, the latest first: tapping one takes it as a template
@@ -125,6 +130,23 @@
 	// The symbol shown: the one picked by hand, else what name and kind of food suggest
 	let shownIcon = $derived(icon ?? suggestIcon(name, category));
 
+	// The day the content went in: suggested dates count from here. Today unless set back –
+	// for something that has been in the freezer for a while.
+	// svelte-ignore state_referenced_locally
+	let since = $state(initial.storedOn ?? today);
+	let sinceField = $state<HTMLInputElement>();
+	// Only for browsers that cannot open their calendar from a button
+	let sinceVisible = $state(false);
+	function pickSince() {
+		try {
+			sinceField?.showPicker();
+		} catch {
+			sinceVisible = true;
+		}
+	}
+	// An emptied or impossible field counts as today
+	let from = $derived(isDate(since) && since <= today ? since : today);
+	let backdated = $derived(from !== today);
 	let suggested = $derived(suggestDate(category, location, vacuumed, from));
 	let guide = $derived(shelfLife(category, location, vacuumed));
 	// The suggested date follows kind of food, place and vacuum – a date typed by hand stays
@@ -268,16 +290,19 @@
 			</div>
 		{/if}
 		{#if step === 2}
-			<!-- The note: a quiet line right under the name, no frame, no heading -->
-			<input
-				name="note"
-				bind:value={note}
-				maxlength={MAX_ITEM_NOTE}
-				placeholder={m.item.notePlaceholder}
-				aria-label={m.item.note}
-				autocomplete="off"
-				class="note-line"
-			/>
+			<!-- The note: a quiet line right under the name, no frame, no heading – drawn like the
+			     other optional lines of the form (small symbol, muted text) -->
+			<label class="note-line">
+				<NotebookPen size={16} class="shrink-0" />
+				<input
+					name="note"
+					bind:value={note}
+					maxlength={MAX_ITEM_NOTE}
+					placeholder={m.item.notePlaceholder}
+					aria-label={m.item.note}
+					autocomplete="off"
+				/>
+			</label>
 		{/if}
 	</div>
 
@@ -296,7 +321,7 @@
 								onclick={() => use(entry)}
 							>
 								<span class="min-w-0 flex-1 truncate font-medium">{entry.name}</span>
-								<span class="shrink-0 text-sm text-muted">{formatDate(entry.createdAt)}</span>
+								<span class="shrink-0 text-sm text-muted">{formatDate(entry.since)}</span>
 							</button>
 						</li>
 					{/each}
@@ -480,6 +505,49 @@
 					{m.item.useSuggestion} ({formatDate(suggested)})
 				</button>
 			{/if}
+			<!-- Since when it is stored: today, unless it has been in there for a while – the
+			     exception, so it is one quiet line and no field. Tapping it opens the calendar. -->
+			<div class="relative -ml-2 flex items-center self-start">
+				<button
+					type="button"
+					class="flex items-center gap-1.5 btn-quiet"
+					aria-label={m.item.sinceChange}
+					onclick={pickSince}
+				>
+					<CalendarClock size={16} />
+					<span>
+						{m.item.storedSince}
+						<span class="underline decoration-dotted underline-offset-4"
+							>{backdated ? formatDate(from) : m.item.today}</span
+						>
+					</span>
+				</button>
+				{#if backdated}
+					<button
+						type="button"
+						class="btn-quiet"
+						aria-label={m.item.sinceReset}
+						title={m.item.sinceReset}
+						onclick={() => (since = today)}
+					>
+						<X size={16} />
+					</button>
+				{/if}
+				<!-- The calendar of the browser hangs on this field; it is only seen where the
+				     browser cannot open its calendar from a button -->
+				<input
+					bind:this={sinceField}
+					type="date"
+					name="storedOn"
+					max={today}
+					bind:value={since}
+					aria-label={m.item.since}
+					tabindex={sinceVisible ? 0 : -1}
+					class={sinceVisible
+						? 'ml-2 amount-field'
+						: 'pointer-events-none absolute bottom-0 left-2 size-px opacity-0'}
+				/>
+			</div>
 			<!-- Wherever a date is suggested, say what it is worth -->
 			<p class="text-xs text-muted">
 				{#if guide}
