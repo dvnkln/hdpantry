@@ -97,6 +97,10 @@ export const de = {
 		photoFailed: 'Das Foto konnte nicht gelesen werden.',
 		manual: 'Code eintippen',
 		manualHint: 'Der Kurzcode steht meist unter dem QR-Code auf dem Behälter.',
+		hintShow: 'Hinweis anzeigen',
+		stuckShort: 'Nicht lesbar? Kurzcode unten eintippen.',
+		lightOn: 'Licht einschalten',
+		lightOff: 'Licht ausschalten',
 		create: 'Anlegen',
 		createHint: 'Diesen Code gibt es noch nicht – es wird ein neuer Behälter angelegt.',
 		openHint: (content: string | null) =>
@@ -144,6 +148,23 @@ export const de = {
 		length: (n: number) => `${n} Zeichen`,
 		isUrl: 'Web-Adresse',
 		sources: { camera: 'Kamera', photo: 'Foto' },
+		finished: 'Fertig – die Kamera hat angehalten. Das Ergebnis steht unter „Leser im Vergleich“.',
+		again: 'Noch einmal mit der Kamera',
+		camera: (width: number, height: number, light: boolean, tapFocus: boolean) =>
+			`Kamera: ${width} × ${height} · Licht: ${light ? 'ja' : 'nein'} · Antippen zum Scharfstellen: ${tapFocus ? 'ja' : 'nein'}`,
+		focusModes: (modes: string) => `Schärfe-Arten: ${modes}`,
+		// The two readers side by side
+		compare: 'Leser im Vergleich',
+		compareHint:
+			'Jedes Bild wird von beiden Lesern gelesen. So sieht man, welcher auf diesem Gerät mehr findet.',
+		readers: { native: 'Eingebaut (Browser)', bundled: 'Mitgeliefert (App)' },
+		unavailable: 'gibt es in diesem Browser nicht',
+		noPictures: 'noch kein Bild gelesen',
+		stats: (hits: number, tried: number, ms: number) =>
+			`in ${hits} von ${tried} ${tried === 1 ? 'Bild' : 'Bildern'} gefunden · im Schnitt ${ms} ms`,
+		firstHit: (n: number) =>
+			n === 1 ? 'erster Treffer im 1. Bild' : `erster Treffer nach ${n} Bildern`,
+		foundBy: (names: string) => `gefunden von: ${names}`,
 		formats: {
 			qr_code: 'QR-Code',
 			data_matrix: 'Data Matrix',

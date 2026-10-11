@@ -95,6 +95,10 @@ export const en: Messages = {
 		photoFailed: 'The photo could not be read.',
 		manual: 'Type a code',
 		manualHint: 'The short code is usually printed below the QR code on the container.',
+		hintShow: 'Show the hint',
+		stuckShort: 'Not readable? Type the short code below.',
+		lightOn: 'Switch the light on',
+		lightOff: 'Switch the light off',
 		create: 'Create',
 		createHint: 'This code is new – a new container will be created.',
 		openHint: (content) =>
@@ -141,6 +145,22 @@ export const en: Messages = {
 		length: (n: number) => `${n} characters`,
 		isUrl: 'Web address',
 		sources: { camera: 'Camera', photo: 'Photo' },
+		finished: 'Done – the camera has stopped. The result is under “Readers compared”.',
+		again: 'Once more with the camera',
+		camera: (width: number, height: number, light: boolean, tapFocus: boolean) =>
+			`Camera: ${width} × ${height} · light: ${light ? 'yes' : 'no'} · tap to focus: ${tapFocus ? 'yes' : 'no'}`,
+		focusModes: (modes: string) => `Focus modes: ${modes}`,
+		// The two readers side by side
+		compare: 'Readers compared',
+		compareHint:
+			'Every picture is read by both readers. That shows which one finds more on this device.',
+		readers: { native: 'Built in (browser)', bundled: 'Bundled (app)' },
+		unavailable: 'not available in this browser',
+		noPictures: 'no picture read yet',
+		stats: (hits: number, tried: number, ms: number) =>
+			`found in ${hits} of ${tried} ${tried === 1 ? 'picture' : 'pictures'} · ${ms} ms on average`,
+		firstHit: (n: number) => (n === 1 ? 'first hit in picture 1' : `first hit after ${n} pictures`),
+		foundBy: (names: string) => `found by: ${names}`,
 		formats: {
 			qr_code: 'QR code',
 			data_matrix: 'Data Matrix',

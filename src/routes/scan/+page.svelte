@@ -133,7 +133,7 @@
 
 		<div class="mt-6 flex flex-col gap-4">
 			{#if cameraOn}
-				<CameraScanner onscan={(code) => found(code.text, 'camera')} />
+				<CameraScanner onscan={(code) => found(code.text, 'camera')} idleHint={m.scan.stuckShort} />
 			{:else}
 				<button
 					type="button"

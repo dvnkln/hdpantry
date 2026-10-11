@@ -13,6 +13,12 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 
 - **Since** – recording something that has been in the freezer for a few days? Set the day it went in; the suggested best-before date counts from there. It can be corrected later, too
 
+### 🔧 Improved
+
+- **Scanning** – the camera now asks for a sharper picture and keeps focusing; phones with a lamp get a light button in the camera picture, and where the camera allows it, tapping the picture focuses there
+- **Code not readable?** – if the camera finds nothing for a few seconds, a short note in the camera picture points to typing the short code printed below the QR code, then tucks itself away behind an info button next to the light
+- **Check a code** – reads every picture with both readers (the browser's own, the bundled one), shows which one found the code and how fast, stops by itself and lists what the camera of the device can do
+
 ## 0.1.0 – 2026-10-06
 
 First release.
