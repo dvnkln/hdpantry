@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import CameraScanner from '$lib/components/CameraScanner.svelte';
 	import { m } from '$lib/i18n/index.svelte';
+	import { prepareReader, readText } from '$lib/reader/engine';
+	import { addLines, surelyRead, type Seen } from '$lib/reader/tally';
 	import {
 		looksLikeUrl,
 		READERS,
@@ -11,6 +13,8 @@
 		type Reader
 	} from '$lib/scanner';
 	import { ArrowLeft, Camera, Check, Copy, ImageUp, Trash2 } from '@lucide/svelte';
+
+	let { data } = $props();
 
 	type Source = 'camera' | 'photo';
 	type Entry = Code & { id: number; source: Source; readers: Reader[] };
@@ -23,12 +27,86 @@
 	// What the camera of this device offers – told by the camera once it runs
 	let camera = $state<CameraInfo | null>(null);
 	let photoMessage = $state('');
+	// How long the reader took to get ready (for the log)
+	let readyMs = 0;
 	let copied = $state<number | 'all' | null>(null);
 
 	// Phones start the camera right away; on a computer it is only a button.
 	onMount(() => {
-		cameraOn = window.matchMedia('(pointer: coarse)').matches;
+		// Get the reader for printed text ready while the camera starts
+		const asked = performance.now();
+		prepareReader()
+			.then(() => (readyMs = Math.round(performance.now() - asked)))
+			.catch(() => {});
+		if (window.matchMedia('(pointer: coarse)').matches) startCamera();
 	});
+
+	// ---- Printed text (e.g. the short code below a QR code) ----
+	// Read next to the codes: from every photo, and from the camera every now and then – it
+	// takes longer than reading a code, and one reading at a time is enough.
+	const TEXT_EVERY_MS = 1500;
+	// Read the way the scan page will: for the short code of a container
+	const PRINTED_CODE = '^[A-Z0-9]{4}$';
+	// What was read stays: every line with its best reading and how often it came, and the
+	// times added up – so the result is still there when one comes back from the freezer.
+	type TextState = {
+		seen: Seen[];
+		runs: number;
+		threads: number;
+		error: string;
+		// Every reading on its own, for the log: finding ms, reading ms, lines found
+		each: [number, number, number][];
+		// How long getting ready took when this page asked for it
+		readyMs: number;
+		ms: { loading: number; finding: number; reading: number };
+		busy: boolean;
+		failed: boolean;
+	};
+	const noText = (): TextState => ({
+		seen: [],
+		runs: 0,
+		threads: 0,
+		error: '',
+		each: [],
+		readyMs: 0,
+		ms: { loading: 0, finding: 0, reading: 0 },
+		busy: false,
+		failed: false
+	});
+	let text = $state(noText());
+	let lastText = 0;
+	// Tells readings of an earlier attempt apart, which may still arrive after a new start
+	let attempt = 0;
+
+	async function readPrinted(picture: ImageBitmap, square = false) {
+		if (text.busy) return;
+		const mine = attempt;
+		text.busy = true;
+		lastText = Date.now();
+		try {
+			// From the camera only what the page shows of the frame: its middle square
+			const reading = await readText(picture, { square, code: PRINTED_CODE });
+			if (mine !== attempt) return;
+			text.seen = addLines(text.seen, reading.lines);
+			text.runs++;
+			text.threads = reading.threads;
+			text.each.push([reading.ms.finding, reading.ms.reading, reading.lines.length]);
+			text.readyMs = readyMs;
+			// Getting ready happens once; finding and reading are shown on average
+			text.ms.loading = Math.max(text.ms.loading, reading.ms.loading);
+			text.ms.finding += reading.ms.finding;
+			text.ms.reading += reading.ms.reading;
+			text.failed = false;
+		} catch (err) {
+			console.error('Reading the text failed', err);
+			if (mine === attempt) {
+				text.failed = true;
+				text.error = err instanceof Error ? err.message : String(err);
+			}
+		} finally {
+			if (mine === attempt) text.busy = false;
+		}
+	}
 
 	// Both readers get every picture, so one sees which of them finds more on this device
 	type Stats = { tried: number; hits: number; ms: number; first: number | null; missing: boolean };
@@ -66,11 +144,58 @@
 		return code;
 	}
 
-	// The camera stops by itself once the comparison is settled: every reader this browser has
-	// found the code – or one did and the other still has nothing a few seconds later.
+	// Development only (see +page.server.ts): what came out of an attempt goes to the log of the
+	// server – the numbers and what the reader saw as text, never the content of a code.
+	function report(source: Source, why: string) {
+		if (!data.diagnostics) return;
+		const body = new FormData();
+		body.set(
+			'summary',
+			JSON.stringify({
+				source,
+				why,
+				isolated: window.crossOriginIsolated,
+				cores: navigator.hardwareConcurrency,
+				camera,
+				readers: stats,
+				text: {
+					runs: text.runs,
+					threads: text.threads,
+					busy: text.busy,
+					failed: text.failed,
+					error: text.error,
+					ms: text.ms,
+					readyMs: text.readyMs,
+					each: text.each,
+					seen: text.seen.slice(0, 8)
+				},
+				agent: navigator.userAgent
+			})
+		);
+		send(JSON.parse(String(body.get('summary'))));
+	}
+
+	function send(summary: unknown) {
+		const body = new FormData();
+		body.set('summary', JSON.stringify(summary));
+		fetch('?/log', { method: 'POST', body, headers: { 'x-sveltekit-action': 'true' } }).catch(
+			() => {}
+		);
+	}
+
+	// The camera stops by itself, and says why:
+	// - 'code': every reader this browser has found the code – or one did and the other still
+	//   has nothing a few seconds later. A reading of the text that is under way may finish.
+	// - 'text': a line of text was read sure more than once (see tally.ts)
+	// - 'time': neither happened for a while
 	const GRACE_MS = 5000;
+	const TEXT_GRACE_MS = 3000;
+	const GIVE_UP_MS = 20_000;
+	type Why = 'code' | 'text' | 'time';
 	let firstHitAt = 0;
-	let finished = $state(false);
+	let settledAt = 0;
+	let startedAt = 0;
+	let finished = $state<Why | null>(null);
 
 	function settled() {
 		const there = READERS.filter((reader) => !stats[reader].missing);
@@ -80,14 +205,32 @@
 		return found.length === there.length || Date.now() - firstHitAt > GRACE_MS;
 	}
 
+	function whyStop(): Why | null {
+		if (settled()) {
+			settledAt ||= Date.now();
+			// In the test container the text gets a few readings even after the code was found,
+			// so its speed can be measured with any container at the desk
+			if (data.diagnostics) {
+				return text.runs >= 4 || Date.now() - settledAt > 15_000 ? 'code' : null;
+			}
+			return !text.busy || Date.now() - settledAt > TEXT_GRACE_MS ? 'code' : null;
+		}
+		if (surelyRead(text.seen) && (!data.diagnostics || text.runs >= 4)) return 'text';
+		return Date.now() - startedAt > GIVE_UP_MS ? 'time' : null;
+	}
+
 	// A frame of the camera: frozen first, so both readers see exactly the same picture
 	async function readFrame(video: HTMLVideoElement) {
 		const picture = await createImageBitmap(video);
 		try {
+			// Not awaited: the codes are read on while the text takes its time
+			if (!text.busy && Date.now() - lastText > TEXT_EVERY_MS) void readPrinted(picture, true);
 			const code = await compare(picture, 'camera');
-			if (settled()) {
-				finished = true;
+			const why = whyStop();
+			if (why) {
+				finished = why;
 				cameraOn = false;
+				report('camera', why);
 			}
 			return code;
 		} finally {
@@ -95,21 +238,27 @@
 		}
 	}
 
+	function reset() {
+		attempt++;
+		stats = fresh();
+		text = noText();
+		lastListed = '';
+		lastText = 0;
+		firstHitAt = 0;
+		settledAt = 0;
+		startedAt = Date.now();
+		finished = null;
+	}
+
 	// A new attempt with the camera counts from zero; the codes read so far stay listed
 	function startCamera() {
-		stats = fresh();
-		lastListed = '';
-		firstHitAt = 0;
-		finished = false;
+		reset();
 		cameraOn = true;
 	}
 
 	function clear() {
 		entries = [];
-		stats = fresh();
-		lastListed = '';
-		firstHitAt = 0;
-		finished = false;
+		reset();
 	}
 
 	// The photo is read here in the browser and never uploaded.
@@ -121,8 +270,12 @@
 		photoMessage = m.scan.photoReading;
 		try {
 			const picture = await createImageBitmap(file);
+			// One photo, one result
+			if (!cameraOn) reset();
 			const code = await compare(picture, 'photo');
+			await readPrinted(picture);
 			picture.close();
+			report('photo', code ? 'code' : 'no code');
 			photoMessage = code ? '' : m.scan.photoNoCode;
 		} catch (err) {
 			console.error('Reading the photo failed', err);
@@ -173,6 +326,10 @@
 	</a>
 	<h1 class="mt-2 text-xl font-bold">{m.scanCheck.title}</h1>
 	<p class="mt-1 text-sm text-muted">{m.scanCheck.intro}</p>
+	{#if data.diagnostics}
+		<!-- Only in the test container built from source -->
+		<p class="mt-1 text-sm text-caution">{m.scanCheck.diagnostics}</p>
+	{/if}
 
 	<div class="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
 		<section class="flex flex-col gap-4">
@@ -189,7 +346,9 @@
 					{finished ? m.scanCheck.again : m.scan.startCamera}
 				</button>
 				{#if finished}
-					<p class="-mt-2 text-sm text-muted" role="status">{m.scanCheck.finished}</p>
+					<p class="-mt-2 text-sm text-muted" role="status" data-testid="finished">
+						{m.scanCheck.finished[finished]}
+					</p>
 				{/if}
 			{/if}
 			{#if camera}
@@ -256,6 +415,45 @@
 						</div>
 					{/each}
 				</dl>
+			</div>
+
+			<!-- Printed text in the picture -->
+			<div class="mt-3 rounded-xl border border-line bg-surface p-3" data-testid="text">
+				<h3 class="text-sm font-semibold">{m.scanCheck.text}</h3>
+				<p class="mt-0.5 text-xs text-muted">{m.scanCheck.textHint}</p>
+				{#if text.failed}
+					<p class="mt-2 text-sm text-danger">{m.scanCheck.textFailed}</p>
+				{:else if text.runs === 0}
+					<p class="mt-2 text-sm text-muted">
+						{text.busy ? m.scanCheck.textLoading : m.scanCheck.noPictures}
+					</p>
+				{:else}
+					{#if text.seen.length === 0}
+						<p class="mt-2 text-sm text-muted">{m.scanCheck.textNone}</p>
+					{/if}
+					<!-- The surest lines; what is read sure more than once counts as read -->
+					<ul class="mt-2 flex flex-col gap-1 text-sm">
+						{#each text.seen.slice(0, 8) as line (line.text)}
+							<li class="flex items-baseline justify-between gap-3">
+								<span class="font-mono break-all {line.sure >= 2 ? 'font-bold' : ''}"
+									>{line.text}</span
+								>
+								<span class="shrink-0 text-xs text-muted"
+									>{m.scanCheck.textSure(Math.round(line.best * 100), line.times)}</span
+								>
+							</li>
+						{/each}
+					</ul>
+					<p class="mt-2 text-xs text-muted">
+						{m.scanCheck.textThreads(text.threads)} ·
+						{m.scanCheck.textTimes(
+							text.ms.loading,
+							Math.round(text.ms.finding / text.runs),
+							Math.round(text.ms.reading / text.runs),
+							text.runs
+						)}
+					</p>
+				{/if}
 			</div>
 
 			<ul class="mt-3 flex flex-col gap-3">

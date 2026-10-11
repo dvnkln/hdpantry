@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { crossfade, fade } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { m } from '$lib/i18n/index.svelte';
@@ -9,6 +9,9 @@
 	let {
 		onscan,
 		idleHint = '',
+		onquiet,
+		holdHint = false,
+		question,
 		oncamera,
 		read = readCode
 	}: {
@@ -16,6 +19,14 @@
 		// Shown inside the picture for a moment when nothing was found for a while (IDLE_MS) –
 		// that is where one looks. Afterwards it stays at hand behind an info button.
 		idleHint?: string;
+		// A frame without a code, and for how long there has been none: the page may then try
+		// something else on it (the scan page reads the printed short code)
+		onquiet?: (video: HTMLVideoElement, quietMs: number) => void;
+		// The page is about to get there another way (a short code was glimpsed): the hint waits
+		holdHint?: boolean;
+		// Something the page asks about what the camera saw: shown at the bottom of the picture –
+		// that is where one looks – in place of hint and buttons
+		question?: Snippet;
 		// What the camera that started can do ("check a code" shows it)
 		oncamera?: (info: CameraInfo) => void;
 		// How a frame is read; "check a code" reads it with both readers
@@ -132,9 +143,12 @@
 					quietSince = Date.now();
 					toldIdle = false;
 					hideHint();
-				} else if (!toldIdle && Date.now() - quietSince > IDLE_MS) {
-					toldIdle = true;
-					showHint();
+				} else {
+					onquiet?.(video, Date.now() - quietSince);
+					if (!toldIdle && !holdHint && Date.now() - quietSince > IDLE_MS) {
+						toldIdle = true;
+						showHint();
+					}
 				}
 				if (code && (code.text !== last.text || Date.now() - last.at > REPEAT_MS)) {
 					last = { text: code.text, at: Date.now() };
@@ -278,48 +292,54 @@
 				aria-hidden="true"
 			></div>
 		{/if}
-		{#if hintShown}
-			<!-- Below the frame, and clear of the light button. A tap puts it away. -->
-			<button
-				type="button"
-				class="absolute bottom-2 left-2 rounded-lg border border-line bg-surface/90 px-2.5 py-1.5 text-center text-[13px] leading-tight font-medium {hasLight
-					? 'right-[3.75rem]'
-					: 'right-2'}"
-				onclick={hideHint}
-				in:receive={{ key: 'hint' }}
-				out:send={{ key: 'hint' }}
-			>
-				<span role="status">{idleHint}</span>
-			</button>
-		{:else if hintOffered}
-			<!-- What the hint shrinks into: right next to the light button, within reach of the thumb -->
-			<button
-				type="button"
-				class="absolute bottom-2 flex size-11 items-center justify-center rounded-full border border-line bg-surface/90 transition-colors hover:border-accent {hasLight
-					? 'right-[3.75rem]'
-					: 'right-2'}"
-				aria-label={m.scan.hintShow}
-				title={m.scan.hintShow}
-				onclick={showHint}
-				in:receive={{ key: 'hint' }}
-				out:send={{ key: 'hint' }}
-			>
-				<Info size={20} />
-			</button>
-		{/if}
-		{#if hasLight}
-			<button
-				type="button"
-				class="absolute right-2 bottom-2 flex size-11 items-center justify-center rounded-full border border-line bg-surface/90 transition-colors hover:border-accent {light
-					? 'text-accent'
-					: ''}"
-				aria-pressed={light}
-				aria-label={light ? m.scan.lightOff : m.scan.lightOn}
-				title={light ? m.scan.lightOff : m.scan.lightOn}
-				onclick={toggleLight}
-			>
-				{#if light}<Flashlight size={20} />{:else}<FlashlightOff size={20} />{/if}
-			</button>
+		{#if question}
+			<div class="absolute inset-x-2 bottom-2" transition:fade={{ duration: 150 }}>
+				{@render question()}
+			</div>
+		{:else}
+			{#if hintShown}
+				<!-- Below the frame, and clear of the light button. A tap puts it away. -->
+				<button
+					type="button"
+					class="absolute bottom-2 left-2 rounded-lg border border-line bg-surface/90 px-2.5 py-1.5 text-center text-[13px] leading-tight font-medium {hasLight
+						? 'right-[3.75rem]'
+						: 'right-2'}"
+					onclick={hideHint}
+					in:receive={{ key: 'hint' }}
+					out:send={{ key: 'hint' }}
+				>
+					<span role="status">{idleHint}</span>
+				</button>
+			{:else if hintOffered}
+				<!-- What the hint shrinks into: right next to the light button, within reach of the thumb -->
+				<button
+					type="button"
+					class="absolute bottom-2 flex size-11 items-center justify-center rounded-full border border-line bg-surface/90 transition-colors hover:border-accent {hasLight
+						? 'right-[3.75rem]'
+						: 'right-2'}"
+					aria-label={m.scan.hintShow}
+					title={m.scan.hintShow}
+					onclick={showHint}
+					in:receive={{ key: 'hint' }}
+					out:send={{ key: 'hint' }}
+				>
+					<Info size={20} />
+				</button>
+			{/if}
+			{#if hasLight}
+				<button
+					type="button"
+					class="absolute right-2 bottom-2 flex size-11 items-center justify-center rounded-full border border-line bg-surface/90 transition-colors hover:border-accent {light
+						? 'text-accent'
+						: ''}"
+					aria-pressed={light}
+					aria-label={light ? m.scan.lightOff : m.scan.lightOn}
+					title={light ? m.scan.lightOff : m.scan.lightOn}
+					onclick={toggleLight}
+				>
+					{#if light}<Flashlight size={20} />{:else}<FlashlightOff size={20} />{/if}
+				</button>
+			{/if}
 		{/if}
 	{/if}
 </div>

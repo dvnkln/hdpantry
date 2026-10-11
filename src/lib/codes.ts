@@ -20,7 +20,21 @@ export type ParsedCode = {
 // which parameter holds what. The address in front of the parameters does not matter.
 // `vacuum`: what the switch "vacuum-sealed" starts with for containers of this form – to be
 // asked of the user for every new rule, never guessed.
-const PARAMETER_RULES = [{ id: 'cc', size: 's', typeCode: 'tc', vacuum: true }];
+// `printed`: the form of the short code as it is printed below the code on such a container –
+// what the reader for printed text may take for a code when the code itself cannot be scanned
+// (src/lib/reader/). A rule without it gets no text recognition.
+const PARAMETER_RULES = [
+	{ id: 'cc', size: 's', typeCode: 'tc', vacuum: true, printed: /^[A-Z0-9]{4}$/ }
+];
+
+// The same forms as one pattern in text form, for the background thread of the reader
+export const PRINTED_CODES = PARAMETER_RULES.map((rule) => `(?:${rule.printed.source})`).join('|');
+
+// Whether a line of printed text has the form of a short code of one of the known containers.
+// Everything else the reader sees – labels, embossed print – is never taken for a code.
+export function isPrintedCode(text: string) {
+	return PARAMETER_RULES.some((rule) => rule.printed.test(text));
+}
 
 // A short code as printed on a container: letters and digits only. Typed by hand it may come
 // in lower case, so these are stored in upper case.

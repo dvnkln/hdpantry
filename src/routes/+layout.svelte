@@ -2,10 +2,12 @@
 	import '@fontsource/outfit/600.css';
 	import '@fontsource/outfit/800.css';
 	import './layout.css';
+	import { onMount } from 'svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import { page } from '$app/state';
 	import Brand from '$lib/components/Brand.svelte';
 	import { m, setLocale } from '$lib/i18n/index.svelte';
+	import { readerAtHand, warmReader } from '$lib/reader/engine';
 	import { THEMES } from '$lib/themes';
 	import { LogOut, ScanLine, Settings } from '@lucide/svelte';
 
@@ -27,6 +29,18 @@
 		const bars = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]');
 		if (bars[0]) bars[0].content = light;
 		if (bars[1]) bars[1].content = dark;
+	});
+
+	// The reader for short codes is large: fetch it and make it ready in the background while
+	// the app is idle, so it is there when a code cannot be scanned. It stays ready while one
+	// moves through the app. Only for someone who is logged in.
+	onMount(() => {
+		if (!data.user) return;
+		// With the files at hand it begins at once – whoever opens the app to scan should not
+		// wait for it. The first download waits until the app is idle.
+		if (readerAtHand()) return void warmReader();
+		const idle = window.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 3000));
+		idle(() => void warmReader());
 	});
 
 	// First part of the address, e.g. "containers" for /containers/3

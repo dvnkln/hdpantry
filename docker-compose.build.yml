@@ -9,3 +9,7 @@ services:
     container_name: hdpantry-test
     ports: !override
       - '3001:3000'
+    # Development aid: "check a code" writes the figures of each attempt to the container log
+    # (docker logs hdpantry-test | grep '\[check\]'). Not for normal installations.
+    environment:
+      HDPANTRY_DIAGNOSTICS: '1'

@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { isPrintedCode } from '$lib/codes';
 import { codeLabel, isCodeSource, type CodeSource } from '$lib/containers';
 import {
 	addScanned,
@@ -8,6 +9,7 @@ import {
 	openTyped,
 	type Container
 } from '$lib/server/containers';
+import { diagnosticsOn } from '$lib/server/diagnostics';
 import { serverMessages } from '$lib/server/i18n';
 import { activeItem, containerHistory } from '$lib/server/items';
 import type { Actions, PageServerLoad } from './$types';
@@ -32,6 +34,8 @@ async function read(request: Request) {
 // The containers there are, to choose from when recording without the camera. Tapping one is
 // like scanning it: a full one shows its content, an empty one asks what goes in.
 export const load: PageServerLoad = () => ({
+	// Test container only: figures of each attempt go to the server log
+	diagnostics: diagnosticsOn(),
 	containers: containersToPick().map((c) => ({
 		...c,
 		href: c.content === null ? `/containers/${c.id}/add` : `/containers/${c.id}`
@@ -50,9 +54,15 @@ export const actions: Actions = {
 			if (!container) return unreadable();
 			redirect(303, pageOf(container));
 		}
+		// A printed short code read from the picture works like the scanned code – but only a
+		// text of exactly that form is taken for one
+		if (source === 'printed' && !isPrintedCode(raw.trim())) return unreadable();
 		const result = openScanned(raw, source);
 		if (!result) return unreadable();
-		if (result.container) redirect(303, pageOf(result.container));
+		// `?printed`: the next page says, quietly, how the container was recognised
+		if (result.container) {
+			redirect(303, pageOf(result.container) + (source === 'printed' ? '?printed' : ''));
+		}
 		const twin = result.twin;
 		return {
 			twin: {

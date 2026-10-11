@@ -11,13 +11,14 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 
 ### ✨ New
 
+- **Creased or frosted code?** – when the QR code on a container cannot be scanned, hdpantry reads the short code printed below it instead and goes on exactly as after a scan. Only for a code it has never seen it asks first, showing what it read. All of it happens in your browser
 - **Since** – recording something that has been in the freezer for a few days? Set the day it went in; the suggested best-before date counts from there. It can be corrected later, too
 
 ### 🔧 Improved
 
 - **Scanning** – the camera now asks for a sharper picture and keeps focusing; phones with a lamp get a light button in the camera picture, and where the camera allows it, tapping the picture focuses there
 - **Code not readable?** – if the camera finds nothing for a few seconds, a short note in the camera picture points to typing the short code printed below the QR code, then tucks itself away behind an info button next to the light
-- **Check a code** – reads every picture with both readers (the browser's own, the bundled one), shows which one found the code and how fast, stops by itself and lists what the camera of the device can do
+- **Check a code** – reads every picture with both code readers (the browser's own, the bundled one) and shows which one found the code and how fast; it also shows printed text it can read, stops by itself and lists what the camera of the device can do
 
 ## 0.1.0 – 2026-10-06
 

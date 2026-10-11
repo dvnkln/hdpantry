@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import ItemForm from '$lib/components/ItemForm.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 
@@ -14,6 +15,10 @@
 	{#if data.replacing}
 		<!-- Nothing happens to the old content until the new one is saved -->
 		<p class="mt-1 text-sm text-muted">{m.item.replaceHint(data.replacing)}</p>
+	{/if}
+	{#if page.url.searchParams.has('printed')}
+		<!-- Just so one knows; it changes nothing -->
+		<p class="mt-1 text-xs text-muted">{m.scan.printedNote}</p>
 	{/if}
 	<div class="mt-4"></div>
 	<ItemForm

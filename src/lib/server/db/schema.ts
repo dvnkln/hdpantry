@@ -40,7 +40,7 @@ export const containers = sqliteTable(
 		typeCode: text('type_code'),
 		// Exactly what the code contained when the container was added
 		rawContent: text('raw_content').notNull(),
-		// How the code was first read ('camera', 'photo', 'manual'); empty = not recorded
+		// How the code was first read ('camera', 'photo', 'manual', 'printed'); empty = not recorded
 		source: text('source').$type<CodeSource>(),
 		// Recorded by typing instead of scanning (then `source` is 'manual'). Typed and scanned
 		// containers are kept apart, so the same code may exist once in each group.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CODE_LENGTH, parseCode } from './codes';
+import { MAX_CODE_LENGTH, parseCode, isPrintedCode } from './codes';
 
 describe('codes with parameters', () => {
 	it('takes ID, size and type code from the parameters, whatever the address', () => {
@@ -60,4 +60,13 @@ describe('whether a code says that its container is a vacuum container', () => {
 		expect(parseCode('https://example.com/item/77')?.vacuum).toBe(false);
 		expect(parseCode('jar on the top shelf')?.vacuum).toBe(false);
 	});
+});
+
+it('knows the form of a printed short code', () => {
+	expect(isPrintedCode('AB12')).toBe(true);
+	expect(isPrintedCode('ZQ77')).toBe(true);
+	// Too short, too long, lower case, other characters: not a short code
+	for (const text of ['AB1', 'AB123', 'ab12', 'AB 2', 'A-12', 'PRESS', '']) {
+		expect(isPrintedCode(text)).toBe(false);
+	}
 });

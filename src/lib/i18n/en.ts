@@ -97,6 +97,8 @@ export const en: Messages = {
 		manualHint: 'The short code is usually printed below the QR code on the container.',
 		hintShow: 'Show the hint',
 		stuckShort: 'Not readable? Type the short code below.',
+		printedNew: 'New container?',
+		printedNote: 'Recognised by the printed short code.',
 		lightOn: 'Switch the light on',
 		lightOff: 'Switch the light off',
 		create: 'Create',
@@ -145,11 +147,28 @@ export const en: Messages = {
 		length: (n: number) => `${n} characters`,
 		isUrl: 'Web address',
 		sources: { camera: 'Camera', photo: 'Photo' },
-		finished: 'Done – the camera has stopped. The result is under “Readers compared”.',
+		finished: {
+			code: 'Done – code read, the camera has stopped.',
+			text: 'Done – text read for sure, the camera has stopped.',
+			time: 'Time is up – nothing found for sure, the camera has stopped.'
+		},
 		again: 'Once more with the camera',
 		camera: (width: number, height: number, light: boolean, tapFocus: boolean) =>
 			`Camera: ${width} × ${height} · light: ${light ? 'yes' : 'no'} · tap to focus: ${tapFocus ? 'yes' : 'no'}`,
 		focusModes: (modes: string) => `Focus modes: ${modes}`,
+		diagnostics:
+			'Test mode: the figures of every attempt (times, hits, text read – never the content of a code) are written to the log of this server.',
+		textThreads: (n: number) => (n === 1 ? '1 thread' : `${n} threads`),
+		// Printed text in the picture
+		text: 'Text recognition',
+		textHint:
+			'Reads printed text in the picture, for example the short code below a QR code. Everything happens in the browser.',
+		textLoading: 'getting ready …',
+		textNone: 'no text found',
+		textFailed: 'Text recognition could not be started.',
+		textSure: (percent: number, times: number) => `${percent} % sure · ${times}×`,
+		textTimes: (loading: number, finding: number, reading: number, runs: number) =>
+			`getting ready ${loading} ms · finding avg. ${finding} ms · reading avg. ${reading} ms · ${runs === 1 ? '1 picture' : `${runs} pictures`} read`,
 		// The two readers side by side
 		compare: 'Readers compared',
 		compareHint:

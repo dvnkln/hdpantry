@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import adapter from '@sveltejs/adapter-node';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 // Tests must not depend on (or use) the real .env: a fixed value, set before SvelteKit reads
@@ -10,6 +11,16 @@ if (process.env.VITEST) {
 }
 
 export default defineConfig({
+	resolve: {
+		alias: {
+			// The reader for printed text (src/lib/reader/): take the build of ONNX Runtime Web that
+			// gets its program files handed over. The default one carries a reference to its large
+			// wasm file, which made the build ship that file twice (14 MB each).
+			'onnxruntime-web/wasm': fileURLToPath(
+				new URL('./node_modules/onnxruntime-web/dist/ort.wasm.min.mjs', import.meta.url)
+			)
+		}
+	},
 	// npm test: every test file gets its own empty database, no network (see src/tests/setup.ts)
 	test: { environment: 'node', include: ['src/**/*.test.ts'], setupFiles: ['src/tests/setup.ts'] },
 	plugins: [

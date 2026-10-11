@@ -62,10 +62,25 @@ export function openScanned(raw: string, source: CodeSource | null) {
 	const parsed = parseCode(raw);
 	if (!parsed) return null;
 	const known = findContainer(parsed.id, false);
-	if (known) return { container: known };
+	if (known) return { container: completed(known, raw, source) };
 	const twin = findContainer(parsed.id, true);
 	if (twin) return { twin };
 	return { container: insert(raw, source) };
+}
+
+// A container that was first known by its printed short code only learns the rest – size, kind
+// and what its code says – the first time the code itself is scanned.
+function completed(container: Container, raw: string, source: CodeSource | null) {
+	if (container.source !== 'printed' || source === 'printed' || source === 'manual') {
+		return container;
+	}
+	const parsed = parseCode(raw)!;
+	return getDb()
+		.update(containers)
+		.set({ size: parsed.size, typeCode: parsed.typeCode, rawContent: raw.trim(), source })
+		.where(eq(containers.id, container.id))
+		.returning()
+		.get();
 }
 
 // "They are not the same": the scanned code gets its own container next to the typed one.

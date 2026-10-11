@@ -1,7 +1,10 @@
 // Rules for containers shared by browser and server.
 
-// How a container was first read: by the camera, from a photo, or typed by hand
-export const CODE_SOURCES = ['camera', 'photo', 'manual'] as const;
+// How a container was first read: by the camera, from a photo, typed by hand – or 'printed':
+// its code could not be scanned (creased, frosted over) and the short code printed below it was
+// read from the picture instead. Such a container knows only its short code until its code is
+// scanned for real.
+export const CODE_SOURCES = ['camera', 'photo', 'manual', 'printed'] as const;
 export type CodeSource = (typeof CODE_SOURCES)[number];
 
 export function isCodeSource(value: unknown): value is CodeSource {

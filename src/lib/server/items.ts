@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
-import { parseCode } from '$lib/codes';
+import { isPrintedCode, parseCode } from '$lib/codes';
 import type { ItemValues, Location } from '$lib/items';
 import { getDb } from './db';
 import { containers, items } from './db/schema';
@@ -27,7 +27,9 @@ export function activeItem(containerId: number) {
 // - any other container: as it was the last time (what is in it now, else what was taken out
 //   last), and off for one that was never filled.
 export function vacuumDefault(container: { id: number; manual: boolean; rawContent: string }) {
-	if (!container.manual && parseCode(container.rawContent)?.vacuum) return true;
+	const raw = container.rawContent;
+	// Known by its printed short code only (see CODE_SOURCES): the form of that code tells
+	if (!container.manual && (parseCode(raw)?.vacuum || isPrintedCode(raw))) return true;
 	const last = activeItem(container.id) ?? containerHistory(container.id, 1)[0];
 	return last?.vacuumed ?? false;
 }

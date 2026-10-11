@@ -99,6 +99,8 @@ export const de = {
 		manualHint: 'Der Kurzcode steht meist unter dem QR-Code auf dem Behälter.',
 		hintShow: 'Hinweis anzeigen',
 		stuckShort: 'Nicht lesbar? Kurzcode unten eintippen.',
+		printedNew: 'Neuer Behälter?',
+		printedNote: 'Am aufgedruckten Kurzcode erkannt.',
 		lightOn: 'Licht einschalten',
 		lightOff: 'Licht ausschalten',
 		create: 'Anlegen',
@@ -148,11 +150,28 @@ export const de = {
 		length: (n: number) => `${n} Zeichen`,
 		isUrl: 'Web-Adresse',
 		sources: { camera: 'Kamera', photo: 'Foto' },
-		finished: 'Fertig – die Kamera hat angehalten. Das Ergebnis steht unter „Leser im Vergleich“.',
+		finished: {
+			code: 'Fertig – Code gelesen, die Kamera hat angehalten.',
+			text: 'Fertig – Text sicher gelesen, die Kamera hat angehalten.',
+			time: 'Zeit um – nichts Sicheres gefunden, die Kamera hat angehalten.'
+		},
 		again: 'Noch einmal mit der Kamera',
 		camera: (width: number, height: number, light: boolean, tapFocus: boolean) =>
 			`Kamera: ${width} × ${height} · Licht: ${light ? 'ja' : 'nein'} · Antippen zum Scharfstellen: ${tapFocus ? 'ja' : 'nein'}`,
 		focusModes: (modes: string) => `Schärfe-Arten: ${modes}`,
+		diagnostics:
+			'Testbetrieb: Die Messwerte jedes Versuchs (Zeiten, Treffer, gelesener Text – nie der Inhalt eines Codes) werden ins Protokoll dieses Servers geschrieben.',
+		textThreads: (n: number) => (n === 1 ? '1 Thread' : `${n} Threads`),
+		// Printed text in the picture
+		text: 'Texterkennung',
+		textHint:
+			'Liest gedruckten Text im Bild, zum Beispiel den Kurzcode unter einem QR-Code. Alles geschieht im Browser.',
+		textLoading: 'wird vorbereitet …',
+		textNone: 'kein Text gefunden',
+		textFailed: 'Die Texterkennung konnte nicht gestartet werden.',
+		textSure: (percent: number, times: number) => `${percent} % sicher · ${times}×`,
+		textTimes: (loading: number, finding: number, reading: number, runs: number) =>
+			`Vorbereiten ${loading} ms · Finden Ø ${finding} ms · Lesen Ø ${reading} ms · ${runs === 1 ? '1 Bild' : `${runs} Bilder`} gelesen`,
 		// The two readers side by side
 		compare: 'Leser im Vergleich',
 		compareHint:

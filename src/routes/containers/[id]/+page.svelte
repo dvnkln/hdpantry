@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import EatenIcon from '$lib/components/EatenIcon.svelte';
 	import FillGauge from '$lib/components/FillGauge.svelte';
@@ -37,6 +38,10 @@
 
 <!-- pb-32 keeps the content clear of the buttons at the lower edge -->
 <main class="mx-auto max-w-md px-4 py-6 {item ? 'pb-32 lg:pb-6' : ''}">
+	{#if page.url.searchParams.has('printed')}
+		<!-- Just so one knows; it changes nothing -->
+		<p class="mb-2 text-xs text-muted">{m.scan.printedNote}</p>
+	{/if}
 	{#if item}
 		{@const Icon = LOCATION_ICONS[item.location]}
 		<div class="flex items-center gap-3">

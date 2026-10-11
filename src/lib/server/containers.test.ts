@@ -17,7 +17,7 @@ import {
 } from './containers';
 import { getDb } from './db';
 import { items } from './db/schema';
-import { activeItem, addItem, containerHistory, removeActiveItem } from './items';
+import { activeItem, addItem, containerHistory, removeActiveItem, vacuumDefault } from './items';
 
 const RAW = 'vendor://app/storage/in/?tc=11AA11&s=m&cc=AB12';
 const food = (name: string): ItemValues => ({
@@ -168,5 +168,50 @@ describe('deleting', () => {
 	it('all of them', () => {
 		expect(deleteAllContainers()).toBeGreaterThan(2);
 		expect(containerOverview()).toEqual([]);
+	});
+});
+
+describe('a container known by its printed short code', () => {
+	const REAL = 'vendor://app/storage/in/?tc=22BB22&s=l&cc=ZQ77';
+
+	it('is added like a scanned one, with the short code as all that is known', () => {
+		const { container } = openScanned('ZQ77', 'printed')!;
+		expect(container).toMatchObject({
+			code: 'ZQ77',
+			manual: false,
+			source: 'printed',
+			rawContent: 'ZQ77',
+			size: null,
+			typeCode: null
+		});
+		// Its form says it is a vacuum container, as scanning the code would
+		expect(vacuumDefault(container!)).toBe(true);
+		// Read again: the same container
+		expect(openScanned('ZQ77', 'printed')!.container!.id).toBe(container!.id);
+	});
+
+	it('learns the rest when its code is scanned for real, and keeps content and history', () => {
+		const before = openScanned('ZQ77', 'printed')!.container!;
+		addItem(before.id, food('Peas'));
+		const after = openScanned(REAL, 'camera')!.container!;
+		expect(after).toMatchObject({
+			id: before.id,
+			code: 'ZQ77',
+			size: 'l',
+			typeCode: '22BB22',
+			rawContent: REAL,
+			source: 'camera'
+		});
+		expect(activeItem(after.id)?.name).toBe('Peas');
+		// Reading the short code later changes nothing any more
+		expect(openScanned('ZQ77', 'printed')!.container).toMatchObject({
+			rawContent: REAL,
+			size: 'l'
+		});
+	});
+
+	it('asks about a typed container with the same code, like a scan does', () => {
+		openTyped('TY44');
+		expect(openScanned('TY44', 'printed')!.twin).toMatchObject({ code: 'TY44', manual: true });
 	});
 });
