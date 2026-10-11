@@ -2,23 +2,26 @@
 
 All notable changes to hdpantry. Each version is also published as a [GitHub release](https://github.com/dvnkln/hdpantry/releases) with a ready-to-use Docker image.
 
-<!-- Changes since the last release are collected under "## Upcoming release" right below this
-     comment – the heading only exists while there are such changes. On release it becomes
-     "## X.Y.Z – date". Sections (leave out empty ones): ### ✨ New, ### 🔧 Improved, ### 🐛 Fixed,
-     ### 🗑️ Removed, and on release ### ⬆️ Updating (what users have to do when updating). -->
+<!-- Changes since the last release are collected under "## 0.2.0 – 2026-10-11
 
-## Upcoming release
+Scanning gets a second way in: besides QR codes and barcodes, hdpantry can now read a code that is printed as text.
 
 ### ✨ New
 
-- **Creased or frosted code?** – when the QR code on a container cannot be scanned, hdpantry reads the short code printed below it instead and goes on exactly as after a scan. Only for a code it has never seen it asks first, showing what it read. All of it happens in your browser
+- **Text recognition (OCR)** – besides QR codes and barcodes, hdpantry now also reads a code printed as plain text. A QR code stops working once its label is creased, dented or frosted over; printed characters usually stay legible. It runs entirely in your browser. For now it only reads codes of exactly four capital letters or digits, and only for containers whose QR code carries that same short code. A code it has never seen is confirmed with one tap
 - **Since** – recording something that has been in the freezer for a few days? Set the day it went in; the suggested best-before date counts from there. It can be corrected later, too
 
 ### 🔧 Improved
 
 - **Scanning** – the camera now asks for a sharper picture and keeps focusing; phones with a lamp get a light button in the camera picture, and where the camera allows it, tapping the picture focuses there
-- **Code not readable?** – if the camera finds nothing for a few seconds, a short note in the camera picture points to typing the short code printed below the QR code, then tucks itself away behind an info button next to the light
+- **Code not readable?** – if the camera finds nothing for a few seconds, a short note in the camera picture points to typing the code by hand, then tucks itself away behind an info button next to the light
 - **Check a code** – reads every picture with both code readers (the browser's own, the bundled one) and shows which one found the code and how fast; it also shows printed text it can read, stops by itself and lists what the camera of the device can do
+
+### ⬆️ Updating
+
+- `docker compose pull`, then `docker compose up -d` – see [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating). The database is updated by itself.
+- After the update every device fetches the files of the text recognition once, in the background (about 15 MB, from your own hdpantry). The image is about 33 MB larger.
+- hdpantry now sends two more headers with every answer (`Cross-Origin-Opener-Policy`, `Cross-Origin-Embedder-Policy`). A reverse proxy passes them on by itself – nothing to set up.
 
 ## 0.1.0 – 2026-10-06
 
