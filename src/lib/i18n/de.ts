@@ -822,6 +822,9 @@ export const de = {
 		lucide: 'Strich-Symbole, ISC-Lizenz',
 		tabler: 'weitere Strich-Symbole, MIT-Lizenz',
 		outfit: 'Schrift des Schriftzugs, SIL Open Font License',
+		paddleocr: 'Modelle der Texterkennung (PP-OCRv5), Apache-Lizenz 2.0',
+		rapidocr: 'dieselben Modelle, aufbereitet für den Browser, Apache-Lizenz 2.0',
+		onnxruntime: 'lässt die Modelle im Browser rechnen, MIT-Lizenz',
 		ai: 'Entwickelt mit Unterstützung von KI (Claude Code).'
 	},
 

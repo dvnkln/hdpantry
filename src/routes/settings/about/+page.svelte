@@ -27,7 +27,19 @@
 		{ name: 'Twemoji', href: 'https://github.com/jdecked/twemoji', text: () => m.about.twemoji },
 		{ name: 'Lucide', href: 'https://lucide.dev', text: () => m.about.lucide },
 		{ name: 'Tabler Icons', href: 'https://tabler.io/icons', text: () => m.about.tabler },
-		{ name: 'Outfit', href: 'https://github.com/Outfitio/Outfit-Fonts', text: () => m.about.outfit }
+		{
+			name: 'Outfit',
+			href: 'https://github.com/Outfitio/Outfit-Fonts',
+			text: () => m.about.outfit
+		},
+		// The text recognition (src/lib/reader/)
+		{
+			name: 'PaddleOCR',
+			href: 'https://github.com/PaddlePaddle/PaddleOCR',
+			text: () => m.about.paddleocr
+		},
+		{ name: 'RapidOCR', href: 'https://github.com/RapidAI/RapidOCR', text: () => m.about.rapidocr },
+		{ name: 'ONNX Runtime', href: 'https://onnxruntime.ai', text: () => m.about.onnxruntime }
 	];
 
 	const card = ui.card;

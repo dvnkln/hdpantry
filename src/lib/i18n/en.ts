@@ -807,6 +807,9 @@ export const en: Messages = {
 		lucide: 'line icons, ISC License',
 		tabler: 'more line icons, MIT License',
 		outfit: 'font of the wordmark, SIL Open Font License',
+		paddleocr: 'models of the text recognition (PP-OCRv5), Apache License 2.0',
+		rapidocr: 'the same models, prepared for the browser, Apache License 2.0',
+		onnxruntime: 'runs the models in the browser, MIT License',
 		ai: 'Built with the help of AI (Claude Code).'
 	},
 

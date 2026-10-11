@@ -9,6 +9,18 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      This comment spells no heading out with its "#" signs on purpose: a search for the heading
      must not land in here (it did, and a release section ended up hidden inside the comment). -->
 
+## 0.2.1 – 2026-10-11
+
+A small follow-up to 0.2.0.
+
+### 🔧 Improved
+
+- **About** – names what the text recognition is built with: the PP-OCRv5 models of PaddleOCR, their browser-ready files from RapidOCR, and ONNX Runtime
+
+### ⬆️ Updating
+
+- `docker compose pull`, then `docker compose up -d` – see [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating). Nothing else to do.
+
 ## 0.2.0 – 2026-10-11
 
 Scanning gets a second way in: besides QR codes and barcodes, hdpantry can now read a code that is printed as text.
