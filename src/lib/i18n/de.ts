@@ -822,9 +822,11 @@ export const de = {
 		lucide: 'Strich-Symbole, ISC-Lizenz',
 		tabler: 'weitere Strich-Symbole, MIT-Lizenz',
 		outfit: 'Schrift des Schriftzugs, SIL Open Font License',
-		paddleocr: 'Modelle der Texterkennung (PP-OCRv5), Apache-Lizenz 2.0',
-		rapidocr: 'dieselben Modelle, aufbereitet für den Browser, Apache-Lizenz 2.0',
-		onnxruntime: 'lässt die Modelle im Browser rechnen, MIT-Lizenz',
+		zxing: 'liest QR- und Strichcodes, MIT-Lizenz',
+		barcodeDetector: 'bindet den Code-Leser ein, MIT-Lizenz',
+		paddleocr: 'Texterkennung: das Modell (PP-OCRv5), Apache 2.0',
+		rapidocr: 'Texterkennung: das Modell als Datei für den Browser, Apache 2.0',
+		onnxruntime: 'Texterkennung: führt das Modell aus, MIT-Lizenz',
 		ai: 'Entwickelt mit Unterstützung von KI (Claude Code).'
 	},
 

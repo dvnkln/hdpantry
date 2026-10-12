@@ -32,6 +32,17 @@
 			href: 'https://github.com/Outfitio/Outfit-Fonts',
 			text: () => m.about.outfit
 		},
+		// Reading codes (src/lib/scanner.ts)
+		{
+			name: 'zxing-wasm',
+			href: 'https://github.com/Sec-ant/zxing-wasm',
+			text: () => m.about.zxing
+		},
+		{
+			name: 'barcode-detector',
+			href: 'https://github.com/Sec-ant/barcode-detector',
+			text: () => m.about.barcodeDetector
+		},
 		// The text recognition (src/lib/reader/)
 		{
 			name: 'PaddleOCR',

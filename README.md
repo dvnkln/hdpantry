@@ -90,7 +90,7 @@ The camera scanner needs HTTPS (a rule of the browsers); hdpantry expects a reve
 
 ## 🙏 Credits
 
-Colourful food symbols: [Twemoji](https://github.com/jdecked/twemoji), © Twitter, Inc and other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Plain symbols: [Lucide](https://lucide.dev) (ISC License) and [Tabler Icons](https://tabler.io/icons) (MIT License). Wordmark font: [Outfit](https://github.com/Outfitio/Outfit-Fonts) (SIL Open Font License). Text recognition: [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR) models (Apache License 2.0, ONNX files from [RapidOCR](https://github.com/RapidAI/RapidOCR)) running on [ONNX Runtime Web](https://onnxruntime.ai) (MIT License). All of them are bundled with the app – nothing is loaded from elsewhere.
+Colourful food symbols: [Twemoji](https://github.com/jdecked/twemoji), © Twitter, Inc and other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Plain symbols: [Lucide](https://lucide.dev) (ISC License) and [Tabler Icons](https://tabler.io/icons) (MIT License). Wordmark font: [Outfit](https://github.com/Outfitio/Outfit-Fonts) (SIL Open Font License). Code reading: [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) and [barcode-detector](https://github.com/Sec-ant/barcode-detector) (MIT License). Text recognition: [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR) models (Apache License 2.0, ONNX files from [RapidOCR](https://github.com/RapidAI/RapidOCR)) running on [ONNX Runtime Web](https://onnxruntime.ai) (MIT License). All of them are bundled with the app – nothing is loaded from elsewhere.
 
 ## 🤖 Built with AI
 

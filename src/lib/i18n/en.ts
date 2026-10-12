@@ -807,9 +807,11 @@ export const en: Messages = {
 		lucide: 'line icons, ISC License',
 		tabler: 'more line icons, MIT License',
 		outfit: 'font of the wordmark, SIL Open Font License',
-		paddleocr: 'models of the text recognition (PP-OCRv5), Apache License 2.0',
-		rapidocr: 'the same models, prepared for the browser, Apache License 2.0',
-		onnxruntime: 'runs the models in the browser, MIT License',
+		zxing: 'reads QR codes and barcodes, MIT License',
+		barcodeDetector: 'plugs the code reader in, MIT License',
+		paddleocr: 'text recognition: the model (PP-OCRv5), Apache 2.0',
+		rapidocr: 'text recognition: the model as a file for the browser, Apache 2.0',
+		onnxruntime: 'text recognition: runs the model, MIT License',
 		ai: 'Built with the help of AI (Claude Code).'
 	},
 

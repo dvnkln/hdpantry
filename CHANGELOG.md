@@ -9,6 +9,12 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      This comment spells no heading out with its "#" signs on purpose: a search for the heading
      must not land in here (it did, and a release section ended up hidden inside the comment). -->
 
+## Upcoming release
+
+### 🔧 Improved
+
+- **About** – also names the libraries that read QR codes and barcodes, and says in a few words what each part of the text recognition does
+
 ## 0.2.1 – 2026-10-11
 
 A small follow-up to 0.2.0.
