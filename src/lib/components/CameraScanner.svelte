@@ -139,6 +139,8 @@
 			try {
 				// readyState 2+: there is a frame to look at
 				const code = video.readyState >= 2 ? await read(video) : null;
+				// Meanwhile the page moved on (a code was found): nothing more to look at
+				if (stopped || !video) return;
 				if (code) {
 					quietSince = Date.now();
 					toldIdle = false;

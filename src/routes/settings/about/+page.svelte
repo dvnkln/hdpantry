@@ -50,7 +50,13 @@
 			text: () => m.about.paddleocr
 		},
 		{ name: 'RapidOCR', href: 'https://github.com/RapidAI/RapidOCR', text: () => m.about.rapidocr },
-		{ name: 'ONNX Runtime', href: 'https://onnxruntime.ai', text: () => m.about.onnxruntime }
+		{ name: 'ONNX Runtime', href: 'https://onnxruntime.ai', text: () => m.about.onnxruntime },
+		// The licence of the database asks for its name and a link to its terms
+		{
+			name: 'Open Food Facts',
+			href: 'https://world.openfoodfacts.org/terms-of-use',
+			text: () => m.about.openfoodfacts
+		}
 	];
 
 	const card = ui.card;

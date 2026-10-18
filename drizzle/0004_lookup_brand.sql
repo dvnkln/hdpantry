@@ -1,0 +1,1 @@
+ALTER TABLE `product_lookups` ADD `brand` text;

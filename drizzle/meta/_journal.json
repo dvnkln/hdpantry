@@ -15,6 +15,41 @@
       "when": 1791699119520,
       "tag": "0001_stored_on",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792332427859,
+      "tag": "0002_products",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792336255591,
+      "tag": "0003_product_lookups",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1792336906156,
+      "tag": "0004_lookup_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1792338026540,
+      "tag": "0005_product_note",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792339615511,
+      "tag": "0006_pack_shape",
+      "breakpoints": true
     }
   ]
 }

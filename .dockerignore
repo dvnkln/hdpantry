@@ -17,3 +17,4 @@ docs
 # does not invalidate the Docker build cache
 *.md
 LICENSE
+.local

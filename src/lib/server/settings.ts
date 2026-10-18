@@ -12,6 +12,9 @@ const DEFAULTS = {
 	stockScene: 'off',
 	theme: 'system', // colour scheme, see $lib/themes ('system' follows the device)
 	scanVibration: 'on', // short vibration when a code is recognised: 'on' | 'off'
+	// The name of a new product is asked of Open Food Facts (see lookup.ts): 'on' | 'off'.
+	// Off by default – the only connection to the outside besides notifications.
+	productLookup: 'off',
 	soonDays: '3', // "expires soon" means within this many days
 	// Reverse proxies whose X-Forwarded-For header is believed (see proxy.ts): addresses or
 	// ranges, comma-separated. Empty = none.

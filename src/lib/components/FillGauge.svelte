@@ -6,7 +6,12 @@
 		level,
 		source = null,
 		size = 72
-	}: { level: FillLevel; source?: CodeSource | null; size?: number } = $props();
+	}: {
+		// null: empty – only the bag or jar is drawn
+		level: FillLevel | null;
+		source?: CodeSource | null;
+		size?: number;
+	} = $props();
 
 	// Containers recorded by hand have no code that says what they are: they are drawn as a
 	// plain jar. Scanned ones are drawn as a vacuum bag. So the two can be told apart at a glance.
@@ -15,7 +20,7 @@
 	// How high the content stands in each drawing
 	const BAG: Record<FillLevel, number> = { low: 14, medium: 29, full: 44 };
 	const JAR: Record<FillLevel, number> = { low: 12, medium: 32, full: 56 };
-	let height = $derived((jar ? JAR : BAG)[level]);
+	let height = $derived(level ? (jar ? JAR : BAG)[level] : 0);
 
 	// The content is drawn in a muted green of its own (--fill-from/--fill-to in layout.css),
 	// darker at the bottom and lighter at the top: the fuller it is, the lighter its upper edge. Every

@@ -3,13 +3,13 @@
 	import { page } from '$app/state';
 	import FillGauge from '$lib/components/FillGauge.svelte';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
+	import PackCount from '$lib/components/PackCount.svelte';
 	import StorageScene from '$lib/components/StorageScene.svelte';
 	import { codeLabel } from '$lib/containers';
 	import { suggestIcon } from '$lib/food/dictionary';
-	import { formatAmount, formatDate, m } from '$lib/i18n/index.svelte';
+	import { formatAmount, formatDate, formatPackDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATIONS, type Location } from '$lib/items';
 	import { LOCATION_ICONS } from '$lib/locations';
-	import { ui } from '$lib/ui';
 	import {
 		expiry,
 		isSortKey,
@@ -18,7 +18,14 @@
 		type ExpiryLevel,
 		type SortKey
 	} from '$lib/stock';
-	import { ArrowDownUp, ChevronDown, ChevronUp, PackageOpen, ScanLine } from '@lucide/svelte';
+	import {
+		ArrowDownUp,
+		ChevronDown,
+		ChevronUp,
+		Keyboard,
+		PackageOpen,
+		ScanLine
+	} from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -79,26 +86,35 @@
 		fine: '',
 		none: ''
 	};
-	const amountText = (item: (typeof stock)[number]) =>
-		[
-			m.fillLevels[item.fill],
-			item.amount !== null && item.unit ? formatAmount(item.amount, item.unit) : ''
-		]
-			.filter(Boolean)
-			.join(' · ');
+	type Entry = (typeof stock)[number];
+	// How much there is: fill level and amount of a container, the number of packs of a product
+	const amountText = (item: Entry) =>
+		item.kind === 'product'
+			? m.home.packs(item.packs)
+			: [
+					m.fillLevels[item.fill],
+					item.amount !== null && item.unit ? formatAmount(item.amount, item.unit) : ''
+				]
+					.filter(Boolean)
+					.join(' · ');
+	// The amount next to the place on cards (a product shows its packs at the symbol)
+	const cardAmount = (item: Entry) =>
+		item.kind === 'container' && item.amount !== null && item.unit
+			? formatAmount(item.amount, item.unit)
+			: '';
 </script>
 
 <svelte:head><title>{m.home.title} · hdpantry</title></svelte:head>
 
 {#snippet cards(inScene: boolean)}
 	<ul class={inScene ? 'grid grid-cols-1' : 'mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 lg:hidden'}>
-		{#each shown as item (item.id)}
+		{#each shown as item (item.key)}
 			{@const Icon = LOCATION_ICONS[item.location]}
 			<!-- Inside furniture the level is marked by the drawing itself (data-level, see .scene
 			     in layout.css): the coloured edge of a card would cut through shelves and drawers -->
 			<li data-level={inScene ? item.expiry.level : undefined}>
 				<a
-					href="/containers/{item.containerId}"
+					href={item.href}
 					class="flex items-center gap-3 p-3 transition-colors {inScene
 						? 'hover:bg-black/5'
 						: `rounded-xl border border-line bg-surface hover:border-accent ${EDGE[item.expiry.level]}`}"
@@ -107,23 +123,30 @@
 							     to place and amount, which were cut off otherwise -->
 					<span class="relative mr-1 shrink-0">
 						<FoodIcon icon={item.iconKey} size={36} />
-						<span
-							class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface px-px pt-0.5 leading-none"
-						>
-							<FillGauge level={item.fill} source={item.source} size={19} />
-						</span>
+						{#if item.kind === 'container'}
+							<span
+								class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface px-px pt-0.5 leading-none"
+							>
+								<FillGauge level={item.fill} source={item.source} size={19} />
+							</span>
+						{:else}
+							<!-- A product has no fill level but a number of packs: drawn as a pack where
+							     the bag or jar of a container sits -->
+							<span
+								class="absolute -right-2.5 -bottom-1.5 rounded-md bg-surface p-px leading-none"
+								title={m.home.packs(item.packs)}
+							>
+								<PackCount count={item.packs} shape={item.shape} size={22} />
+								<span class="sr-only">{m.home.packs(item.packs)}</span>
+							</span>
+						{/if}
 					</span>
 					<span class="min-w-0 flex-1">
 						<span class="block truncate font-semibold">{item.name}</span>
 						<span class="flex items-center gap-1.5 text-sm text-muted">
 							<Icon size={14} class="shrink-0" />
 							<span class="truncate">
-								{[
-									m.locations[item.location],
-									item.amount !== null && item.unit ? formatAmount(item.amount, item.unit) : ''
-								]
-									.filter(Boolean)
-									.join(' · ')}
+								{[m.locations[item.location], cardAmount(item)].filter(Boolean).join(' · ')}
 							</span>
 						</span>
 					</span>
@@ -133,7 +156,9 @@
 							<span class={inScene ? 'scene-when' : `block ${TONE[item.expiry.level]}`}>
 								{item.expiry.days < 0 ? m.home.expired : m.home.relative(item.expiry.days)}
 							</span>
-							<span class="block text-xs text-muted">{formatDate(item.bestBefore)}</span>
+							<span class="block text-xs text-muted"
+								>{formatPackDate(item.bestBefore, item.dateMonth)}</span
+							>
 						{:else}
 							<span class="text-muted">–</span>
 						{/if}
@@ -150,11 +175,16 @@
 		<h1 class="mt-4 text-xl font-bold">{m.home.empty}</h1>
 		<p class="mt-2 text-sm text-muted">{m.home.emptyHint}</p>
 		<!-- The first step right where the eye is, not in a corner -->
-		<a href="/scan" class="mt-7 flex w-full items-center justify-center gap-2 btn-primary py-4!">
-			<ScanLine size={22} />
-			{m.home.scan}
-		</a>
-		<a href="/scan?manual" class="mt-4 text-sm {ui.link} text-muted">{m.scan.other}</a>
+		<div class="mt-7 flex w-full gap-2">
+			<a href="/scan" class="flex flex-1 items-center justify-center gap-2 btn-primary py-4!">
+				<ScanLine size={22} />
+				{m.home.scan}
+			</a>
+			<a href="/scan?manual" class="flex items-center justify-center gap-1.5 btn-secondary py-4!">
+				<Keyboard size={20} />
+				{m.home.record}
+			</a>
+		</div>
 	</main>
 {:else}
 	<main class="mx-auto max-w-screen-xl px-4 py-4">
@@ -302,7 +332,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each shown as item (item.id)}
+						{#each shown as item (item.key)}
 							{@const Icon = LOCATION_ICONS[item.location]}
 							<!-- The whole row opens the content; the link on the name is there for keyboards -->
 							<tr
@@ -310,15 +340,11 @@
 									item.expiry.level
 								]}"
 								onclick={(event) => {
-									if (!(event.target as HTMLElement).closest('a'))
-										goto(`/containers/${item.containerId}`);
+									if (!(event.target as HTMLElement).closest('a')) goto(item.href);
 								}}
 							>
 								<th class="p-3 font-semibold">
-									<a
-										href="/containers/{item.containerId}"
-										class="flex items-center gap-3 hover:text-accent"
-									>
+									<a href={item.href} class="flex items-center gap-3 hover:text-accent">
 										<FoodIcon icon={item.iconKey} size={28} />
 										<span>
 											{item.name}
@@ -339,7 +365,7 @@
 								</td>
 								<td class="p-3 whitespace-nowrap">
 									{#if item.bestBefore && item.expiry.days !== null}
-										{formatDate(item.bestBefore)}
+										{formatPackDate(item.bestBefore, item.dateMonth)}
 										<span class="ml-1 {TONE[item.expiry.level] || 'text-muted'}">
 											{m.home.relative(item.expiry.days)}
 										</span>
@@ -349,16 +375,20 @@
 								</td>
 								<td class="p-3 whitespace-nowrap">
 									<span class="flex items-center gap-2">
-										<FillGauge level={item.fill} source={item.source} size={24} />
+										{#if item.kind === 'container'}
+											<FillGauge level={item.fill} source={item.source} size={24} />
+										{:else}
+											<PackCount count={item.packs} shape={item.shape} size={24} />
+										{/if}
 										{amountText(item)}
 									</span>
 								</td>
 								<!-- The last three columns only where there is room for them -->
 								<td class="hidden p-3 xl:table-cell">
-									{item.vacuumed ? m.common.yes : m.common.no}
+									{item.kind === 'product' ? '–' : item.vacuumed ? m.common.yes : m.common.no}
 								</td>
 								<td class="hidden p-3 whitespace-nowrap text-muted xl:table-cell">
-									{codeLabel(item)}
+									{item.kind === 'product' ? m.products.product : codeLabel(item)}
 								</td>
 								<td class="hidden p-3 whitespace-nowrap text-muted xl:table-cell">
 									{formatDate(item.since)}

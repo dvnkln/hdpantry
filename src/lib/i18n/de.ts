@@ -47,9 +47,11 @@ export const de = {
 
 	home: {
 		empty: 'Noch nichts im Vorrat',
-		emptyHint: 'Scanne einen Behälter, um den ersten Inhalt zu erfassen.',
+		emptyHint: 'Scanne einen Behälter oder ein Produkt – oder erfasse etwas ohne Code.',
 		scan: 'Scannen',
+		record: 'Eintippen',
 		title: 'Vorrat',
+		packs: (n: number) => (n === 1 ? '1 Packung' : `${n} Packungen`),
 		all: 'Alle',
 		filter: 'Nach Lagerort filtern',
 		nothingHere: 'An diesem Lagerort ist nichts.',
@@ -88,15 +90,26 @@ export const de = {
 
 	scan: {
 		title: 'Scannen',
-		intro: 'Halte den Code des Behälters vor die Kamera.',
+		intro: 'Halte den Code eines Behälters oder den Strichcode eines Produkts vor die Kamera.',
 		startCamera: 'Kamera starten',
 		cameraStarting: 'Kamera startet …',
 		photo: 'Foto aufnehmen oder auswählen',
 		photoReading: 'Foto wird gelesen …',
 		photoNoCode: 'Auf dem Foto wurde kein Code gefunden.',
 		photoFailed: 'Das Foto konnte nicht gelesen werden.',
-		manual: 'Code eintippen',
-		manualHint: 'Der Kurzcode steht meist unter dem QR-Code auf dem Behälter.',
+		manual: 'Name oder Code',
+		manualHint: 'Kurzcode vom Behälter, Ziffern vom Strichcode oder einfach den Namen.',
+		attachHint: 'Die Ziffern unter den Strichen.',
+		typeTitle: 'Eintippen',
+		typeIntro:
+			'Tippe einen Namen oder Code ein – oder wähle unten aus, was du schon einmal erfasst hast.',
+		addProduct: (name: string) => `Produkt „${name}“ anlegen`,
+		addBarcode: 'Produkt mit diesem Strichcode anlegen',
+		addContainer: (code: string) => `Behälter ${code} anlegen`,
+		inStock: (n: number) =>
+			n === 0 ? 'nicht im Vorrat' : n === 1 ? '1 im Vorrat' : `${n} im Vorrat`,
+		productsGroup: 'Produkte',
+		containersGroup: 'Behälter',
 		hintShow: 'Hinweis anzeigen',
 		stuckShort: 'Nicht lesbar? Kurzcode unten eintippen.',
 		printedNew: 'Neuer Behälter?',
@@ -104,16 +117,13 @@ export const de = {
 		lightOn: 'Licht einschalten',
 		lightOff: 'Licht ausschalten',
 		create: 'Anlegen',
-		createHint: 'Diesen Code gibt es noch nicht – es wird ein neuer Behälter angelegt.',
 		openHint: (content: string | null) =>
 			content
 				? `Diesen Behälter gibt es schon – darin: ${content}.`
 				: 'Diesen Behälter gibt es schon – er ist leer.',
-		other: 'Ohne Kamera erfassen',
+		productOpenHint: (name: string) => `„${name}“ gibt es schon – du fügst eine Packung hinzu.`,
 		// The containers offered below the field for typing
 		kinds: 'Nach Art filtern',
-		typedGroup: 'Manuell',
-		scannedGroup: 'Gescannt',
 		empty: 'leer',
 		emptyLast: (name: string) => `leer · ${name}`,
 		more: (n: number) => (n === 1 ? '1 weiterer' : `${n} weitere`),
@@ -200,6 +210,67 @@ export const de = {
 		container: 'Behälter',
 		fill: 'Inhalt erfassen',
 		notFound: 'Diesen Behälter gibt es nicht (mehr).'
+	},
+
+	products: {
+		notFound: 'Dieses Produkt gibt es nicht (mehr).',
+		product: 'Produkt',
+		newTitle: 'Neues Produkt',
+		addTitle: 'Packung hinzufügen',
+		editTitle: 'Produkt bearbeiten',
+		save: 'Speichern',
+		day: 'Tag',
+		month: 'Monat',
+		year: 'Jahr',
+		monthNone: 'Monat',
+		addDay: 'Tag angeben',
+		noDate: 'Kein Datum',
+		count: 'Packungen',
+		fewer: 'Eine weniger',
+		more: 'Eine mehr',
+		barcode: 'Strichcode',
+		attach: 'Strichcode zuordnen',
+		attachTitle: 'Strichcode zuordnen',
+		attachIntro: (name: string) => `Scanne den Strichcode von „${name}“.`,
+		notProduct: 'Das ist kein Strichcode eines Produkts.',
+		taken: (name: string) => `Diesen Strichcode hat schon „${name}“.`,
+		packs: 'Im Vorrat',
+		noPacks: 'Gerade keine Packung im Vorrat.',
+		eat: 'Gegessen',
+		eatenQuestion: (name: string, date: string | null) =>
+			date
+				? `Eine Packung „${name}“ (${date}) ist gegessen?`
+				: `Eine Packung „${name}“ ist gegessen?`,
+		eatenConfirm: 'Ja, gegessen',
+		history: 'Zuletzt gegessen',
+		dateHint: 'Wie auf der Packung – Monat und Jahr genügen.',
+		shape: 'Verpackung',
+		shapes: {
+			box: 'Karton',
+			bag: 'Beutel',
+			can: 'Dose',
+			jar: 'Glas',
+			bottle: 'Flasche',
+			cup: 'Becher'
+		},
+		// One pack: when it keeps till, and since when it is stored
+		packLine: (date: string | null, since: string | null) =>
+			date ? `Haltbar bis ${date}${since ? ` · seit ${since}` : ''}` : since ? `Seit ${since}` : '',
+		fromDatabase: 'Name aus Open Food Facts – gern ändern.',
+		lookupOffer: 'Den Namen gekaufter Produkte nachschlagen lassen?',
+		lookupLink: 'In den Einstellungen einschalten',
+		goes: (n: number) =>
+			n === 1
+				? 'Diese Packung wird beim Speichern gelöscht.'
+				: `Diese ${n} Packungen werden beim Speichern gelöscht.`,
+		problems: {
+			name: 'Bitte einen Namen eingeben.',
+			location: 'Bitte einen passenden Lagerort wählen.',
+			date: 'Dieses Datum gibt es nicht.',
+			count: 'Bitte zwischen 1 und 20 Packungen.',
+			since: 'Das Einlagerungsdatum darf nicht in der Zukunft liegen.',
+			packs: 'Bitte die Packungen prüfen – ein Datum oder Lagerort passt nicht.'
+		}
 	},
 
 	locations: {
@@ -409,9 +480,12 @@ export const de = {
 		dataHint: 'Export, Import',
 		dataExport: 'Export',
 		dataExportText:
-			'Lädt deinen Vorrat als Datei herunter: alle Behälter, was drin ist, der Verlauf und was die App über deine Lebensmittel gelernt hat. Konto und Einstellungen sind nicht enthalten.',
-		dataNow: (containers: number, filled: number) =>
-			`Aktuell: ${containers} Behälter, davon ${filled} gefüllt.`,
+			'Lädt deinen Vorrat als Datei herunter: alle Behälter und Produkte samt Verlauf und was die App über deine Lebensmittel gelernt hat. Konto und Einstellungen sind nicht enthalten.',
+		dataNow: (containers: number, filled: number, products: number, packs: number) =>
+			`Aktuell: ${containers} Behälter, davon ${filled} gefüllt` +
+			(products
+				? `; ${products} ${products === 1 ? 'Produkt' : 'Produkte'} mit ${packs} ${packs === 1 ? 'Packung' : 'Packungen'}.`
+				: '.'),
 		dataExportButton: 'Export herunterladen',
 		dataImport: 'Import',
 		dataImportText:
@@ -422,8 +496,11 @@ export const de = {
 		dataWord: 'ERSETZEN',
 		dataReplace: 'Vorrat ersetzen',
 		dataWrongWord: 'Zum Ersetzen bitte das Bestätigungswort eintippen.',
-		dataImported: (containers: number, filled: number) =>
-			`Import abgeschlossen: ${containers} Behälter, davon ${filled} gefüllt.`,
+		dataImported: (containers: number, filled: number, products: number, packs: number) =>
+			`Import abgeschlossen: ${containers} Behälter, davon ${filled} gefüllt` +
+			(products
+				? `; ${products} ${products === 1 ? 'Produkt' : 'Produkte'} mit ${packs} ${packs === 1 ? 'Packung' : 'Packungen'}.`
+				: '.'),
 		saved: 'Gespeichert ✓',
 		maintenance: 'Wartung',
 		maintenanceHint: 'Aufgaben, Speicher, Backups',
@@ -433,6 +510,8 @@ export const de = {
 		dataRows: {
 			containers: 'Behälter',
 			filled: 'davon gefüllt',
+			products: 'Produkte',
+			packs: 'Packungen im Vorrat',
 			history: 'Einträge im Verlauf',
 			memory: 'Gelernte Zuordnungen'
 		},
@@ -529,6 +608,27 @@ export const de = {
 		themeHint: '„System“ folgt der Einstellung deines Geräts.',
 		themes: { system: 'System', dark: 'Dunkel', light: 'Hell' },
 		containersShort: 'Löschen, Code, Zusammenführen',
+		products: 'Produkte',
+		productsShort: 'Gelernte Produkte',
+		productsHint:
+			'Alle Produkte, die hdpantry kennt – auch die, von denen gerade nichts im Vorrat ist. Löschen entfernt ein Produkt samt Packungen und Verlauf; beim nächsten Scan seines Strichcodes wird es neu angelegt.',
+		noProducts: 'Noch keine Produkte.',
+		productsList: 'Gelernte Produkte',
+		lookup: 'Namen nachschlagen',
+		lookupSwitch: 'Bei Open Food Facts nachschlagen',
+		lookupHint:
+			'Fragt bei einem unbekannten Strichcode die freie Produktdatenbank nach Name und Art – auch, ob es Tiefkühlware ist. Gesendet wird nur der Strichcode, von deinem Server aus.',
+		lookupMore: 'Was dabei übertragen wird',
+		productLine: (barcode: string | null, packs: number, eaten: number) =>
+			[
+				barcode ?? 'ohne Strichcode',
+				packs ? (packs === 1 ? '1 im Vorrat' : `${packs} im Vorrat`) : 'nicht im Vorrat',
+				eaten ? `${eaten} gegessen` : ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		productDeleteQuestion: (name: string, packs: number) =>
+			`„${name}“ wirklich löschen?${packs ? ` ${packs === 1 ? 'Die Packung im Vorrat wird' : `Die ${packs} Packungen im Vorrat werden`} mit gelöscht.` : ''} Das lässt sich nicht rückgängig machen.`,
 		guideShort: 'Haltbarkeit, Quellen',
 		aboutHint: 'Version, Links, Lizenz',
 		icons: 'Symbole',
@@ -827,6 +927,7 @@ export const de = {
 		paddleocr: 'Texterkennung: das Modell (PP-OCRv5), Apache 2.0',
 		rapidocr: 'Texterkennung: das Modell als Datei für den Browser, Apache 2.0',
 		onnxruntime: 'Texterkennung: führt das Modell aus, MIT-Lizenz',
+		openfoodfacts: 'Produktnamen, wenn eingeschaltet: Datenbank unter Open Database License',
 		ai: 'Entwickelt mit Unterstützung von KI (Claude Code).'
 	},
 

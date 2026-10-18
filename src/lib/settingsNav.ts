@@ -7,6 +7,7 @@ import {
 	Scale,
 	Server,
 	Settings2,
+	ShoppingBasket,
 	UserRound,
 	Wrench
 } from '@lucide/svelte';
@@ -57,6 +58,13 @@ export function settingsSections() {
 			icon: Boxes,
 			label: m.settings.containers,
 			hint: m.settings.containersShort
+		},
+		{
+			href: '/settings/products',
+			group: 'stock',
+			icon: ShoppingBasket,
+			label: m.settings.products,
+			hint: m.settings.productsShort
 		},
 		{
 			href: '/settings/guide',

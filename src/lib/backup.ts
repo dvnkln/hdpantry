@@ -1,6 +1,8 @@
-// The export file: containers with what is and was inside, plus the corrections the app
-// learned (name → kind of food). No account, no logins, no settings. Read and checked here
+// The export file: containers with what is and was inside, products with their packs, plus
+// the corrections the app learned (name → kind of food). No account, no logins, no settings. Read and checked here
 // for browser (preview before importing) and server (the check that counts) alike.
+import { parseProductCode } from './codes';
+import { isPackShape, type PackShape } from './products';
 import { CODE_SOURCES, type CodeSource } from './containers';
 import { isCategory, type Category } from './food/categories';
 import { isIcon } from './food/icons';
@@ -21,7 +23,8 @@ import {
 export const BACKUP_APP = 'hdpantry';
 // Raised whenever the file changes shape; older files must stay readable
 // 2: contents may carry `storedOn` (files of format 1 have none)
-export const BACKUP_FORMAT = 2;
+// 3: products with their packs; contents may carry `dateMonth` (older files have neither)
+export const BACKUP_FORMAT = 3;
 // Larger files are refused (start.js allows uploads a bit above this)
 export const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
 const MAX_TEXT = 2000;
@@ -40,6 +43,8 @@ export type BackupItem = {
 	unit: Unit | null;
 	// The day it went in (YYYY-MM-DD) if set by hand; null = the day of createdAt
 	storedOn: string | null;
+	// Only month and year of the date were given (packs of products)
+	dateMonth: boolean;
 	// Points in time as ISO text; removedAt null = still in the container
 	createdAt: string;
 	removedAt: string | null;
@@ -56,6 +61,19 @@ export type BackupContainer = {
 	items: BackupItem[];
 };
 
+export type BackupProduct = {
+	barcode: string | null;
+	name: string;
+	note: string | null;
+	shape: PackShape | null;
+	category: Category | null;
+	icon: string | null;
+	location: Location;
+	createdAt: string;
+	// Its packs, in stock and eaten
+	items: BackupItem[];
+};
+
 export type BackupMemory = { name: string; category: Category; icon: string | null };
 
 export type Backup = {
@@ -63,6 +81,7 @@ export type Backup = {
 	format: number;
 	exportedAt: string;
 	containers: BackupContainer[];
+	products: BackupProduct[];
 	foodMemory: BackupMemory[];
 };
 
@@ -133,6 +152,7 @@ function readItem(value: unknown, where: string): BackupItem {
 		amount: amount as number | null,
 		unit: unit === null ? null : oneOf(unit, UNITS, `${where}.unit`),
 		storedOn,
+		dateMonth: value.dateMonth === undefined ? false : flag(value.dateMonth, `${where}.dateMonth`),
 		createdAt: moment(value.createdAt, `${where}.createdAt`),
 		removedAt:
 			value.removedAt === null || value.removedAt === undefined
@@ -159,6 +179,28 @@ function readContainer(value: unknown, where: string): BackupContainer {
 		manual: flag(value.manual, `${where}.manual`),
 		createdAt: moment(value.createdAt, `${where}.createdAt`),
 		items
+	};
+}
+
+function readProduct(value: unknown, where: string): BackupProduct {
+	if (!isRecord(value)) bad(where);
+	if (!Array.isArray(value.items)) bad(`${where}.items`);
+	const barcode = optionalText(value.barcode, `${where}.barcode`);
+	if (barcode !== null && parseProductCode(barcode) !== barcode) bad(`${where}.barcode`);
+	const category = value.category ?? null;
+	if (category !== null && !isCategory(category)) bad(`${where}.category`);
+	const icon = optionalText(value.icon, `${where}.icon`, MAX_ICON_NAME);
+	return {
+		barcode,
+		name: text(value.name, `${where}.name`, MAX_ITEM_NAME),
+		note: optionalText(value.note, `${where}.note`, MAX_ITEM_NOTE),
+		// A shape this version does not know becomes a box
+		shape: isPackShape(value.shape) ? value.shape : null,
+		category: category as Category | null,
+		icon: isIcon(icon) ? icon : null,
+		location: oneOf(value.location, LOCATIONS, `${where}.location`),
+		createdAt: moment(value.createdAt, `${where}.createdAt`),
+		items: (value.items as unknown[]).map((item, i) => readItem(item, `${where}.items[${i}]`))
 	};
 }
 
@@ -200,6 +242,13 @@ export function parseBackup(content: string): BackupResult {
 			seen.add(key);
 		});
 
+		const productList = data.products ?? [];
+		if (!Array.isArray(productList)) bad('products');
+		const products = (productList as unknown[]).map((p, i) => readProduct(p, `products[${i}]`));
+		// A barcode belongs to one product
+		const barcodes = products.map((p) => p.barcode).filter((code) => code !== null);
+		if (new Set(barcodes).size !== barcodes.length) bad('products');
+
 		const memoryList = data.foodMemory ?? [];
 		if (!Array.isArray(memoryList)) bad('foodMemory');
 		const foodMemory = (memoryList as unknown[]).map((entry, i) =>
@@ -216,6 +265,7 @@ export function parseBackup(content: string): BackupResult {
 				format: data.format,
 				exportedAt: moment(data.exportedAt, 'exportedAt'),
 				containers,
+				products,
 				foodMemory
 			}
 		};
@@ -228,12 +278,16 @@ export function parseBackup(content: string): BackupResult {
 
 // What a file holds, for the summary shown before importing
 export function backupCounts(backup: Backup) {
-	const items = backup.containers.flatMap((container) => container.items);
-	const filled = items.filter((item) => item.removedAt === null).length;
+	const contents = backup.containers.flatMap((container) => container.items);
+	const filled = contents.filter((item) => item.removedAt === null).length;
+	const packs = backup.products.flatMap((product) => product.items);
+	const inStock = packs.filter((item) => item.removedAt === null).length;
 	return {
 		containers: backup.containers.length,
 		filled,
-		history: items.length - filled,
+		products: backup.products.length,
+		packs: inStock,
+		history: contents.length - filled + packs.length - inStock,
 		memory: backup.foodMemory.length
 	};
 }

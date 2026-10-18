@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CODE_LENGTH, parseCode, isPrintedCode } from './codes';
+import { MAX_CODE_LENGTH, parseCode, parseProductCode, isPrintedCode } from './codes';
 
 describe('codes with parameters', () => {
 	it('takes ID, size and type code from the parameters, whatever the address', () => {
@@ -56,7 +56,7 @@ describe('whether a code says that its container is a vacuum container', () => {
 		expect(parseCode('vendor://app/storage/in/?tc=11AA11&s=m&cc=AB12')?.vacuum).toBe(true);
 		// typed short code, a product barcode, any other address or text
 		expect(parseCode('AB12')?.vacuum).toBe(false);
-		expect(parseCode('4006381333931')?.vacuum).toBe(false);
+		expect(parseCode('9991234567890')?.vacuum).toBe(false);
 		expect(parseCode('https://example.com/item/77')?.vacuum).toBe(false);
 		expect(parseCode('jar on the top shelf')?.vacuum).toBe(false);
 	});
@@ -69,4 +69,25 @@ it('knows the form of a printed short code', () => {
 	for (const text of ['AB1', 'AB123', 'ab12', 'AB 2', 'A-12', 'PRESS', '']) {
 		expect(isPrintedCode(text)).toBe(false);
 	}
+});
+
+// Invented numbers with correct check digits
+describe('product barcodes', () => {
+	it('takes EAN-13 and EAN-8 with a correct check digit', () => {
+		expect(parseProductCode('9991234567890')).toBe('9991234567890');
+		expect(parseProductCode(' 99123451 ')).toBe('99123451');
+	});
+	it('keeps UPC-A as EAN-13, so both readings are the same product', () => {
+		expect(parseProductCode('009998887778')).toBe('0009998887778');
+		expect(parseProductCode('0009998887778')).toBe('0009998887778');
+	});
+	it('refuses a wrong check digit, other lengths and anything not made of digits', () => {
+		expect(parseProductCode('9991234567891')).toBeNull();
+		expect(parseProductCode('99123452')).toBeNull();
+		expect(parseProductCode('1234')).toBeNull();
+		expect(parseProductCode('99912345678900')).toBeNull();
+		expect(parseProductCode('AB12')).toBeNull();
+		expect(parseProductCode('https://example.com/?cc=AB12')).toBeNull();
+		expect(parseProductCode('')).toBeNull();
+	});
 });

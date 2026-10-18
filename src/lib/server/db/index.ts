@@ -21,6 +21,25 @@ export function getDb() {
 }
 
 // Applies all pending migrations from the drizzle/ folder. Called once at server start.
+// Some migrations build a table anew (SQLite cannot change a column in place). With the links
+// between tables switched on, dropping the old table would take every row that points to it
+// along (e.g. which reminders were already sent) – and inside the transaction of the migration
+// they cannot be switched off. So they are off while migrating and checked afterwards, as
+// SQLite advises for this.
 export function runMigrations() {
-	migrate(getDb(), { migrationsFolder: MIGRATIONS_DIR });
+	applyMigrations(getDb(), MIGRATIONS_DIR);
+}
+
+export function applyMigrations(
+	db: BetterSQLite3Database<typeof schema> & { $client: Database.Database },
+	folder: string
+) {
+	db.$client.pragma('foreign_keys = OFF');
+	try {
+		migrate(db, { migrationsFolder: folder });
+		const broken = db.$client.pragma('foreign_key_check') as unknown[];
+		if (broken.length) throw new Error(`Migration left ${broken.length} broken links`);
+	} finally {
+		db.$client.pragma('foreign_keys = ON');
+	}
 }

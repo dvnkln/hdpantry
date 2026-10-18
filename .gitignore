@@ -28,3 +28,6 @@ vite.config.ts.timestamp-*
 
 # Claude Code: personal local settings
 .claude/settings.local.json
+
+# Claude Code: test scripts, test pictures and throwaway instances that survive a reboot
+/.local

@@ -7,6 +7,7 @@ import {
 	items,
 	notificationChannels,
 	notificationsSent,
+	products,
 	pushSubscriptions,
 	users
 } from './db/schema';
@@ -82,6 +83,7 @@ beforeAll(() => {
 beforeEach(() => {
 	const db = getDb();
 	db.delete(containers).run();
+	db.delete(products).run();
 	db.delete(notificationsSent).run();
 	db.delete(pushSubscriptions).run();
 	db.delete(notificationChannels).run();
@@ -219,6 +221,73 @@ describe('the messages', () => {
 				count: 1
 			}
 		]);
+	});
+
+	it('a pack of a product opens the product', () => {
+		const db = getDb();
+		const peas = db
+			.insert(products)
+			.values({ name: 'Peas', location: 'freezer' })
+			.returning()
+			.get();
+		const pack = db
+			.insert(items)
+			.values({
+				productId: peas.id,
+				name: 'Peas',
+				vacuumed: false,
+				location: 'freezer',
+				bestBefore: plus(0),
+				fill: 'full',
+				createdAt: at(plus(-30))
+			})
+			.returning()
+			.get();
+		expect(buildMessages(dueReminders(me, DAY), 'single', DAY)).toEqual([
+			expect.objectContaining({
+				title: 'Peas',
+				url: `/products/${peas.id}`,
+				tag: `item-${pack.id}`
+			})
+		]);
+	});
+
+	it('packs of one product with the same date and place ring once, and are told for all', async () => {
+		device();
+		const db = getDb();
+		const peas = db
+			.insert(products)
+			.values({ name: 'Peas', location: 'freezer' })
+			.returning()
+			.get();
+		const pack = (location: 'freezer' | 'fridge', bestBefore = plus(0)) =>
+			db
+				.insert(items)
+				.values({
+					productId: peas.id,
+					name: 'Peas',
+					vacuumed: false,
+					location,
+					bestBefore,
+					fill: 'full',
+					createdAt: at(plus(-30))
+				})
+				.run();
+		pack('freezer');
+		pack('freezer');
+		pack('freezer');
+		pack('fridge'); // another place: a message of its own
+		pack('freezer', plus(40)); // another date: not due
+		const messages = buildMessages(dueReminders(me, DAY), 'single', DAY);
+		expect(messages.map((message) => message.title)).toEqual(['Peas (3 packs)', 'Peas']);
+		const [digest] = buildMessages(dueReminders(me, DAY), 'digest', DAY);
+		expect(digest.body.split('\n')).toEqual([
+			'Peas (3 packs) – expires today',
+			'Peas – expires today'
+		]);
+		expect(digest.count).toBe(2);
+		await notifyUser(me, at(DAY));
+		expect(dueReminders(me, DAY)).toEqual([]);
 	});
 
 	it('together: one message that counts and lists, in the language of the app', () => {

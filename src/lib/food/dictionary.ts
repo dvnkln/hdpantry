@@ -147,9 +147,12 @@ const CUT_LISTS = toLists(CUTS);
 
 // Where the word occurs in the simplified name: 'end' = at the end of one of its words (plural
 // endings ignored), 'inside' = somewhere else, null = not at all. Very short words have to
-// stand alone, so that "tee" is not found in "Teewurst".
+// stand alone, so that "tee" is not found in "Teewurst" – an English plural "s" is allowed
+// ("peas", "eggs").
 function find(name: string, word: string): 'end' | 'inside' | null {
-	if (word.length <= 3) return ` ${name} `.includes(` ${word} `) ? 'end' : null;
+	if (word.length <= 3) {
+		return ` ${name} `.includes(` ${word} `) || ` ${name} `.includes(` ${word}s `) ? 'end' : null;
+	}
 	if (!name.includes(word)) return null;
 	const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	return new RegExp(`${escaped}(e|n|en|er|es|s)?( |$)`).test(name) ? 'end' : 'inside';

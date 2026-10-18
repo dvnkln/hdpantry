@@ -27,19 +27,3 @@ export type Pick = {
 	content: string | null;
 	last: string | null;
 };
-
-// Narrows the containers down to what is typed: first those whose code fits, then those
-// whose content (now or last) fits. Upper and lower case do not matter; nothing typed: all.
-export function matchContainers<T extends Pick>(list: readonly T[], typed: string): T[] {
-	const wanted = typed.trim().toLowerCase();
-	if (!wanted) return [...list];
-	const byCode: T[] = [];
-	const byContent: T[] = [];
-	for (const container of list) {
-		if (codeLabel(container).toLowerCase().includes(wanted)) byCode.push(container);
-		else if ((container.content ?? container.last ?? '').toLowerCase().includes(wanted)) {
-			byContent.push(container);
-		}
-	}
-	return [...byCode, ...byContent];
-}

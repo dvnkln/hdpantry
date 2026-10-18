@@ -37,3 +37,14 @@ export function formatDate(iso: string) {
 		year: 'numeric'
 	}).format(new Date(`${iso.slice(0, 10)}T00:00:00`));
 }
+
+// A best-before date as printed on a pack: "03/2027" when only month and year were given
+export function formatPackDate(iso: string, monthOnly: boolean) {
+	return monthOnly ? `${iso.slice(5, 7)}/${iso.slice(0, 4)}` : formatDate(iso);
+}
+
+// The names of the twelve months in the language of the app, January first
+export function monthNames() {
+	const format = new Intl.DateTimeFormat(m.locale, { month: 'long', timeZone: 'UTC' });
+	return Array.from({ length: 12 }, (_, i) => format.format(new Date(Date.UTC(2000, i, 1))));
+}

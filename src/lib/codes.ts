@@ -79,3 +79,18 @@ export function parseCode(raw: string): ParsedCode | null {
 		vacuum: false
 	};
 }
+
+// The barcode of a bought product: EAN-13, EAN-8 or UPC-A (12 digits, the American form of
+// EAN-13) with a correct check digit – the last digit, computed from the others, which catches
+// a misread or mistyped digit. UPC-A is kept as EAN-13 (a 0 in front), so the same pack read
+// either way is the same product. Anything else (a QR code, a short code) is no product.
+export function parseProductCode(raw: string): string | null {
+	const text = raw.trim();
+	if (!/^(\d{8}|\d{12}|\d{13})$/.test(text)) return null;
+	const digits = [...text].map(Number);
+	const check = digits.pop()!;
+	// From the right: every other digit counts three times
+	const sum = digits.reverse().reduce((total, digit, i) => total + digit * (i % 2 ? 1 : 3), 0);
+	if ((10 - (sum % 10)) % 10 !== check) return null;
+	return text.length === 12 ? `0${text}` : text;
+}

@@ -84,12 +84,23 @@ export function savePrefs(
 
 // ---- What is due ----
 
+function pageOf(item: { containerId: number | null; productId: number | null }) {
+	return item.containerId ? `/containers/${item.containerId}` : `/products/${item.productId}`;
+}
+
 // A reminder that was missed (server off, device unreachable) is still sent for this long.
 const CATCH_UP_DAYS = 2;
 
 export type Due = {
+	// The content or pack the message is about (its id makes the tag of the message) – and all
+	// packs it stands for: packs of one product with the same date at the same place make one
+	// message, not one each
 	itemId: number;
-	containerId: number;
+	itemIds: number[];
+	// How many packs (0: a container)
+	packs: number;
+	// The page a single message opens: the container, or the product the pack belongs to
+	url: string;
 	name: string;
 	location: Location;
 	// What the message is about; `covers` are all occasions it settles (an older one that was
@@ -156,7 +167,9 @@ export function dueReminders(userId: number, day = today()): Due[] {
 		if (fresh.length === 0) continue;
 		due.push({
 			itemId: item.id,
-			containerId: item.containerId,
+			itemIds: [item.id],
+			packs: item.productId ? 1 : 0,
+			url: pageOf(item),
 			name: item.name,
 			location: item.location,
 			kind: fresh.at(-1)!, // REMINDER_KINDS is in the order of time
@@ -166,7 +179,32 @@ export function dueReminders(userId: number, day = today()): Due[] {
 			days: daysUntil(bestBefore, day)
 		});
 	}
-	return due;
+	return together(due);
+}
+
+// Packs of one product with the same date at the same place, due for the same occasion, as one
+// message: three packs of peas do not ring three times. The occasions settled are those of all.
+function together(due: Due[]): Due[] {
+	const merged: Due[] = [];
+	const byKey = new Map<string, Due>();
+	for (const d of due) {
+		if (!d.packs) {
+			merged.push(d);
+			continue;
+		}
+		const key = `${d.url}|${d.location}|${d.date}|${d.kind}`;
+		const first = byKey.get(key);
+		if (!first) {
+			const copy = { ...d, itemIds: [...d.itemIds], covers: [...d.covers] };
+			byKey.set(key, copy);
+			merged.push(copy);
+			continue;
+		}
+		first.itemIds.push(...d.itemIds);
+		first.packs += d.packs;
+		for (const kind of d.covers) if (!first.covers.includes(kind)) first.covers.push(kind);
+	}
+	return merged;
 }
 
 // ---- The messages ----
@@ -190,6 +228,11 @@ function phrase(due: Due, m: ReturnType<typeof serverMessages>) {
 		: m.notifications.expires(m.home.relative(due.days));
 }
 
+// The name, with the number of packs where there are several: "Peas (3 packs)"
+function title(due: Due, m: ReturnType<typeof serverMessages>) {
+	return due.packs > 1 ? `${due.name} (${m.home.packs(due.packs)})` : due.name;
+}
+
 // One message per content (opens it), or one for all of them (opens the stock list).
 // Messages with the same tag replace each other on the device.
 export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Notice[] {
@@ -198,7 +241,7 @@ export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Noti
 
 	if (mode === 'digest') {
 		const count = (kind: ReminderKind) => due.filter((d) => d.kind === kind).length;
-		const lines = due.slice(0, DIGEST_LINES).map((d) => `${d.name} – ${phrase(d, m)}`);
+		const lines = due.slice(0, DIGEST_LINES).map((d) => `${title(d, m)} – ${phrase(d, m)}`);
 		if (due.length > DIGEST_LINES) lines.push(m.notifications.more(due.length - DIGEST_LINES));
 		return [
 			{
@@ -212,9 +255,9 @@ export function buildMessages(due: Due[], mode: NotifyMode, day = today()): Noti
 		];
 	}
 	return due.map((d) => ({
-		title: d.name,
+		title: title(d, m),
 		body: `${phrase(d, m)} · ${m.locations[d.location]}`,
-		url: `/containers/${d.containerId}`,
+		url: d.url,
 		tag: `item-${d.itemId}`,
 		icon: ICON,
 		count: 1
@@ -234,13 +277,15 @@ export function sampleMessage(userId: number, day = today()): Notice {
 		.orderBy(items.bestBefore, items.name)
 		.all()
 		.filter((item) => item.bestBefore !== null)
-		.slice(0, 3);
+		.slice(0, 20);
 	const due: Due[] = stock.map((item) => {
 		const days = daysUntil(item.bestBefore!, day);
 		const kind: ReminderKind = days < 0 ? 'expired' : days === 0 ? 'today' : 'soon';
 		return {
 			itemId: item.id,
-			containerId: item.containerId,
+			itemIds: [item.id],
+			packs: item.productId ? 1 : 0,
+			url: pageOf(item),
 			name: item.name,
 			location: item.location,
 			kind,
@@ -251,8 +296,9 @@ export function sampleMessage(userId: number, day = today()): Notice {
 		};
 	});
 	const digest = mode === 'digest';
+	const shown = together(due).slice(0, 3);
 	const [message] = buildMessages(
-		digest ? due : due.slice(0, 1),
+		digest ? shown : shown.slice(0, 1),
 		digest ? 'digest' : 'single',
 		day
 	);
@@ -274,12 +320,14 @@ export function sampleMessage(userId: number, day = today()): Notice {
 
 function markSent(userId: number, due: Due[]) {
 	const values = due.flatMap((d) =>
-		d.covers.map((kind) => ({
-			userId,
-			itemId: d.itemId,
-			kind,
-			date: kind === 'soon' ? d.soonDate : d.date
-		}))
+		d.itemIds.flatMap((itemId) =>
+			d.covers.map((kind) => ({
+				userId,
+				itemId,
+				kind,
+				date: kind === 'soon' ? d.soonDate : d.date
+			}))
+		)
 	);
 	for (let i = 0; i < values.length; i += 200) {
 		getDb()

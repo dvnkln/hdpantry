@@ -141,7 +141,7 @@ it('the switch "vacuum-sealed" starts as it fits the container', () => {
 	expect(vacuumDefault(jar)).toBe(false);
 
 	// scanned, but a code nothing is known about: the same
-	const barcode = addScanned('4006381333931', 'camera')!;
+	const barcode = addScanned('9991234567890', 'camera')!;
 	expect(vacuumDefault(barcode)).toBe(false);
 	addItem(barcode.id, { ...lentils, vacuumed: true });
 	expect(vacuumDefault(barcode)).toBe(true);

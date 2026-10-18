@@ -3,14 +3,18 @@
 	import { applyAction, deserialize, enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import CameraScanner from '$lib/components/CameraScanner.svelte';
-	import { isPrintedCode, parseCode, PRINTED_CODES } from '$lib/codes';
-	import { codeLabel, matchContainers, type CodeSource } from '$lib/containers';
+	import { isPrintedCode, PRINTED_CODES } from '$lib/codes';
+	import { codeLabel, type CodeSource } from '$lib/containers';
+	import FillGauge from '$lib/components/FillGauge.svelte';
+	import PackCount from '$lib/components/PackCount.svelte';
+	import { matchTiles, typedAction, type NewFromTyped, type Tile } from '$lib/picks';
+	import { goto } from '$app/navigation';
 	import { m } from '$lib/i18n/index.svelte';
 	import { prepareReader, readText } from '$lib/reader/engine';
 	import { searchedPart } from '$lib/reader/geometry';
 	import { addLines, SURE, surelyRead, type Seen } from '$lib/reader/tally';
 	import { readCode } from '$lib/scanner';
-	import { Camera, ImageUp, X } from '@lucide/svelte';
+	import { Camera, ImageUp, Plus, X } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -51,6 +55,7 @@
 			const body = new FormData();
 			body.set('raw', raw);
 			body.set('source', source);
+			if (data.attach) body.set('attach', String(data.attach.id));
 			// The full address: this page may be on its way out when the answer is asked for
 			const response = await fetch('/scan?/found', {
 				method: 'POST',
@@ -79,11 +84,15 @@
 	// the form of a short code and was read for sure counts, and only when read twice. It then
 	// works exactly like the scanned code (decided by the user: whoever scans does not care how
 	// the app got there): a known container opens, a new one is added and asks for its content.
-	// The short code is looked for from the first frame on, next to the code reader. What it
-	// finds is used at once if the app knows the container (scanning its code would open the very
+	// The short code is looked for once the code reader has found nothing for a moment
+	// (TEXT_AFTER_MS), next to it. What it finds is used at once if the app knows the container (scanning its code would open the very
 	// same one). A container the app has never seen is different: its scanned code says more than
 	// the short code (size, kind), so the code reader gets this long first.
 	const NEW_AFTER_MS = 1500;
+	// … and only starts looking after this long without a code: most codes are read within that
+	// time, and searching for text meanwhile takes processor time from the code reader (measured
+	// on the phone: barcodes of packs took 2.4 to 3.4 seconds while it ran along)
+	const TEXT_AFTER_MS = 1500;
 	// A short code read for sure and waiting for that
 	let pending = '';
 	// Searching a picture keeps several processor cores busy. Whoever is scanning needs that for
@@ -140,7 +149,7 @@
 
 	function settle() {
 		if (!pending || taken || gone) return;
-		const known = data.containers.some((c) => !c.manual && c.code === pending);
+		const known = scannedCodes.has(pending);
 		if (known) return void takePrinted(pending, 'camera');
 		if (quietFor < NEW_AFTER_MS) return;
 		ask(pending, glimpse, 'camera');
@@ -201,8 +210,10 @@
 		quietFor = quietMs;
 		if (pending) return settle();
 		if (!readerReady || readingText || noReader || busy || twin || taken || asking) return;
+		// Giving a product its barcode: a printed short code belongs to a container, not here
+		if (data.attach) return;
 		// `quietMs`: for how long the camera has found no code – that is how long this has run
-		if (quietMs > GIVE_UP_MS) return;
+		if (quietMs < TEXT_AFTER_MS || quietMs > GIVE_UP_MS) return;
 		if (quietMs > EAGER_MS && Date.now() - lastSearch < SLOW_EVERY_MS) return;
 		lastSearch = Date.now();
 		readingText = true;
@@ -335,7 +346,7 @@
 					reading.lines.find((line) => line.confidence >= SURE && isPrintedCode(line.text))
 				)
 				.catch(() => undefined);
-			const known = printed && data.containers.some((c) => !c.manual && c.code === printed.text);
+			const known = printed && scannedCodes.has(printed.text);
 			const cut = printed && !known ? cutOut(picture, printed.box) : '';
 			picture.close();
 			message = printed ? '' : m.scan.photoNoCode;
@@ -347,38 +358,56 @@
 		}
 	}
 
-	// The containers there are, offered below the field for typing – always two next to each
-	// other, the ones used last first. Narrowed down by what is typed and by the two labels
-	// (typed in by hand / scanned). So a container without a printed code is found again and
-	// keeps its history.
+	// Products and containers there are, offered below the field – always two next to each other,
+	// the ones used last first, narrowed down by what is typed and by the two labels. A tap works
+	// like a scan: so what has no code (bread, a jar without a label) is found again and keeps
+	// its history.
 	const SHOWN = 6;
-	type Kind = 'typed' | 'scanned';
-	const kindOf = (container: { manual: boolean }): Kind => (container.manual ? 'typed' : 'scanned');
+	type Kind = Tile['kind'];
+	// The short codes of scanned containers: a short code read from the picture opens one of
+	// these without a question
+	let scannedCodes = $derived(
+		new Set(data.tiles.flatMap((t) => (t.kind === 'container' && !t.manual ? [t.code] : [])))
+	);
 	// Tapping a label shows only that kind; tapping it again shows all
 	let only = $state<Kind | null>(null);
-	let matching = $derived(matchContainers(data.containers, manual));
-	let offered = $derived(only ? matching.filter((c) => kindOf(c) === only) : matching);
+	let matching = $derived(matchTiles(data.tiles, manual));
+	let offered = $derived(only ? matching.filter((t) => t.kind === only) : matching);
 	// The labels are only there while both kinds exist
 	let kinds = $derived(
-		(['typed', 'scanned'] as const).filter((kind) =>
-			data.containers.some((c) => kindOf(c) === kind)
-		)
+		(['product', 'container'] as const).filter((kind) => data.tiles.some((t) => t.kind === kind))
 	);
 	let showAll = $state(false);
-	// What sending the typed text will do: open the container with exactly this code, or add a
-	// new one. Read the way the server reads it (short codes in capitals; of a scanned and a
-	// typed container with the same code, the scanned one). null: nothing to send yet.
-	let typed = $derived.by(() => {
-		const code = parseCode(manual)?.id;
-		if (code === undefined) return null;
-		const same = data.containers.filter((c) => c.code === code);
-		return same.find((c) => !c.manual) ?? same.at(0) ?? ('new' as const);
-	});
 	let all = $derived(showAll || manual.trim() !== '');
+	// What the field does with what is typed (see typedAction): open exactly that one, or offer
+	// to add it – as a product of that name, a product with that barcode, a container with that
+	// short code
+	let action = $derived(typedAction(data.tiles, manual));
+	// Where a tile leads: a product to a new pack, a container like a scan would
+	const hrefOf = (tile: Tile) =>
+		tile.kind === 'product'
+			? `/products/${tile.id}/add`
+			: tile.content === null
+				? `/containers/${tile.id}/add`
+				: `/containers/${tile.id}`;
+
+	function add(kind: NewFromTyped) {
+		const text = manual.trim().replace(/\s+/g, ' ');
+		// A product by its name has no code: straight to its form. Codes go to the server, which
+		// knows what they belong to (as if scanned).
+		if (kind === 'name') goto(`/products/new?name=${encodeURIComponent(text)}`);
+		else found(text, 'manual');
+	}
 
 	function onManual(event: SubmitEvent) {
 		event.preventDefault();
-		if (manual.trim()) found(manual, 'manual');
+		if (data.attach) {
+			if (manual.trim()) found(manual, 'manual');
+			return;
+		}
+		// Enter: what is meant, else the likelier of what could be added
+		if (action?.open) goto(hrefOf(action.open));
+		else if (action?.create) add(action.create[0]);
 	}
 </script>
 
@@ -423,6 +452,17 @@
 	{/if}
 {/snippet}
 
+{#snippet startCamera()}
+	<button
+		type="button"
+		class="flex items-center justify-center gap-2 btn-secondary"
+		onclick={() => (cameraOn = true)}
+	>
+		<Camera size={18} />
+		{m.scan.startCamera}
+	</button>
+{/snippet}
+
 <svelte:head><title>{m.scan.title} · hdpantry</title></svelte:head>
 
 <main class="mx-auto max-w-md px-4 py-6">
@@ -448,8 +488,16 @@
 			</button>
 		</form>
 	{:else}
-		<h1 class="text-xl font-bold">{m.scan.title}</h1>
-		<p class="mt-1 text-sm text-muted">{m.scan.intro}</p>
+		<h1 class="text-xl font-bold">
+			{data.attach ? m.products.attachTitle : typeFirst ? m.scan.typeTitle : m.scan.title}
+		</h1>
+		<p class="mt-1 text-sm text-muted">
+			{data.attach
+				? m.products.attachIntro(data.attach.name)
+				: typeFirst
+					? m.scan.typeIntro
+					: m.scan.intro}
+		</p>
 
 		<div class="mt-6 flex flex-col gap-4">
 			{#if cameraOn}
@@ -461,15 +509,8 @@
 					holdHint={seen.length > 0}
 					question={asking ? newContainer : undefined}
 				/>
-			{:else}
-				<button
-					type="button"
-					class="flex items-center justify-center gap-2 btn-secondary"
-					onclick={() => (cameraOn = true)}
-				>
-					<Camera size={18} />
-					{m.scan.startCamera}
-				</button>
+			{:else if !typeFirst}
+				{@render startCamera()}
 			{/if}
 
 			{#if asking && !cameraOn}
@@ -482,40 +523,72 @@
 			{/if}
 
 			<form class="flex flex-col gap-1" onsubmit={onManual}>
-				<label for="manual" class="text-sm font-medium">{m.scan.manual}</label>
+				<label for="manual" class="text-sm font-medium">
+					{data.attach ? m.products.barcode : m.scan.manual}
+				</label>
 				<div class="flex gap-2">
 					<!-- svelte-ignore a11y_autofocus -->
 					<input
 						id="manual"
 						bind:value={manual}
 						autocomplete="off"
-						autocapitalize="characters"
 						spellcheck="false"
+						enterkeyhint="go"
+						inputmode={data.attach ? 'numeric' : undefined}
 						autofocus={typeFirst}
 						onfocus={() => {
 							// Typing instead of scanning: the camera makes room, so the field and the
-							// containers below it stay above the keyboard of a phone
+							// list below it stay above the keyboard of a phone
 							picking = true;
 							cameraOn = false;
 						}}
-						class="min-w-0 flex-1 font-mono"
+						class="min-w-0 flex-1"
 					/>
-					<!-- Says what will happen: open the container with this code, or create a new one -->
-					<button class="min-w-28 btn-primary" disabled={!manual.trim() || busy}>
-						{typed === 'new' ? m.scan.create : m.scan.open}
-					</button>
+					{#if data.attach}
+						<button class="min-w-28 btn-primary" disabled={!manual.trim() || busy}>
+							{m.products.attach}
+						</button>
+					{:else if action?.open}
+						<!-- Exactly this one is meant: open it -->
+						<button class="min-w-28 btn-primary" disabled={busy}>{m.scan.open}</button>
+					{/if}
 				</div>
-				<!-- min-h-8: two lines, so the containers below do not jump when the text changes -->
-				<p class="min-h-8 text-xs text-muted">
-					{typed === null
-						? m.scan.manualHint
-						: typed === 'new'
-							? m.scan.createHint
-							: m.scan.openHint(typed.content)}
-				</p>
+				{#if action?.create && !data.attach}
+					<!-- Nothing fits exactly: what could be added, the likelier first (Enter takes it) -->
+					<div class="mt-1 flex flex-col gap-1.5">
+						{#each action.create as kind (kind)}
+							<button
+								type="button"
+								class="flex items-center gap-2 rounded-lg border border-dashed border-accent bg-surface px-3 py-2.5 text-left font-medium transition-colors hover:bg-accent/10 disabled:opacity-50"
+								disabled={busy}
+								onclick={() => add(kind)}
+							>
+								<Plus size={18} class="shrink-0 text-accent" />
+								<span class="min-w-0 truncate">
+									{kind === 'name'
+										? m.scan.addProduct(manual.trim().replace(/\s+/g, ' '))
+										: kind === 'barcode'
+											? m.scan.addBarcode
+											: m.scan.addContainer(manual.trim().toUpperCase())}
+								</span>
+							</button>
+						{/each}
+					</div>
+				{:else}
+					<!-- min-h-8: two lines, so the list below does not jump when the text changes -->
+					<p class="min-h-8 text-xs text-muted">
+						{#if action?.open?.kind === 'product'}
+							{m.scan.productOpenHint(action.open.name)}
+						{:else if action?.open?.kind === 'container'}
+							{m.scan.openHint(action.open.content)}
+						{:else}
+							{data.attach ? m.scan.attachHint : m.scan.manualHint}
+						{/if}
+					</p>
+				{/if}
 			</form>
 
-			{#if picking && data.containers.length}
+			{#if picking && data.tiles.length && !data.attach}
 				<section>
 					{#if kinds.length === 2}
 						<div class="flex gap-2" role="group" aria-label={m.scan.kinds}>
@@ -529,36 +602,50 @@
 									aria-pressed={only === kind}
 									onclick={() => (only = only === kind ? null : kind)}
 								>
-									{kind === 'typed' ? m.scan.typedGroup : m.scan.scannedGroup}
+									{kind === 'product' ? m.scan.productsGroup : m.scan.containersGroup}
 									<span class={only === kind ? '' : 'text-muted'}>
-										{matching.filter((c) => kindOf(c) === kind).length}
+										{matching.filter((t) => t.kind === kind).length}
 									</span>
 								</button>
 							{/each}
 						</div>
 					{/if}
 					<ul class="mt-3 grid grid-cols-2 gap-2">
-						{#each all ? offered : offered.slice(0, SHOWN) as container (container.id)}
-							{@const inside =
-								container.content ??
-								(container.last ? m.scan.emptyLast(container.last) : m.scan.empty)}
+						{#each all ? offered : offered.slice(0, SHOWN) as tile (tile.kind + tile.id)}
+							{@const title = tile.kind === 'product' ? tile.name : codeLabel(tile)}
+							{@const below =
+								tile.kind === 'product'
+									? m.scan.inStock(tile.packs)
+									: (tile.content ?? (tile.last ? m.scan.emptyLast(tile.last) : m.scan.empty))}
 							<li class="min-w-0">
 								<a
-									href={container.href}
-									title="{codeLabel(container)} – {inside}"
-									class="block rounded-lg border border-line bg-surface px-3 py-2 transition-colors hover:border-accent"
+									href={hrefOf(tile)}
+									title="{title} – {below}"
+									class="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-2.5 py-2 transition-colors hover:border-accent"
 								>
-									<!-- The code is what one looks for here: large and bold. What is in the
-										     container is the quiet line below it. -->
-									<span class="block truncate font-mono text-base leading-tight font-bold">
-										{codeLabel(container)}
-									</span>
-									<span
-										class="mt-0.5 block truncate text-[13px] text-muted {container.content
-											? ''
-											: 'italic'}"
-									>
-										{inside}
+									<!-- The same symbols as in the list: the pack of a product with its number,
+									     the bag or jar of a container with its fill level -->
+									{#if tile.kind === 'product'}
+										<PackCount count={tile.packs} shape={tile.shape} size={30} />
+									{:else}
+										<FillGauge level={tile.fill} source={tile.source} size={30} />
+									{/if}
+									<span class="min-w-0">
+										<span
+											class="block truncate leading-tight font-bold {tile.kind === 'container'
+												? 'font-mono'
+												: ''}"
+										>
+											{title}
+										</span>
+										<span
+											class="mt-0.5 block truncate text-[13px] text-muted {tile.kind ===
+												'container' && !tile.content
+												? 'italic'
+												: ''}"
+										>
+											{below}
+										</span>
 									</span>
 								</a>
 							</li>
@@ -572,13 +659,21 @@
 				</section>
 			{/if}
 
+			{#if typeFirst && !cameraOn}
+				<!-- Typing came first: the camera is one way among others, below the list -->
+				{@render startCamera()}
+			{/if}
 			<label class="flex cursor-pointer items-center justify-center gap-2 btn-secondary">
 				<ImageUp size={18} />
 				{m.scan.photo}
 				<input type="file" accept="image/*" class="sr-only" onchange={onPhoto} />
 			</label>
 
-			<a href="/scan/check" class="self-center btn-quiet">{m.scan.checkLink}</a>
+			{#if data.attach}
+				<a href="/products/{data.attach.id}" class="self-center btn-quiet">{m.common.cancel}</a>
+			{:else}
+				<a href="/scan/check" class="self-center btn-quiet">{m.scan.checkLink}</a>
+			{/if}
 		</div>
 	{/if}
 </main>

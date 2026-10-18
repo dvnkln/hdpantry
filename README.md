@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  Self-hosted pantry tracker – know <b>what you have</b> and <b>what should be eaten first</b>. Scan the code on a container, note what is inside, done.
+  Self-hosted pantry tracker – know <b>what you have</b> and <b>what should be eaten first</b>. Scan the code on a container or the barcode of a pack, note what it is, done.
 </p>
 
 <p align="center">
@@ -28,6 +28,7 @@ The guides live in the **[wiki](https://github.com/dvnkln/hdpantry/wiki)**:
 - 🐳 [Installation](https://github.com/dvnkln/hdpantry/wiki/Installation) – Docker Compose and the `.env` file
 - 🔐 [HTTPS](https://github.com/dvnkln/hdpantry/wiki/HTTPS) – reverse proxy, `ORIGIN`, why the camera needs it, installing as an app
 - ⬆️ [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating)
+- 🛒 [Products](https://github.com/dvnkln/hdpantry/wiki/Products) – bought packs with a barcode, or without one, and looking up their names
 - 📅 [Shelf life guide values](https://github.com/dvnkln/hdpantry/wiki/Shelf-life-guide-values) – what the suggested dates are worth and where they come from
 - 🔔 [Notifications](https://github.com/dvnkln/hdpantry/wiki/Notifications) – reminders on your devices, through Pushover, ntfy or a webhook
 - 📤 [Export and import](https://github.com/dvnkln/hdpantry/wiki/Export-and-import) – your stock as a file
@@ -40,8 +41,10 @@ What changed in each version: [Changelog](CHANGELOG.md). What's planned: [Roadma
 
 ## ✨ Features
 
-- 📷 **Scan** – hold a code in front of the camera and hdpantry leads on right away, without a button or a question: a full container shows what is inside, an empty one asks for a name. A photo of the code or typing it works too. Any QR code will do. Where a QR code fails – a creased, dented or frosted label – hdpantry can read a code printed as text instead (OCR, in the browser; for now four-character codes only).
+- 📷 **Scan** – hold a code in front of the camera and hdpantry leads on right away, without a button or a question: a full container shows what is inside, an empty one asks for a name, the barcode of a pack adds it to its product. A photo of the code works too, and any QR code will do. Where a QR code fails – a creased, dented or frosted label – hdpantry can read a code printed as text instead (OCR, in the browser; for now four-character codes only).
+- ⌨️ **Type in** – one field for a name, a short code or the digits of a barcode, and below it everything recorded before, the ones used last first: one tap, and the thing you buy every week is in again.
 - 🥡 **Containers** – every code is one container, added by itself the first time it is scanned. Mark the content as eaten – or replace it in one go – and the container is free for the next thing; scanning it then shows what was in it before, ready to be used again with one tap. Containers without a code can be recorded by hand and merged with their code later.
+- 🛒 **Products** – bought packs next to your containers: frozen peas, a jar of pickles, bread from the baker. One line per product with the number of packs and the nearest date, every pack with its own best-before date as printed. Drawn as its pack – box, bag, can, jar, bottle or cup. If you like, hdpantry looks up name, maker and kind of an unknown barcode in the free database Open Food Facts (off by default).
 - 📝 **Quick entry** – one name, then an optional note, vacuum-sealed or not, where it is stored, best before, how full it is and, if you like, how much (g, kg, ml, l, pieces, servings – it follows the fill level). Everything can be corrected later.
 - 📅 **Shelf life** – the kind of food and a symbol are suggested from its name (German and English; your corrections are remembered). Suitable places of storage are marked, unsuitable ones locked, and a best-before date is suggested from the kind of food, the place and whether it is vacuum-sealed – [guide values, not a guarantee](#-shelf-life).
 - 📋 **In stock** – everything you have, what expires first at the top; expired and soon-to-expire items stand out. Filter by place of storage, sort by date, name or place. Cards on phones, a wide table on computers.
@@ -50,7 +53,7 @@ What changed in each version: [Changelog](CHANGELOG.md). What's planned: [Roadma
 - 🧊 **Stock in the cabinet** – a bit of fun you can switch on: pick a place of storage and the list stands inside a drawn fridge, freezer or wooden cabinet.
 - 🛠️ **Maintenance built in** – background tasks you can see and schedule, and optional backups of the database that you can download.
 - 🎨 **Your look** – follows your device (dark or light) by default, or pick one; food symbols come colourful or as plain line icons.
-- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts. hdpantry connects to nothing outside – unless you set up notifications: then messages go to the targets you added, and nowhere else. [Who sees what](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
+- 🔒 **Private** – runs on your own server, single account, all data in one SQLite file. No tracking, no cloud, no foreign scripts or fonts. hdpantry connects to nothing outside – unless you set up notifications or switch on looking up product names: then messages go to the targets you added, and the barcode of an unknown pack to Open Food Facts, and nowhere else. [Who sees what](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security) is documented. Repeated wrong passwords block the address they come from – also behind a reverse proxy.
 
 ## 📅 Shelf life
 
@@ -58,13 +61,13 @@ hdpantry suggests a best-before date so you keep track of what to eat first. **T
 
 ## 📱 Screenshots
 
-|                               In stock                                |                                   New content                                    |                                 Details                                  |
-| :-------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :----------------------------------------------------------------------: |
-| <img src="docs/screenshots/stock.jpg" alt="Stock list" width="260" /> | <img src="docs/screenshots/form.jpg" alt="Form for a new content" width="260" /> | <img src="docs/screenshots/details.jpg" alt="Detail page" width="260" /> |
+|                               In stock                                |                                                      Type in                                                       |                                        Product                                        |
+| :-------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
+| <img src="docs/screenshots/stock.jpg" alt="Stock list" width="260" /> | <img src="docs/screenshots/typein.jpg" alt="Typing a name or code, with everything recorded before" width="260" /> | <img src="docs/screenshots/product.jpg" alt="A product with its packs" width="260" /> |
 
-|                                    Guide values                                    |                                        Appearance                                         |                                Settings                                |
-| :--------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| <img src="docs/screenshots/guide.jpg" alt="Shelf-life guide values" width="260" /> | <img src="docs/screenshots/appearance.jpg" alt="Colour scheme and symbols" width="260" /> | <img src="docs/screenshots/settings.jpg" alt="Settings" width="260" /> |
+|                                   New content                                    |                                    Guide values                                    |                                Settings                                |
+| :------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| <img src="docs/screenshots/form.jpg" alt="Form for a new content" width="260" /> | <img src="docs/screenshots/guide.jpg" alt="Shelf-life guide values" width="260" /> | <img src="docs/screenshots/settings.jpg" alt="Settings" width="260" /> |
 
 <p align="center"><sub>Screenshots in the dark colour scheme, with an invented demo stock. Colourful symbols: Twemoji.</sub></p>
 
@@ -90,7 +93,7 @@ The camera scanner needs HTTPS (a rule of the browsers); hdpantry expects a reve
 
 ## 🙏 Credits
 
-Colourful food symbols: [Twemoji](https://github.com/jdecked/twemoji), © Twitter, Inc and other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Plain symbols: [Lucide](https://lucide.dev) (ISC License) and [Tabler Icons](https://tabler.io/icons) (MIT License). Wordmark font: [Outfit](https://github.com/Outfitio/Outfit-Fonts) (SIL Open Font License). Code reading: [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) and [barcode-detector](https://github.com/Sec-ant/barcode-detector) (MIT License). Text recognition: [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR) models (Apache License 2.0, ONNX files from [RapidOCR](https://github.com/RapidAI/RapidOCR)) running on [ONNX Runtime Web](https://onnxruntime.ai) (MIT License). All of them are bundled with the app – nothing is loaded from elsewhere.
+Colourful food symbols: [Twemoji](https://github.com/jdecked/twemoji), © Twitter, Inc and other contributors, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Plain symbols: [Lucide](https://lucide.dev) (ISC License) and [Tabler Icons](https://tabler.io/icons) (MIT License). Wordmark font: [Outfit](https://github.com/Outfitio/Outfit-Fonts) (SIL Open Font License). Code reading: [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) and [barcode-detector](https://github.com/Sec-ant/barcode-detector) (MIT License). Text recognition: [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR) models (Apache License 2.0, ONNX files from [RapidOCR](https://github.com/RapidAI/RapidOCR)) running on [ONNX Runtime Web](https://onnxruntime.ai) (MIT License). All of them are bundled with the app – nothing is loaded from elsewhere. Product names, if you switch it on: [Open Food Facts](https://world.openfoodfacts.org), a database under the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/).
 
 ## 🤖 Built with AI
 

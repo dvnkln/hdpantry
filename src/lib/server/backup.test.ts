@@ -6,6 +6,7 @@ import { getDb } from './db';
 import { users } from './db/schema';
 import { learnFood } from './food';
 import { addItem, listStock, removeActiveItem } from './items';
+import { addPacks, createProduct, eatPack } from './products';
 import { getSetting, setSettings } from './settings';
 
 const cheese = {
@@ -52,9 +53,41 @@ describe('export and import', () => {
 		addItem(jar.id, soup);
 		addScanned('EMPTY1', 'photo');
 		learnFood('Provolone', 'cheese_hard', 'cheese-wedge');
+		// a product with three packs, one of them eaten, and one without a barcode
+		const peas = createProduct({
+			name: 'Peas',
+			note: 'for guests',
+			shape: 'bag',
+			barcode: '9991234567890',
+			category: 'veg_cooked',
+			icon: null,
+			location: 'freezer'
+		});
+		addPacks(peas.id, { bestBefore: '2031-05-31', dateMonth: true, location: 'freezer', count: 3 });
+		eatPack(peas.id);
+		createProduct({
+			name: 'Rolls',
+			note: null,
+			shape: 'box',
+			barcode: null,
+			category: 'other',
+			icon: null,
+			location: 'pantry'
+		});
 
 		const before = exportBackup();
-		expect(backupCounts(before)).toEqual({ containers: 3, filled: 2, history: 1, memory: 1 });
+		expect(backupCounts(before)).toEqual({
+			containers: 3,
+			filled: 2,
+			products: 2,
+			packs: 2,
+			history: 2,
+			memory: 1
+		});
+		expect(before.products[0].items[0]).toMatchObject({
+			dateMonth: true,
+			bestBefore: '2031-05-31'
+		});
 		const parsed = parseBackup(JSON.stringify(before));
 		expect(parsed.ok).toBe(true);
 		if (!parsed.ok) return;
@@ -109,6 +142,40 @@ describe('reading an export file', () => {
 	it('refuses a file from a newer version', () => {
 		expect(problemOf(fileWith((d) => (d.format = BACKUP_FORMAT + 1)))).toEqual({ kind: 'newer' });
 	});
+	it('reads a file of the second format, which has no products', () => {
+		const old = fileWith((d) => {
+			d.format = 2;
+			delete (d as { products?: unknown }).products;
+			for (const container of d.containers) {
+				for (const item of container.items) delete (item as { dateMonth?: unknown }).dateMonth;
+			}
+		});
+		const parsed = parseBackup(old);
+		expect(parsed.ok && parsed.backup.products).toEqual([]);
+		expect(
+			parsed.ok && parsed.backup.containers.flatMap((c) => c.items).every((i) => !i.dateMonth)
+		).toBe(true);
+	});
+	it('refuses a product barcode that is none, or one used twice', () => {
+		const product = {
+			barcode: '9991234567890',
+			name: 'Peas',
+			note: null,
+			shape: null,
+			category: null,
+			icon: null,
+			location: 'freezer' as const,
+			createdAt: '2031-01-01T00:00:00.000Z',
+			items: []
+		};
+		const where = (products: Backup['products']) => {
+			const problem = problemOf(fileWith((d) => (d.products = products)));
+			return problem?.kind === 'invalid' ? problem.where : problem;
+		};
+		expect(where([{ ...product, barcode: '9991234567891' }])).toBe('products[0].barcode');
+		expect(where([product, { ...product, name: 'More peas' }])).toBe('products');
+		expect(where([product, { ...product, barcode: null }])).toBeNull();
+	});
 	it('reads a file of the first format, which has no day the content went in', () => {
 		const old = fileWith((d) => {
 			d.format = 1;
@@ -162,10 +229,14 @@ describe('reading an export file', () => {
 		expect(result.ok && result.backup.containers[0].items[1].icon).toBeNull();
 	});
 	it('accepts an empty stock', () => {
-		const result = parseBackup(fileWith((d) => ((d.containers = []), (d.foodMemory = []))));
+		const result = parseBackup(
+			fileWith((d) => ((d.containers = []), (d.products = []), (d.foodMemory = [])))
+		);
 		expect(result.ok && backupCounts(result.backup)).toEqual({
 			containers: 0,
 			filled: 0,
+			products: 0,
+			packs: 0,
 			history: 0,
 			memory: 0
 		});

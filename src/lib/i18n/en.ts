@@ -46,9 +46,11 @@ export const en: Messages = {
 
 	home: {
 		empty: 'Nothing in stock yet',
-		emptyHint: 'Scan a container to record its first content.',
+		emptyHint: 'Scan a container or a product – or record something without a code.',
 		scan: 'Scan',
+		record: 'Type in',
 		title: 'In stock',
+		packs: (n: number) => (n === 1 ? '1 pack' : `${n} packs`),
 		all: 'All',
 		filter: 'Filter by place of storage',
 		nothingHere: 'Nothing is stored here.',
@@ -86,15 +88,24 @@ export const en: Messages = {
 
 	scan: {
 		title: 'Scan',
-		intro: 'Hold the code of the container in front of the camera.',
+		intro: 'Hold the code of a container or the barcode of a product in front of the camera.',
 		startCamera: 'Start camera',
 		cameraStarting: 'Starting camera …',
 		photo: 'Take or choose a photo',
 		photoReading: 'Reading photo …',
 		photoNoCode: 'No code was found in the photo.',
 		photoFailed: 'The photo could not be read.',
-		manual: 'Type a code',
-		manualHint: 'The short code is usually printed below the QR code on the container.',
+		manual: 'Name or code',
+		manualHint: 'The short code on the container, the digits of a barcode or just the name.',
+		attachHint: 'The digits below the bars.',
+		typeTitle: 'Type in',
+		typeIntro: 'Type a name or code – or pick below what you have recorded before.',
+		addProduct: (name: string) => `Add product “${name}”`,
+		addBarcode: 'Add a product with this barcode',
+		addContainer: (code: string) => `Add container ${code}`,
+		inStock: (n: number) => (n === 0 ? 'not in stock' : `${n} in stock`),
+		productsGroup: 'Products',
+		containersGroup: 'Containers',
 		hintShow: 'Show the hint',
 		stuckShort: 'Not readable? Type the short code below.',
 		printedNew: 'New container?',
@@ -102,15 +113,12 @@ export const en: Messages = {
 		lightOn: 'Switch the light on',
 		lightOff: 'Switch the light off',
 		create: 'Create',
-		createHint: 'This code is new – a new container will be created.',
 		openHint: (content) =>
 			content
 				? `This container exists – in it: ${content}.`
 				: 'This container exists – it is empty.',
-		other: 'Record without camera',
+		productOpenHint: (name: string) => `“${name}” is already there – you add a pack.`,
 		kinds: 'Filter by kind',
-		typedGroup: 'By hand',
-		scannedGroup: 'Scanned',
 		empty: 'empty',
 		emptyLast: (name) => `empty · ${name}`,
 		more: (n) => `${n} more`,
@@ -196,6 +204,67 @@ export const en: Messages = {
 		container: 'Container',
 		fill: 'Record content',
 		notFound: 'This container does not exist (any more).'
+	},
+
+	products: {
+		notFound: 'This product does not exist (any more).',
+		product: 'Product',
+		newTitle: 'New product',
+		addTitle: 'Add pack',
+		editTitle: 'Edit product',
+		save: 'Save',
+		day: 'Day',
+		month: 'Month',
+		year: 'Year',
+		monthNone: 'Month',
+		addDay: 'Add the day',
+		noDate: 'No date',
+		count: 'Packs',
+		fewer: 'One less',
+		more: 'One more',
+		barcode: 'Barcode',
+		attach: 'Assign barcode',
+		attachTitle: 'Assign barcode',
+		attachIntro: (name: string) => `Scan the barcode of “${name}”.`,
+		notProduct: 'This is not the barcode of a product.',
+		taken: (name: string) => `“${name}” already has this barcode.`,
+		packs: 'In stock',
+		noPacks: 'No pack in stock right now.',
+		eat: 'Eaten',
+		eatenQuestion: (name: string, date: string | null) =>
+			date ? `One pack of “${name}” (${date}) eaten?` : `One pack of “${name}” eaten?`,
+		eatenConfirm: 'Yes, eaten',
+		history: 'Eaten lately',
+		dateHint: 'As printed on the pack – month and year will do.',
+		shape: 'Packaging',
+		shapes: {
+			box: 'Box',
+			bag: 'Bag',
+			can: 'Can',
+			jar: 'Jar',
+			bottle: 'Bottle',
+			cup: 'Cup'
+		},
+		// One pack: when it keeps till, and since when it is stored
+		packLine: (date: string | null, since: string | null) =>
+			date
+				? `Best before ${date}${since ? ` · since ${since}` : ''}`
+				: since
+					? `Since ${since}`
+					: '',
+		fromDatabase: 'Name from Open Food Facts – change it as you like.',
+		lookupOffer: 'Have the names of bought products looked up?',
+		lookupLink: 'Switch it on in the settings',
+		goes: (n: number) =>
+			n === 1 ? 'This pack is deleted when saving.' : `These ${n} packs are deleted when saving.`,
+		problems: {
+			name: 'Please enter a name.',
+			location: 'Please choose a suitable place.',
+			date: 'This date does not exist.',
+			count: 'Please choose between 1 and 20 packs.',
+			since: 'The day it went in cannot be in the future.',
+			packs: 'Please check the packs – a date or place does not fit.'
+		}
 	},
 
 	locations: {
@@ -404,9 +473,12 @@ export const en: Messages = {
 		dataHint: 'Export, import',
 		dataExport: 'Export',
 		dataExportText:
-			'Downloads your stock as a file: all containers, what is inside, the history and what the app has learned about your food. Account and settings are not included.',
-		dataNow: (containers: number, filled: number) =>
-			`Right now: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
+			'Downloads your stock as a file: all containers and products with their history and what the app has learned about your food. Account and settings are not included.',
+		dataNow: (containers: number, filled: number, products: number, packs: number) =>
+			`Right now: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled` +
+			(products
+				? `; ${products} ${products === 1 ? 'product' : 'products'} with ${packs} ${packs === 1 ? 'pack' : 'packs'}.`
+				: '.'),
 		dataExportButton: 'Download export',
 		dataImport: 'Import',
 		dataImportText:
@@ -417,8 +489,11 @@ export const en: Messages = {
 		dataWord: 'REPLACE',
 		dataReplace: 'Replace stock',
 		dataWrongWord: 'To replace, please type the confirmation word.',
-		dataImported: (containers: number, filled: number) =>
-			`Import finished: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled.`,
+		dataImported: (containers: number, filled: number, products: number, packs: number) =>
+			`Import finished: ${containers} ${containers === 1 ? 'container' : 'containers'}, ${filled} filled` +
+			(products
+				? `; ${products} ${products === 1 ? 'product' : 'products'} with ${packs} ${packs === 1 ? 'pack' : 'packs'}.`
+				: '.'),
 		saved: 'Saved ✓',
 		maintenance: 'Maintenance',
 		maintenanceHint: 'Tasks, storage, backups',
@@ -428,6 +503,8 @@ export const en: Messages = {
 		dataRows: {
 			containers: 'Containers',
 			filled: 'of which filled',
+			products: 'Products',
+			packs: 'Packs in stock',
 			history: 'History entries',
 			memory: 'Learned corrections'
 		},
@@ -521,6 +598,27 @@ export const en: Messages = {
 		themeHint: '“System” follows the setting of your device.',
 		themes: { system: 'System', dark: 'Dark', light: 'Light' },
 		containersShort: 'Delete, code, merge',
+		products: 'Products',
+		productsShort: 'Learned products',
+		productsHint:
+			'All products hdpantry knows – also those with nothing in stock right now. Deleting removes a product with its packs and history; the next scan of its barcode adds it anew.',
+		noProducts: 'No products yet.',
+		productsList: 'Learned products',
+		lookup: 'Look up names',
+		lookupSwitch: 'Look up at Open Food Facts',
+		lookupHint:
+			'Asks the free product database for name and kind of an unknown barcode – also whether it is frozen food. Only the barcode is sent, from your server.',
+		lookupMore: 'What is sent',
+		productLine: (barcode: string | null, packs: number, eaten: number) =>
+			[
+				barcode ?? 'without barcode',
+				packs ? `${packs} in stock` : 'not in stock',
+				eaten ? `${eaten} eaten` : ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		productDeleteQuestion: (name: string, packs: number) =>
+			`Really delete “${name}”?${packs ? ` ${packs === 1 ? 'The pack in stock goes' : `The ${packs} packs in stock go`} with it.` : ''} This cannot be undone.`,
 		guideShort: 'Shelf life, sources',
 		aboutHint: 'Version, links, licence',
 		icons: 'Symbols',
@@ -812,6 +910,7 @@ export const en: Messages = {
 		paddleocr: 'text recognition: the model (PP-OCRv5), Apache 2.0',
 		rapidocr: 'text recognition: the model as a file for the browser, Apache 2.0',
 		onnxruntime: 'text recognition: runs the model, MIT License',
+		openfoodfacts: 'product names, if switched on: database under the Open Database License',
 		ai: 'Built with the help of AI (Claude Code).'
 	},
 

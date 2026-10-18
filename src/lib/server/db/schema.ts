@@ -1,8 +1,17 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import {
+	check,
+	index,
+	integer,
+	real,
+	sqliteTable,
+	text,
+	uniqueIndex
+} from 'drizzle-orm/sqlite-core';
 import type { CodeSource } from '../../containers';
 import type { Category } from '../../food/categories';
 import type { FillLevel, Location, Unit } from '../../items';
+import type { PackShape } from '../../products';
 import type { ReminderKind } from '../../reminders';
 
 // Simple key/value store for app settings (interface language, ...).
@@ -52,21 +61,62 @@ export const containers = sqliteTable(
 	(table) => [uniqueIndex('containers_code_idx').on(table.code, table.manual)]
 );
 
-// What is (or was) in a container. Content that was eaten is not deleted but gets `removedAt`,
-// so every container keeps its history.
+// A bought product, known by its barcode (or by its name only, for one without a code). What
+// the app learned about it is kept here; its packs in stock are `items`.
+export const products = sqliteTable('products', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	// EAN-13 / EAN-8 (see parseProductCode); empty = recorded without a code
+	barcode: text('barcode').unique(),
+	name: text('name').notNull(),
+	// A note about the product (e.g. "for guests"), shown with it
+	note: text('note'),
+	// How it is packed (see PACK_SHAPES in $lib/products); empty = a box
+	shape: text('shape').$type<PackShape>(),
+	category: text('category').$type<Category>(),
+	icon: text('icon'),
+	// Where its packs are usually kept – preselected for the next one
+	location: text('location').$type<Location>().notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+// What the product database answered for a barcode (see server/lookup.ts), so it is asked once
+// per barcode only. `found` false: it does not know the product.
+export const productLookups = sqliteTable('product_lookups', {
+	barcode: text('barcode').primaryKey(),
+	found: integer('found', { mode: 'boolean' }).notNull(),
+	name: text('name'),
+	// Who makes it ('' = not known; empty = asked before the maker was taken, ask again)
+	brand: text('brand'),
+	// Description and kinds of the product, the most telling first, one per line
+	hints: text('hints'),
+	frozen: integer('frozen', { mode: 'boolean' }).notNull().default(false),
+	// How it is packed, if the database says one thing only
+	shape: text('shape').$type<PackShape>(),
+	lookedAt: integer('looked_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+// What is (or was) in a container – or one pack of a product. Content that was eaten is not
+// deleted but gets `removedAt`, so every container and product keeps its history.
 export const items = sqliteTable(
 	'items',
 	{
 		id: integer('id').primaryKey({ autoIncrement: true }),
-		containerId: integer('container_id')
-			.notNull()
-			.references(() => containers.id, { onDelete: 'cascade' }),
+		// Exactly one of the two is set
+		containerId: integer('container_id').references(() => containers.id, { onDelete: 'cascade' }),
+		productId: integer('product_id').references(() => products.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
 		note: text('note'),
 		vacuumed: integer('vacuumed', { mode: 'boolean' }).notNull(),
 		location: text('location').$type<Location>().notNull(),
 		// Best before, YYYY-MM-DD; empty = no date
 		bestBefore: text('best_before'),
+		// Only month and year were given (as printed on many packs): `bestBefore` is then the
+		// last day of that month
+		dateMonth: integer('date_month', { mode: 'boolean' }).notNull().default(false),
 		// The date was typed by hand (true) or is the suggestion from kind of food, place and
 		// vacuum (false) – a suggestion follows when those change, a typed date stays
 		dateManual: integer('date_manual', { mode: 'boolean' }).notNull().default(false),
@@ -88,10 +138,15 @@ export const items = sqliteTable(
 	},
 	(table) => [
 		index('items_container_idx').on(table.containerId),
+		index('items_product_idx').on(table.productId),
 		// A container holds one thing at a time
 		uniqueIndex('items_active_idx')
 			.on(table.containerId)
-			.where(sql`${table.removedAt} is null`)
+			.where(sql`${table.removedAt} is null`),
+		check(
+			'items_belongs_to_one',
+			sql`(${table.containerId} is null) <> (${table.productId} is null)`
+		)
 	]
 );
 

@@ -49,7 +49,7 @@
 	});
 	let file = $derived(chosen?.ok ? chosen.backup : null);
 	let fileCounts = $derived(file ? backupCounts(file) : null);
-	const ROWS = ['containers', 'filled', 'history', 'memory'] as const;
+	const ROWS = ['containers', 'filled', 'products', 'packs', 'history', 'memory'] as const;
 
 	function day(iso: string) {
 		return new Date(iso).toLocaleDateString(data.locale, { dateStyle: 'long' });
@@ -63,7 +63,14 @@
 <section class={ui.card}>
 	<h2 class={ui.heading}><FileDown size={20} class="text-muted" />{m.settings.dataExport}</h2>
 	<p class="mt-1 text-sm text-muted">{m.settings.dataExportText}</p>
-	<p class="mt-2 text-sm">{m.settings.dataNow(data.counts.containers, data.counts.filled)}</p>
+	<p class="mt-2 text-sm">
+		{m.settings.dataNow(
+			data.counts.containers,
+			data.counts.filled,
+			data.counts.products,
+			data.counts.packs
+		)}
+	</p>
 	<!-- A plain download from the own server -->
 	<a href="/settings/data/export" download class="mt-3 {BUTTON_SECONDARY}">
 		<Download size={18} />{m.settings.dataExportButton}
@@ -81,7 +88,12 @@
 
 	{#if form?.imported && !chosen}
 		<p class="mt-3 text-sm text-good" role="status">
-			{m.settings.dataImported(form.imported.containers, form.imported.filled)}
+			{m.settings.dataImported(
+				form.imported.containers,
+				form.imported.filled,
+				form.imported.products,
+				form.imported.packs
+			)}
 		</p>
 	{/if}
 

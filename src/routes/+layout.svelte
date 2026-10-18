@@ -9,7 +9,7 @@
 	import { m, setLocale } from '$lib/i18n/index.svelte';
 	import { readerAtHand, warmReader } from '$lib/reader/engine';
 	import { THEMES } from '$lib/themes';
-	import { LogOut, ScanLine, Settings } from '@lucide/svelte';
+	import { Keyboard, LogOut, ScanLine, Settings } from '@lucide/svelte';
 
 	let { data, children } = $props();
 
@@ -92,17 +92,28 @@
 
 	{#if scanButton}
 		<!-- Phones: a bar along the lower edge the list fades out behind, so no entry is half
-		     covered. Wide screens have room for a button in the corner. -->
+		     covered. Wide screens have room for the buttons in the corner. Scanning is the main
+		     way in; "type in" next to it opens the same page without the camera – for a short code, a
+		     barcode's digits or a name, and the list of what was recorded before. -->
 		<div
 			class="pointer-events-none fixed inset-x-0 bottom-0 z-10 flex justify-center bg-linear-to-t from-bg from-60% to-transparent px-4 pt-7 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:inset-x-auto lg:right-4 lg:bg-none lg:px-0 lg:pt-0"
 		>
-			<a
-				href="/scan"
-				class="pointer-events-auto flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent transition-transform hover:scale-[1.02] active:scale-95 lg:w-auto lg:shadow-lg"
-			>
-				<ScanLine size={22} />
-				{m.home.scan}
-			</a>
+			<div class="flex w-full max-w-sm gap-2 lg:w-auto">
+				<a
+					href="/scan"
+					class="pointer-events-auto flex flex-1 items-center justify-center gap-2 rounded-full bg-accent px-5 py-4 font-semibold text-on-accent transition-transform hover:scale-[1.02] active:scale-95 lg:flex-none lg:shadow-lg"
+				>
+					<ScanLine size={22} />
+					{m.home.scan}
+				</a>
+				<a
+					href="/scan?manual"
+					class="pointer-events-auto flex items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-4 py-4 font-semibold transition-transform hover:scale-[1.02] hover:border-accent active:scale-95 lg:shadow-lg"
+				>
+					<Keyboard size={20} />
+					{m.home.record}
+				</a>
+			</div>
 		</div>
 	{/if}
 {:else}

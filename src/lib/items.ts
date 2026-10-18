@@ -69,7 +69,7 @@ export function scaleAmount(
 	return Math.max(scaled, 1 / factor); // never down to nothing
 }
 
-function oneLine(value: FormDataEntryValue | null, max: number) {
+export function oneLine(value: FormDataEntryValue | null, max: number) {
 	return String(value ?? '')
 		.trim()
 		.replace(/\s+/g, ' ')

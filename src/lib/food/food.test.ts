@@ -87,6 +87,10 @@ describe('guessing the kind of food from its name', () => {
 	it('very short words only count when they stand alone', () => {
 		expect(suggestCategory('Teewurst')).toBe('cold_cuts'); // not "tee"
 		expect(suggestCategory('Tee')).toBe('dry_goods');
+		// … also as an English plural
+		expect(suggestCategory('Frozen peas')).toBe('veg_raw');
+		expect(suggestIcon('Frozen peas', 'veg_raw')).toBe('pea-pod');
+		expect(suggestCategory('Eggs')).toBe(suggestCategory('Egg'));
 	});
 	it('ignores case, umlauts and punctuation', () => {
 		expect(simplify('  Grüße, Käse-Soße! ')).toBe('grusse kase sosse');
