@@ -9,7 +9,9 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      This comment spells no heading out with its "#" signs on purpose: a search for the heading
      must not land in here (it did, and a release section ended up hidden inside the comment). -->
 
-## Upcoming release
+## 0.3.0 – 2026-10-18
+
+Bought packs join your containers: scan the barcode of a pack or add something without a code, and hdpantry keeps every pack with its printed date. Scanning and typing share one page, and the stock list can be searched.
 
 ### ✨ New
 
@@ -27,6 +29,12 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 - **Maintenance** – the tasks are folded rows that say when they run and how the last run went; a tap unfolds the schedule and "Run now", and the switch saves at once
 - **Settings → Containers** – in boxes like the other settings, with shorter explanations
 - **About** – also names the libraries that read QR codes and barcodes, and says in a few words what each part of the text recognition does
+
+### ⬆️ Updating
+
+- `docker compose pull`, then `docker compose up -d` – see [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating).
+- On the first start the database is converted for products; your containers, contents and history stay as they are. This change is bigger than usual – download an export first (Settings → Data), just in case.
+- Looking up product names is switched off; switch it on under Settings → Products if you want it.
 
 ## 0.2.1 – 2026-10-11
 
