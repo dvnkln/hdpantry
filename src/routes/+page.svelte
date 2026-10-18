@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
+	import { onDestroy, tick } from 'svelte';
+	import { stockSearch } from '$lib/stockSearch.svelte';
 	import FillGauge from '$lib/components/FillGauge.svelte';
 	import FoodIcon from '$lib/components/FoodIcon.svelte';
 	import PackCount from '$lib/components/PackCount.svelte';
@@ -13,6 +15,7 @@
 	import {
 		expiry,
 		isSortKey,
+		matchesSearch,
 		sortStock,
 		SORT_KEYS,
 		type ExpiryLevel,
@@ -24,7 +27,9 @@
 		ChevronUp,
 		Keyboard,
 		PackageOpen,
-		ScanLine
+		ScanLine,
+		Search,
+		X
 	} from '@lucide/svelte';
 
 	let { data } = $props();
@@ -45,14 +50,33 @@
 	// The choice of the order on phones; closed again once one is picked
 	let sortMenu = $state<HTMLDetailsElement>();
 
-	function href(change: { place?: Location | null; sort?: SortKey; descending?: boolean }) {
-		const next = { place, sort, descending, ...change };
+	// The search, also in the address (?q=): typing narrows the list at once
+	// svelte-ignore state_referenced_locally
+	let query = $state(page.url.searchParams.get('q') ?? '');
+	// Open while the magnifier in the header says so, or while something is searched for
+	// svelte-ignore state_referenced_locally
+	if (query) stockSearch.open = true;
+	let searching = $derived(stockSearch.open);
+	// Opened: the cursor goes into the field
+	$effect(() => {
+		if (stockSearch.open) tick().then(() => searchField?.focus());
+	});
+	let searchField = $state<HTMLInputElement>();
+
+	function href(change: {
+		place?: Location | null;
+		sort?: SortKey;
+		descending?: boolean;
+		q?: string;
+	}) {
+		const next = { place, sort, descending, q: query, ...change };
 		const params = new URLSearchParams();
 		if (next.place) params.set('place', next.place);
+		if (next.q.trim()) params.set('q', next.q.trim());
 		if (next.sort !== 'date') params.set('sort', next.sort);
 		if (next.descending) params.set('dir', 'desc');
-		const query = params.toString();
-		return query ? `/?${query}` : '/';
+		const search = params.toString();
+		return search ? `/?${search}` : '/';
 	}
 	// Tapping the column that already sorts turns the order around
 	const sortHref = (key: SortKey) =>
@@ -69,8 +93,24 @@
 		Object.fromEntries(LOCATIONS.map((l) => [l, stock.filter((i) => i.location === l).length]))
 	);
 	let shown = $derived(
-		sortStock(place ? stock.filter((i) => i.location === place) : stock, sort, descending, m.locale)
+		sortStock(
+			stock.filter((i) => (!place || i.location === place) && matchesSearch(i, query)),
+			sort,
+			descending,
+			m.locale
+		)
 	);
+	// Typing changes the address without loading the page again, so "back" still works
+	function onSearch() {
+		replaceState(href({}), page.state);
+	}
+	// Leaving the page closes it: coming back shows the whole list
+	onDestroy(() => (stockSearch.open = false));
+	function closeSearch() {
+		query = '';
+		stockSearch.open = false;
+		replaceState(href({ q: '' }), page.state);
+	}
 	let soon = $derived(shown.filter((i) => i.expiry.level === 'soon').length);
 	let expired = $derived(shown.filter((i) => i.expiry.level === 'expired').length);
 
@@ -191,6 +231,39 @@
 		<!-- The list explains itself: the heading is only there for screen readers -->
 		<h1 class="sr-only">{m.home.title}</h1>
 
+		{#if searching}
+			<!-- The search, opened by the magnifier in the header: narrows the list while typing,
+			     together with the place of storage -->
+			<div class="mb-3 flex items-center gap-2">
+				<label
+					class="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-accent bg-surface px-2.5 py-1"
+				>
+					<Search size={16} class="shrink-0 text-muted" />
+					<input
+						bind:this={searchField}
+						bind:value={query}
+						oninput={onSearch}
+						type="text"
+						inputmode="search"
+						enterkeyhint="search"
+						autocomplete="off"
+						placeholder={m.home.search}
+						aria-label={m.home.search}
+						class="min-w-0 flex-1 border-0 bg-transparent p-0.5 text-sm focus:ring-0 focus:outline-none"
+					/>
+				</label>
+				<button
+					type="button"
+					class="flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-surface transition-colors hover:border-accent"
+					aria-label={m.home.searchClose}
+					title={m.home.searchClose}
+					onclick={closeSearch}
+				>
+					<X size={17} />
+				</button>
+			</div>
+		{/if}
+
 		<!-- Filter by place of storage; scrolls sideways on narrow screens -->
 		<nav aria-label={m.home.filter} class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
 			{#each [null, ...LOCATIONS] as key (key)}
@@ -280,7 +353,9 @@
 			<div class="lg:hidden">
 				<StorageScene place={scene}>
 					{#if shown.length === 0}
-						<p class="px-3 py-6 text-center text-sm text-muted">{m.home.nothingHere}</p>
+						<p class="px-3 py-6 text-center text-sm text-muted">
+							{query.trim() ? m.home.nothingFound : m.home.nothingHere}
+						</p>
 					{:else}
 						{@render cards(true)}
 					{/if}
@@ -289,7 +364,7 @@
 		{/if}
 		{#if shown.length === 0}
 			<p class="mt-8 text-center text-sm text-muted {scene ? 'max-lg:hidden' : ''}">
-				{m.home.nothingHere}
+				{query.trim() ? m.home.nothingFound : m.home.nothingHere}
 			</p>
 		{:else}
 			{#if !scene}

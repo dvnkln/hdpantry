@@ -50,6 +50,9 @@ export const de = {
 		emptyHint: 'Scanne einen Behälter oder ein Produkt – oder erfasse etwas ohne Code.',
 		scan: 'Scannen',
 		record: 'Eintippen',
+		search: 'Im Vorrat suchen',
+		searchClose: 'Suche schließen',
+		nothingFound: 'Nichts gefunden.',
 		title: 'Vorrat',
 		packs: (n: number) => (n === 1 ? '1 Packung' : `${n} Packungen`),
 		all: 'Alle',
@@ -607,21 +610,21 @@ export const de = {
 		theme: 'Farbschema',
 		themeHint: '„System“ folgt der Einstellung deines Geräts.',
 		themes: { system: 'System', dark: 'Dunkel', light: 'Hell' },
-		containersShort: 'Löschen, Code, Zusammenführen',
+		containersShort: 'Liste, Zusammenführen, Löschen',
 		products: 'Produkte',
-		productsShort: 'Gelernte Produkte',
+		productsShort: 'Liste, Nachschlagen, Löschen',
 		productsHint:
-			'Alle Produkte, die hdpantry kennt – auch die, von denen gerade nichts im Vorrat ist. Löschen entfernt ein Produkt samt Packungen und Verlauf; beim nächsten Scan seines Strichcodes wird es neu angelegt.',
+			'Auch die ohne Packung im Vorrat. Gelöscht wird ein Produkt samt Packungen und Verlauf.',
 		noProducts: 'Noch keine Produkte.',
 		productsList: 'Gelernte Produkte',
 		lookup: 'Namen nachschlagen',
 		lookupSwitch: 'Bei Open Food Facts nachschlagen',
 		lookupHint:
-			'Fragt bei einem unbekannten Strichcode die freie Produktdatenbank nach Name und Art – auch, ob es Tiefkühlware ist. Gesendet wird nur der Strichcode, von deinem Server aus.',
+			'Fragt bei einem unbekannten Strichcode die freie Produktdatenbank nach Name, Art und Verpackung. Gesendet wird nur der Strichcode, von deinem Server aus.',
 		lookupMore: 'Was dabei übertragen wird',
 		productLine: (barcode: string | null, packs: number, eaten: number) =>
 			[
-				barcode ?? 'ohne Strichcode',
+				barcode ?? '',
 				packs ? (packs === 1 ? '1 im Vorrat' : `${packs} im Vorrat`) : 'nicht im Vorrat',
 				eaten ? `${eaten} gegessen` : ''
 			]
@@ -642,8 +645,9 @@ export const de = {
 		guideHint:
 			'Wie lange hdpantry welches Lebensmittel für haltbar hält, je nach Lagerort – mit Quellen.',
 		containers: 'Behälter',
+		allContainers: 'Alle Behälter',
 		containersHint:
-			'Alle Behälter, die hdpantry kennt – auch leere. Löschen entfernt einen Behälter samt seinem Verlauf; beim nächsten Scan seines Codes wird er neu angelegt.',
+			'Auch leere. Gelöscht wird ein Behälter samt Verlauf; der nächste Scan legt ihn neu an.',
 		noContainers: 'Noch keine Behälter.',
 		empty: 'leer',
 		typed: 'manuell erfasst',
@@ -678,13 +682,18 @@ export const de = {
 		},
 		deleteAll: 'Alle Behälter löschen',
 		deleteAllHint:
-			'Entfernt sämtliche Behälter, den ganzen Vorrat und jeden Verlauf. hdpantry ist danach leer wie am ersten Tag; dein Konto bleibt.',
+			'Entfernt sämtliche Behälter samt Inhalt und Verlauf. Produkte und dein Konto bleiben.',
 		deleteAllQuestion: (n: number) =>
 			`Wirklich ${n === 1 ? 'den einen Behälter' : `alle ${n} Behälter`} samt Vorrat und Verlauf löschen? Das lässt sich nicht rückgängig machen.`,
 		deleteWord: 'LÖSCHEN',
 		typeToConfirm: (word: string) => `Zum Bestätigen ${word} eintippen`,
 		deleteAllConfirm: 'Alles endgültig löschen',
-		wrongWord: 'Zum Löschen bitte das Bestätigungswort eintippen.'
+		wrongWord: 'Zum Löschen bitte das Bestätigungswort eintippen.',
+		deleteAllProducts: 'Alle Produkte löschen',
+		deleteAllProductsHint:
+			'Entfernt sämtliche Produkte samt Packungen und Verlauf. Behälter und dein Konto bleiben.',
+		deleteAllProductsQuestion: (n: number) =>
+			`Wirklich ${n === 1 ? 'das eine Produkt' : `alle ${n} Produkte`} samt Packungen und Verlauf löschen? Das lässt sich nicht rückgängig machen.`
 	},
 
 	guide: {

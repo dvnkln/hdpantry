@@ -9,7 +9,8 @@
 	import { m, setLocale } from '$lib/i18n/index.svelte';
 	import { readerAtHand, warmReader } from '$lib/reader/engine';
 	import { THEMES } from '$lib/themes';
-	import { Keyboard, LogOut, ScanLine, Settings } from '@lucide/svelte';
+	import { Keyboard, LogOut, ScanLine, Search, Settings } from '@lucide/svelte';
+	import { stockSearch } from '$lib/stockSearch.svelte';
 
 	let { data, children } = $props();
 
@@ -60,6 +61,21 @@
 			<a href="/" aria-label={m.common.home} class="mr-auto transition-opacity hover:opacity-80"
 				><Brand /></a
 			>
+			{#if scanButton}
+				<!-- The search of the stock list: where there is a list to search -->
+				<button
+					type="button"
+					class="rounded-lg p-2 transition-colors hover:bg-surface hover:text-text {stockSearch.open
+						? 'text-text'
+						: 'text-muted'}"
+					aria-label={m.home.search}
+					title={m.home.search}
+					aria-pressed={stockSearch.open}
+					onclick={() => (stockSearch.open = !stockSearch.open)}
+				>
+					<Search size={20} />
+				</button>
+			{/if}
 			<a
 				href="/settings"
 				class="rounded-lg p-2 transition-colors hover:bg-surface hover:text-text {section ===

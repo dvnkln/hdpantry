@@ -7,9 +7,10 @@
 	import { FormFeedback } from '$lib/forms.svelte';
 	import { m } from '$lib/i18n/index.svelte';
 	import { WIKI, ui } from '$lib/ui';
-	import { Globe, Pencil, Trash2 } from '@lucide/svelte';
+	import { Globe, Pencil, ShoppingBasket, Trash2 } from '@lucide/svelte';
+	import DeleteAll from '$lib/components/DeleteAll.svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
 	const forms = new FormFeedback();
 
 	// The product whose deletion is being asked about
@@ -50,9 +51,11 @@
 	</p>
 </section>
 
-<section class="mt-6">
-	<h2 class="font-semibold">{m.settings.productsList}</h2>
-	<p class="mt-1 text-sm text-muted">{m.settings.productsHint}</p>
+<section class={ui.card}>
+	<h2 class={ui.heading}>
+		<ShoppingBasket size={20} class="text-muted" />{m.settings.productsList}
+	</h2>
+	<p class="mt-1 {ui.hint}">{m.settings.productsHint}</p>
 
 	{#if data.products.length === 0}
 		<p class="mt-3 text-sm text-muted">{m.settings.noProducts}</p>
@@ -121,3 +124,12 @@
 		</ul>
 	{/if}
 </section>
+
+{#if data.products.length}
+	<DeleteAll
+		title={m.settings.deleteAllProducts}
+		hint={m.settings.deleteAllProductsHint}
+		question={m.settings.deleteAllProductsQuestion(data.products.length)}
+		error={form?.error ?? ''}
+	/>
+{/if}

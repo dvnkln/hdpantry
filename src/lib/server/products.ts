@@ -314,3 +314,8 @@ export function correctPacks(productId: number, groups: PackGroup[]) {
 		}
 	});
 }
+
+// Every product with its packs and their history; containers stay. Returns how many went.
+export function deleteAllProducts() {
+	return getDb().delete(products).run().changes;
+}

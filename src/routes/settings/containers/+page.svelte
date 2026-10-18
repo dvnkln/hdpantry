@@ -6,24 +6,23 @@
 		BUTTON_PRIMARY,
 		BUTTON_SECONDARY
 	} from '$lib/components/SubmitButton.svelte';
+	import DeleteAll from '$lib/components/DeleteAll.svelte';
 	import { m } from '$lib/i18n/index.svelte';
-	import { Combine, Info, Pencil, Trash2 } from '@lucide/svelte';
+	import { ui } from '$lib/ui';
+	import { Boxes, Combine, Info, Pencil, Trash2 } from '@lucide/svelte';
 	import type { SubmitFunction } from './$types';
 
 	let { data, form } = $props();
 
 	// What is open right now: one question or small form at a time
-	type Panel =
-		{ kind: 'delete' | 'code' | 'merge' | 'info'; id: number } | { kind: 'all'; id: 0 } | null;
+	type Panel = { kind: 'delete' | 'code' | 'merge' | 'info'; id: number } | null;
 	let panel = $state<Panel>(null);
-	let typed = $state('');
 	let code = $state('');
 
 	// Tapping the same action again closes its panel
 	function open(next: Panel, startCode = '') {
 		if (next && panel?.kind === next.kind && panel.id === next.id) next = null;
 		panel = next;
-		typed = '';
 		code = startCode;
 	}
 	const isOpen = (kind: string, id: number) => panel?.kind === kind && panel.id === id;
@@ -39,9 +38,11 @@
 
 <svelte:head><title>{m.settings.containers} · hdpantry</title></svelte:head>
 
-<section>
-	<h1 class="text-xl font-bold">{m.settings.containers}</h1>
-	<p class="mt-1 text-sm text-muted">{m.settings.containersHint}</p>
+<h1 class={ui.pageTitle}>{m.settings.containers}</h1>
+
+<section class={ui.card}>
+	<h2 class={ui.heading}><Boxes size={20} class="text-muted" />{m.settings.allContainers}</h2>
+	<p class="mt-1 {ui.hint}">{m.settings.containersHint}</p>
 
 	{#if data.containers.length === 0}
 		<p class="mt-3 text-sm text-muted">{m.settings.noContainers}</p>
@@ -199,54 +200,14 @@
 				</li>
 			{/each}
 		</ul>
-
-		<div class="mt-6 rounded-xl border border-danger p-4">
-			<h3 class="font-semibold">{m.settings.deleteAll}</h3>
-			<p class="mt-1 text-sm text-muted">{m.settings.deleteAllHint}</p>
-			{#if isOpen('all', 0)}
-				<form
-					method="POST"
-					action="?/deleteAll"
-					use:enhance={submit}
-					class="mt-3 flex flex-col gap-3"
-				>
-					<p class="text-sm">{m.settings.deleteAllQuestion(data.containers.length)}</p>
-					<label class="flex flex-col gap-1">
-						<span class="text-sm font-medium">
-							{m.settings.typeToConfirm(m.settings.deleteWord)}
-						</span>
-						<input
-							name="confirm"
-							bind:value={typed}
-							autocomplete="off"
-							autocapitalize="characters"
-							spellcheck="false"
-						/>
-					</label>
-					{#if form?.error && form.id === 0}
-						<p class="form-error" role="alert">{form.error}</p>
-					{/if}
-					<div class="flex gap-2">
-						<button type="button" class="flex-1 {BUTTON_SECONDARY}" onclick={() => open(null)}>
-							{m.common.cancel}
-						</button>
-						<SubmitButton
-							text={m.settings.deleteAllConfirm}
-							disabled={typed.trim() !== m.settings.deleteWord}
-							style="flex-1 {BUTTON_DANGER}"
-						/>
-					</div>
-				</form>
-			{:else}
-				<button
-					type="button"
-					class="mt-2 -ml-2 flex items-center gap-1.5 btn-quiet hover:text-danger"
-					onclick={() => open({ kind: 'all', id: 0 })}
-				>
-					<Trash2 size={16} />
-					{m.settings.deleteAll}
-				</button>
-			{/if}
-		</div>
 	{/if}
 </section>
+
+{#if data.containers.length}
+	<DeleteAll
+		title={m.settings.deleteAll}
+		hint={m.settings.deleteAllHint}
+		question={m.settings.deleteAllQuestion(data.containers.length)}
+		error={form?.id === 0 ? form.error : ''}
+	/>
+{/if}

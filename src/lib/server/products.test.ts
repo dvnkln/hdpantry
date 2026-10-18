@@ -7,6 +7,7 @@ import {
 	attachBarcode,
 	correctPacks,
 	createProduct,
+	deleteAllProducts,
 	deleteProduct,
 	eatPack,
 	findProduct,
@@ -255,5 +256,28 @@ describe('correcting the packs', () => {
 		expect(productHistory(a.id).map((p) => p.id)).toEqual([own.id]);
 		deleteProduct(a.id);
 		deleteProduct(b.id);
+	});
+});
+
+describe('deleting all products', () => {
+	it('takes every product with its packs and history, and leaves containers alone', () => {
+		const box = addScanned('x://y?cc=GH78', 'camera')!;
+		const a = newProduct('A');
+		addPacks(a.id, { bestBefore: null, dateMonth: false, location: 'pantry', count: 2 });
+		eatPack(a.id);
+		newProduct('B');
+		expect(deleteAllProducts()).toBeGreaterThanOrEqual(2);
+		expect(productOverview()).toEqual([]);
+		expect(
+			getDb()
+				.select()
+				.from(items)
+				.all()
+				.filter((i) => i.productId !== null)
+		).toEqual([]);
+		expect(getDb().select().from(items).all().length).toBe(0);
+		// the container is still there
+		expect(openTyped('GH78')?.id).toBe(box.id);
+		deleteContainer(box.id);
 	});
 });

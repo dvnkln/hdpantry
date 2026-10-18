@@ -74,7 +74,8 @@ function readKey(data: FormData) {
 }
 
 export const actions: Actions = {
-	// Switch and schedule of one task belong together: saved with one button.
+	// The schedule of one task, saved with its button. Whether the task is on is its switch
+	// (toggle) and stays as it is.
 	save: async ({ request, locals }) => {
 		const t = serverMessages(locals.locale);
 		const data = await request.formData();
@@ -97,8 +98,25 @@ export const actions: Actions = {
 			if (!isKeep(keep)) return invalid();
 			saveBackupKeep(keep);
 		}
-		updateTask(key, { enabled: data.get('enabled') === 'on', frequency, time, weekday });
+		const current = listTasks().find((task) => task.key === key);
+		if (!current) return invalid();
+		updateTask(key, { enabled: current.enabled, frequency, time, weekday });
 		return { key, message: t.settings.saved };
+	},
+
+	// On or off, saved the moment it is switched; the schedule stays as it is. A task that must
+	// run (sending notifications) cannot be switched off.
+	toggle: async ({ request, locals }) => {
+		const data = await request.formData();
+		const key = readKey(data);
+		const current = listTasks().find((task) => task.key === key);
+		if (!key || !current) {
+			return fail(400, { key, error: serverMessages(locals.locale).common.invalid });
+		}
+		const { frequency, time, weekday } = current;
+		const enabled = isRequired(key) || data.get('enabled') === 'on';
+		updateTask(key, { enabled, frequency, time, weekday });
+		return { key };
 	},
 
 	// Back to the schedule of a new installation; whether the task is on stays as it is.

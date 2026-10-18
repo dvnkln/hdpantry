@@ -1,5 +1,7 @@
 import { lookupOn } from '$lib/server/lookup';
-import { deleteProduct, productOverview } from '$lib/server/products';
+import { fail } from '@sveltejs/kit';
+import { serverMessages } from '$lib/server/i18n';
+import { deleteAllProducts, deleteProduct, productOverview } from '$lib/server/products';
 import { setSettings } from '$lib/server/settings';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -10,6 +12,16 @@ export const actions: Actions = {
 	lookup: async ({ request }) => {
 		const on = (await request.formData()).get('productLookup') === 'on';
 		setSettings({ productLookup: on ? 'on' : 'off' });
+		return { done: true };
+	},
+
+	// Everything goes: only with the typed word (the page asks for it too).
+	deleteAll: async ({ request, locals }) => {
+		const t = serverMessages(locals.locale).settings;
+		if (String((await request.formData()).get('confirm') ?? '').trim() !== t.deleteWord) {
+			return fail(400, { error: t.wrongWord });
+		}
+		deleteAllProducts();
 		return { done: true };
 	},
 

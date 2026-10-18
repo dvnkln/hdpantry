@@ -58,3 +58,11 @@ export function sortStock<T extends Sortable>(
 		return a.bestBefore ? -1 : b.bestBefore ? 1 : byName(a, b);
 	});
 }
+
+// Whether an entry fits what is typed into the search of the stock: every word typed is found
+// in its name or note. Upper and lower case do not matter; nothing typed: everything fits.
+export function matchesSearch(item: { name: string; note?: string | null }, typed: string) {
+	const words = typed.toLowerCase().split(/\s+/).filter(Boolean);
+	const text = `${item.name} ${item.note ?? ''}`.toLowerCase();
+	return words.every((word) => text.includes(word));
+}

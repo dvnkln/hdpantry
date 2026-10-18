@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysUntil, expiry, sortStock } from './stock';
+import { daysUntil, expiry, matchesSearch, sortStock } from './stock';
 
 const today = '2026-10-04';
 
@@ -89,5 +89,18 @@ describe('order of the list', () => {
 	it('does not change the list it was given', () => {
 		sortStock(list, 'name');
 		expect(list[0].name).toBe('Brot');
+	});
+});
+
+describe('searching the stock', () => {
+	const soup = { name: 'Lentil soup', note: 'from the market' };
+	it('every word typed is in the name or the note, whatever the case', () => {
+		expect(matchesSearch(soup, 'SOUP')).toBe(true);
+		expect(matchesSearch(soup, 'lentil market')).toBe(true);
+		expect(matchesSearch(soup, 'pea soup')).toBe(false);
+		expect(matchesSearch({ name: 'Peas', note: null }, 'pea')).toBe(true);
+	});
+	it('nothing typed: everything fits', () => {
+		expect(matchesSearch(soup, '   ')).toBe(true);
 	});
 });

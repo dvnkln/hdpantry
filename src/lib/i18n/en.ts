@@ -49,6 +49,9 @@ export const en: Messages = {
 		emptyHint: 'Scan a container or a product – or record something without a code.',
 		scan: 'Scan',
 		record: 'Type in',
+		search: 'Search the stock',
+		searchClose: 'Close search',
+		nothingFound: 'Nothing found.',
 		title: 'In stock',
 		packs: (n: number) => (n === 1 ? '1 pack' : `${n} packs`),
 		all: 'All',
@@ -597,24 +600,20 @@ export const en: Messages = {
 		theme: 'Colour scheme',
 		themeHint: '“System” follows the setting of your device.',
 		themes: { system: 'System', dark: 'Dark', light: 'Light' },
-		containersShort: 'Delete, code, merge',
+		containersShort: 'List, merge, delete',
 		products: 'Products',
-		productsShort: 'Learned products',
+		productsShort: 'List, look-up, delete',
 		productsHint:
-			'All products hdpantry knows – also those with nothing in stock right now. Deleting removes a product with its packs and history; the next scan of its barcode adds it anew.',
+			'Also those with no pack in stock. Deleting removes a product with its packs and history.',
 		noProducts: 'No products yet.',
 		productsList: 'Learned products',
 		lookup: 'Look up names',
 		lookupSwitch: 'Look up at Open Food Facts',
 		lookupHint:
-			'Asks the free product database for name and kind of an unknown barcode – also whether it is frozen food. Only the barcode is sent, from your server.',
+			'Asks the free product database for name, kind and packaging of an unknown barcode. Only the barcode is sent, from your server.',
 		lookupMore: 'What is sent',
 		productLine: (barcode: string | null, packs: number, eaten: number) =>
-			[
-				barcode ?? 'without barcode',
-				packs ? `${packs} in stock` : 'not in stock',
-				eaten ? `${eaten} eaten` : ''
-			]
+			[barcode ?? '', packs ? `${packs} in stock` : 'not in stock', eaten ? `${eaten} eaten` : '']
 				.filter(Boolean)
 				.join(' · '),
 		productDeleteQuestion: (name: string, packs: number) =>
@@ -631,8 +630,9 @@ export const en: Messages = {
 		guide: 'Guide values',
 		guideHint: 'How long hdpantry assumes which food keeps, by place of storage – with sources.',
 		containers: 'Containers',
+		allContainers: 'All containers',
 		containersHint:
-			'All containers hdpantry knows – empty ones too. Deleting removes a container with its history; it is added again the next time its code is scanned.',
+			'Empty ones too. Deleting removes a container with its history; the next scan adds it anew.',
 		noContainers: 'No containers yet.',
 		empty: 'empty',
 		typed: 'recorded by hand',
@@ -667,13 +667,18 @@ export const en: Messages = {
 		},
 		deleteAll: 'Delete all containers',
 		deleteAllHint:
-			'Removes every container, the whole stock and all history. hdpantry is then as empty as on the first day; your account stays.',
+			'Removes every container with its content and history. Products and your account stay.',
 		deleteAllQuestion: (n: number) =>
 			`Really delete ${n === 1 ? 'the one container' : `all ${n} containers`} with stock and history? This cannot be undone.`,
 		deleteWord: 'DELETE',
 		typeToConfirm: (word: string) => `Type ${word} to confirm`,
 		deleteAllConfirm: 'Delete everything for good',
-		wrongWord: 'To delete, please type the confirmation word.'
+		wrongWord: 'To delete, please type the confirmation word.',
+		deleteAllProducts: 'Delete all products',
+		deleteAllProductsHint:
+			'Removes every product with its packs and history. Containers and your account stay.',
+		deleteAllProductsQuestion: (n: number) =>
+			`Really delete ${n === 1 ? 'the one product' : `all ${n} products`} with their packs and history? This cannot be undone.`
 	},
 
 	guide: {

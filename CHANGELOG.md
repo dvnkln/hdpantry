@@ -16,13 +16,16 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 - **Products** – besides containers, hdpantry now keeps bought packs: scan the barcode of a frozen meal or a jar of pickles, or add something without a code, such as bread from the baker. A product is one line in the stock with the number of its packs and the nearest date; every pack keeps its own best-before date as printed – month and year, the day if it is there. "Eaten" takes the pack to eat first; packs can be corrected with the pencil like a container, and several packs with the same date send one reminder, not one each
 - **Packaging** – a product is drawn as its pack (box, bag, can, jar, bottle or cup) with the number of packs inside; suggested from what is known about it, one tap to change
 - **Look up product names** – optional and switched off by default: for an unknown barcode, hdpantry can ask the free product database Open Food Facts for name and maker, the kind of food, whether it is frozen food and the packaging. Only the barcode is sent, from your server – see [Privacy and security](https://github.com/dvnkln/hdpantry/wiki/Privacy-and-security#product-lookup)
-- **Settings → Products** – all products hdpantry has learned, to rename or delete, and the switch for looking up names
+- **Settings → Products** – all products hdpantry has learned, to rename or delete (also all at once), and the switch for looking up names
+- **Search the stock** – the magnifier in the header opens a search field above the filters; the list narrows to what you type in a name or note, together with the place of storage
 
 ### 🔧 Improved
 
 - **Scan and type in on one page** – the two buttons are now "Scan" and "Type in" and lead to the same page: one field for a name, a short code or the digits of a barcode, and below it the products and containers recorded before, the ones used last first. A tap works like a scan; what is not there yet can be added right there
 - **Faster barcodes** – the recognition of printed short codes now starts only when the camera has found no code for a moment, so ordinary codes are read sooner
 - **Export and import** – the file now holds products and their packs too; files of older versions still load
+- **Maintenance** – the tasks are folded rows that say when they run and how the last run went; a tap unfolds the schedule and "Run now", and the switch saves at once
+- **Settings → Containers** – in boxes like the other settings, with shorter explanations
 - **About** – also names the libraries that read QR codes and barcodes, and says in a few words what each part of the text recognition does
 
 ## 0.2.1 – 2026-10-11
