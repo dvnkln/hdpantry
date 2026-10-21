@@ -24,7 +24,7 @@
 	import PlacePicker from '$lib/components/PlacePicker.svelte';
 	import { simplify, suggestCategory } from '$lib/food/dictionary';
 	import { shelfLife, suggestDate } from '$lib/food/shelfLife';
-	import { NotebookPen, Plus } from '@lucide/svelte';
+	import { Info, NotebookPen, Plus } from '@lucide/svelte';
 	import StoredSince from '$lib/components/StoredSince.svelte';
 
 	type Template = Omit<ItemValues, 'bestBefore' | 'dateManual' | 'storedOn'> & {
@@ -326,16 +326,25 @@
 					{m.item.useSuggestion} ({formatDate(suggested)})
 				</button>
 			{/if}
-			<StoredSince {today} bind:since />
-			<!-- Wherever a date is suggested, say what it is worth -->
-			<p class="text-xs text-muted">
+			<!-- Wherever a date is suggested, say what it is worth – one line, right below the field;
+			     the extra time for vacuum-sealing is explained on the page of the sources -->
+			<p class="flex items-center gap-1 text-xs text-muted">
 				{#if guide}
-					{vacuumed ? m.item.guideHintVacuum : m.item.guideHint}
-					<a href="/settings/guide" class="underline hover:text-text">{m.item.guideLink}</a>
+					{m.item.guideHint}
+					<!-- The sources behind it: a small sign at the end keeps it to one line -->
+					<a
+						href="/settings/guide"
+						class="-m-1 shrink-0 rounded p-1 transition-colors hover:text-text"
+						aria-label={m.item.guideLink}
+						title={m.item.guideLink}
+					>
+						<Info size={14} />
+					</a>
 				{:else}
 					{m.item.noGuide}
 				{/if}
 			</p>
+			<StoredSince {today} bind:since />
 		</div>
 
 		<div>

@@ -9,6 +9,13 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      This comment spells no heading out with its "#" signs on purpose: a search for the heading
      must not land in here (it did, and a release section ended up hidden inside the comment). -->
 
+## Upcoming release
+
+### 🔧 Improved
+
+- **Date of a pack** – day, month and year side by side: the day may stay at "–", the year starts at the current one, and a month already past moves to next year
+- **Date hints** – shorter, right below the date: "A guide value, not a guarantee – always check", with a small sign that leads to the sources
+
 ## 0.3.0 – 2026-10-18
 
 Bought packs join your containers: scan the barcode of a pack or add something without a code, and hdpantry keeps every pack with its printed date. Scanning and typing share one page, and the stock list can be searched.

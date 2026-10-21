@@ -226,8 +226,6 @@ export const de = {
 		month: 'Monat',
 		year: 'Jahr',
 		monthNone: 'Monat',
-		addDay: 'Tag angeben',
-		noDate: 'Kein Datum',
 		count: 'Packungen',
 		fewer: 'Eine weniger',
 		more: 'Eine mehr',
@@ -409,11 +407,8 @@ export const de = {
 		guideLink: 'Richtwerte und Quellen ansehen',
 		days: (n: number) => (n === 1 ? '≈ 1 Tag' : `≈ ${n} Tage`),
 		useSuggestion: 'Vorschlag übernehmen',
-		guideHint: 'Richtwert, keine Garantie – vor dem Essen immer selbst prüfen.',
-		guideHintVacuum:
-			'Richtwert, keine Garantie – vor dem Essen immer selbst prüfen. Der Aufschlag fürs Vakuumieren ist eine vorsichtige Schätzung.',
-		noGuide:
-			'Für diese Kategorie gibt es keinen Richtwert – trag ein Datum ein, wenn du eines kennst.',
+		guideHint: 'Richtwert, keine Garantie – immer selbst prüfen',
+		noGuide: 'Für diese Kategorie gibt es keinen Richtwert.',
 		fill: 'Füllstand',
 		amount: 'Menge',
 		addAmount: 'Menge hinzufügen',

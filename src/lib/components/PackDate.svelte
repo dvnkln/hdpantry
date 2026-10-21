@@ -2,11 +2,12 @@
 	import { m, monthNames } from '$lib/i18n/index.svelte';
 	import { daysUntil } from '$lib/stock';
 	import { endOfMonth } from '$lib/products';
-	import { Plus, X } from '@lucide/svelte';
 
-	// The best-before date printed on a pack: month and year (that is how most packs of frozen
-	// food give it), the day only if it is printed too. Sent as `name` (if given) and handed out
-	// as `value`: "YYYY-MM" or "YYYY-MM-DD", empty = no date.
+	// The best-before date printed on a pack: day, month and year side by side. Most packs of
+	// frozen food give month and year only, so the day may stay at "–"; no month = no date
+	// (bread from the baker has none – the month set back to "Month" takes it away again). The
+	// year starts at the current one. Sent as `name` (if given) and handed out as `value`:
+	// "YYYY-MM" or "YYYY-MM-DD", empty = no date.
 	let {
 		today,
 		initial = null,
@@ -44,34 +45,28 @@
 	// svelte-ignore state_referenced_locally
 	let month = $state(initial ? Number(initial.slice(5, 7)) : 0);
 	// svelte-ignore state_referenced_locally
-	let year = $state(initial ? Number(initial.slice(0, 4)) : 0);
+	let year = $state(initial ? Number(initial.slice(0, 4)) : Number(today.slice(0, 4)));
+	// The year was chosen (or came with the date): then a month never moves it
 	// svelte-ignore state_referenced_locally
-	let withDay = $state(!!initial && !monthOnly);
+	let yearChosen = $state(!!initial);
 	// svelte-ignore state_referenced_locally
 	let day = $state(initial && !monthOnly ? Number(initial.slice(8, 10)) : 0);
 
 	const two = (n: number) => String(n).padStart(2, '0');
 	// Days the chosen month has
 	let days = $derived(month && year ? Number(endOfMonth(`${year}-${two(month)}`).slice(8)) : 31);
+	// A day the chosen month does not have (31 in April) becomes its last one – also in the field
 	$effect(() => {
-		value =
-			!month || !year
-				? ''
-				: withDay && day
-					? `${year}-${two(month)}-${two(Math.min(day, days))}`
-					: `${year}-${two(month)}`;
+		if (day > days) day = days;
+	});
+	$effect(() => {
+		value = !month ? '' : day ? `${year}-${two(month)}-${two(day)}` : `${year}-${two(month)}`;
 	});
 
-	// A month picked first goes into the next year it comes round in: March picked in October
-	// means next March
+	// Until the year is chosen, a month goes into the next year it comes round in: March picked
+	// in October means next March
 	function onMonth() {
-		if (month && !year) year = month >= thisMonth ? thisYear : thisYear + 1;
-	}
-	function clear() {
-		month = 0;
-		year = 0;
-		day = 0;
-		withDay = false;
+		if (month && !yearChosen) year = month >= thisMonth ? thisYear : thisYear + 1;
 	}
 </script>
 
@@ -88,14 +83,12 @@
 		</span>
 	{/if}
 	<div class="flex gap-2" role="group" aria-label={m.item.bestBefore}>
-		{#if withDay}
-			<select bind:value={day} aria-label={m.products.day} class="w-20">
-				<option value={0}>–</option>
-				{#each Array.from({ length: days }, (_, i) => i + 1) as d (d)}
-					<option value={d}>{two(d)}</option>
-				{/each}
-			</select>
-		{/if}
+		<select bind:value={day} aria-label={m.products.day} class="w-18 shrink-0">
+			<option value={0}>–</option>
+			{#each Array.from({ length: days }, (_, i) => i + 1) as d (d)}
+				<option value={d}>{two(d)}</option>
+			{/each}
+		</select>
 		<select
 			bind:value={month}
 			onchange={onMonth}
@@ -107,30 +100,16 @@
 				<option value={i + 1}>{two(i + 1)} · {name}</option>
 			{/each}
 		</select>
-		<select bind:value={year} aria-label={m.products.year} class="w-24">
-			<option value={0}>–</option>
+		<select
+			bind:value={year}
+			onchange={() => (yearChosen = true)}
+			aria-label={m.products.year}
+			class="w-24 shrink-0"
+		>
 			{#each years as y (y)}
 				<option value={y}>{y}</option>
 			{/each}
 		</select>
 	</div>
 	{#if name}<input type="hidden" {name} {value} />{/if}
-	<div class="-ml-2 flex items-center gap-1 self-start">
-		{#if !withDay}
-			<button
-				type="button"
-				class="flex items-center gap-1.5 btn-quiet"
-				onclick={() => (withDay = true)}
-			>
-				<Plus size={16} />
-				{m.products.addDay}
-			</button>
-		{/if}
-		{#if month || year}
-			<button type="button" class="flex items-center gap-1.5 btn-quiet" onclick={clear}>
-				<X size={16} />
-				{m.products.noDate}
-			</button>
-		{/if}
-	</div>
 </div>

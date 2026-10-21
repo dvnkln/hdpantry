@@ -288,8 +288,9 @@
 
 			<div class="flex flex-col gap-1">
 				<PackDate {today} />
-				<StoredSince {today} bind:since />
+				<!-- Says what the fields above want, right below them -->
 				<p class="text-xs text-muted">{m.products.dateHint}</p>
+				<StoredSince {today} bind:since />
 			</div>
 
 			<div class="flex items-center justify-between gap-4">
