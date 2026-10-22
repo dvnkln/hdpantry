@@ -10,6 +10,7 @@ export const load: PageServerLoad = ({ params, locals }) => {
 		product: {
 			id: p.id,
 			name: p.name,
+			brand: p.brand,
 			note: p.note,
 			shape: p.shape ?? null,
 			icon: p.icon,

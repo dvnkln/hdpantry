@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysUntil, expiry, matchesSearch, sortStock } from './stock';
+import { daysUntil, expiry, matchesSearch, ofBrand, sortStock } from './stock';
 
 const today = '2026-10-04';
 
@@ -100,7 +100,24 @@ describe('searching the stock', () => {
 		expect(matchesSearch(soup, 'pea soup')).toBe(false);
 		expect(matchesSearch({ name: 'Peas', note: null }, 'pea')).toBe(true);
 	});
+	it('finds the brand of a product too', () => {
+		const chili = { name: 'Chili', note: null, brand: 'Quixo' };
+		expect(matchesSearch(chili, 'quix')).toBe(true);
+		expect(matchesSearch(chili, 'quixo chili')).toBe(true);
+		expect(matchesSearch(chili, 'brümli')).toBe(false);
+	});
 	it('nothing typed: everything fits', () => {
 		expect(matchesSearch(soup, '   ')).toBe(true);
+	});
+});
+
+describe('the brand tapped in the list', () => {
+	it('keeps only that brand, whatever the case; nothing chosen keeps everything', () => {
+		expect(ofBrand({ brand: 'Quixo' }, 'Quixo')).toBe(true);
+		expect(ofBrand({ brand: 'Öko-Hof Brümli' }, 'öko-hof brümli')).toBe(true);
+		expect(ofBrand({ brand: 'Quixo' }, 'Feldmark')).toBe(false);
+		expect(ofBrand({ brand: null }, 'Quixo')).toBe(false);
+		expect(ofBrand({}, 'Quixo')).toBe(false);
+		expect(ofBrand({ brand: null }, null)).toBe(true);
 	});
 });

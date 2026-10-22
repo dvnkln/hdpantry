@@ -59,3 +59,42 @@ it('keeps contents, history and sent reminders when products are added (0002)', 
 	).toThrow(/UNIQUE/);
 	client.close();
 });
+
+it('takes the maker out of names looked up before (0007)', () => {
+	const client = new Database(join(dir, 'brand.db'));
+	const db = drizzle(client, { schema });
+	applyMigrations(db, folderUpTo(6));
+
+	// Names as version 0.3 suggested them: the maker in brackets behind the food
+	client.exec(`
+		insert into product_lookups (barcode, found, name, brand, frozen, looked_at) values
+			('9991234567890', 1, 'Nut mix', 'QUIXO', 0, 0),
+			('9990000000017', 1, 'Quixo crisps', 'Quixo', 0, 0),
+			('9990000000024', 0, null, '', 0, 0);
+		insert into products (id, barcode, name, location, created_at) values
+			(1, '9991234567890', 'Nut mix (QUIXO)', 'pantry', 0),
+			(2, '9990000000017', 'Quixo crisps', 'pantry', 0),
+			(3, '9990000000024', 'Bread', 'pantry', 0),
+			(4, null, 'Jam (Quixo)', 'pantry', 0);
+		insert into items (id, product_id, name, vacuumed, location, date_manual, fill, created_at, removed_at)
+			values (1, 1, 'Nut mix (QUIXO)', 0, 'pantry', 1, 'full', 0, null),
+			       (2, 1, 'Nuts (QUIXO)', 0, 'pantry', 1, 'full', 0, 5);
+	`);
+
+	applyMigrations(db, 'drizzle');
+
+	const products = client.prepare('select id, name, brand from products order by id').all();
+	expect(products).toEqual([
+		{ id: 1, name: 'Nut mix', brand: 'QUIXO' },
+		{ id: 2, name: 'Quixo crisps', brand: 'Quixo' },
+		{ id: 3, name: 'Bread', brand: null },
+		// Typed by hand: left as it is
+		{ id: 4, name: 'Jam (Quixo)', brand: null }
+	]);
+	// Packs called like the product follow it; one eaten under another name keeps that
+	expect(client.prepare('select name from items order by id').all()).toEqual([
+		{ name: 'Nut mix' },
+		{ name: 'Nuts (QUIXO)' }
+	]);
+	client.close();
+});

@@ -3,7 +3,11 @@
 
 	// Names recorded before, in one line right where one types: the latest ones, narrowed down
 	// while typing. Swiped sideways, without a scroll bar; fades out on the right.
-	let { names, onpick }: { names: string[]; onpick: (name: string) => void } = $props();
+	let {
+		names,
+		onpick,
+		label = m.item.recent
+	}: { names: string[]; onpick: (name: string) => void; label?: string } = $props();
 </script>
 
 {#if names.length}
@@ -11,7 +15,7 @@
 		<div
 			class="flex [scrollbar-width:none] gap-2 overflow-x-auto pr-8 [&::-webkit-scrollbar]:hidden"
 			role="group"
-			aria-label={m.item.recent}
+			aria-label={label}
 		>
 			{#each names as entry (entry)}
 				<button

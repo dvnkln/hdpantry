@@ -17,6 +17,8 @@ export const MAX_PACKS = 20;
 
 export type ProductValues = {
 	name: string;
+	// Who makes it, as typed (the server makes the spelling match, see tidyBrand)
+	brand: string | null;
 	note: string | null;
 	shape: PackShape;
 	// Kind of food ('other' = not known) and its symbol
@@ -53,6 +55,45 @@ export function readPackDate(text: string): { bestBefore: string; dateMonth: boo
 	return isDate(text) ? { bestBefore: text, dateMonth: false } : null;
 }
 
+// A brand is at most this long
+export const MAX_BRAND = 40;
+
+// One maker, one spelling: the product database writes the same maker in capitals for one
+// product and not for the next. Brands are compared without regard to case …
+export function brandKey(brand: string) {
+	return brand.normalize('NFC').toLowerCase();
+}
+
+// … capitals throughout are softened ("QUIXO FOODS" → "Quixo Foods"; short ones such as "XL"
+// stay) …
+function shouting(brand: string) {
+	const letters = brand.match(/\p{L}/gu) ?? [];
+	return letters.length > 3 && brand === brand.toUpperCase() && brand !== brand.toLowerCase();
+}
+function softened(brand: string) {
+	return brand
+		.toLowerCase()
+		.replace(/(^|[\s\-/&.(])(\p{L})/gu, (_, before: string, letter: string) => {
+			return before + letter.toUpperCase();
+		});
+}
+
+// … and a maker known already keeps the spelling it has (`known`: the brands in use).
+// Returns null for no brand.
+export function tidyBrand(typed: string | null, known: readonly string[]): string | null {
+	const brand = (typed ?? '').replace(/\s+/g, ' ').trim().slice(0, MAX_BRAND).trim();
+	if (!brand) return null;
+	const same = known.find((k) => brandKey(k) === brandKey(brand));
+	if (same) return same;
+	return shouting(brand) ? softened(brand) : brand;
+}
+
+// The one spelling for brands written in several ways (old data, an imported file): the first
+// that is not in capitals throughout, else the first softened
+export function oneSpelling(spellings: readonly string[]) {
+	return spellings.find((s) => !shouting(s)) ?? softened(spellings[0]);
+}
+
 // Name, kind of food and symbol of a product (when it is recorded or renamed)
 export function readProductForm(
 	data: FormData
@@ -63,6 +104,7 @@ export function readProductForm(
 	return {
 		values: {
 			name,
+			brand: oneLine(data.get('brand'), MAX_BRAND) || null,
 			note: oneLine(data.get('note'), MAX_ITEM_NOTE) || null,
 			shape: isPackShape(data.get('shape')) ? (data.get('shape') as PackShape) : 'box',
 			category: isCategory(categoryText) ? categoryText : 'other',
@@ -158,16 +200,10 @@ export type Lookup = {
 	shape: PackShape | null;
 };
 
-// The name suggested for a product the database knows: its name, and who makes it behind it –
-// the food first, so the list stays sorted by what it is. A maker already in the name is not
-// added twice. The variety ("hot chili") comes along where the database has it in the name.
+// The name suggested for a product the database knows. Who makes it goes into its own field.
 export function suggestedName(lookup: Lookup | null) {
 	const name = lookup?.name?.trim();
-	if (!name) return null;
-	const brand = lookup?.brand?.trim();
-	const full =
-		brand && !name.toLowerCase().includes(brand.toLowerCase()) ? `${name} (${brand})` : name;
-	return full.length <= MAX_ITEM_NAME ? full : name.slice(0, MAX_ITEM_NAME);
+	return name ? name.slice(0, MAX_ITEM_NAME).trim() : null;
 }
 
 // Words on a pack (or in its name) that say it is sold frozen. Then the freezer is suggested,

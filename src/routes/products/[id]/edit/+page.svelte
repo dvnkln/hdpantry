@@ -14,6 +14,8 @@
 		mode="edit"
 		today={data.today}
 		name={data.product.name}
+		brand={data.product.brand}
+		brands={data.brands}
 		note={data.product.note}
 		shape={data.product.shape}
 		category={data.product.category}

@@ -2,6 +2,7 @@ import { and, asc, count, isNotNull, isNull } from 'drizzle-orm';
 import { BACKUP_APP, BACKUP_FORMAT, type Backup, type BackupItem } from '$lib/backup';
 import { getDb } from './db';
 import { containers, foodMemory, items, products } from './db/schema';
+import { unifyBrands } from './products';
 
 function backupItem(item: typeof items.$inferSelect) {
 	return {
@@ -54,6 +55,7 @@ export function exportBackup(now = new Date()): Backup {
 			.map((product) => ({
 				barcode: product.barcode,
 				name: product.name,
+				brand: product.brand,
 				note: product.note,
 				shape: product.shape,
 				category: product.category,
@@ -107,6 +109,7 @@ export function importBackup(backup: Backup) {
 		}
 		for (const entry of backup.foodMemory) tx.insert(foodMemory).values(entry).run();
 	});
+	unifyBrands();
 }
 
 // What is in the app right now, for the data page (same counts as backupCounts())

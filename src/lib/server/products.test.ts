@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { addScanned, deleteContainer, openTyped } from './containers';
 import { getDb } from './db';
-import { items } from './db/schema';
+import { eq } from 'drizzle-orm';
+import { items, products } from './db/schema';
 import {
 	addPacks,
 	attachBarcode,
@@ -18,6 +19,7 @@ import {
 	productOverview,
 	productStock,
 	productsToPick,
+	unifyBrands,
 	updateProduct
 } from './products';
 
@@ -25,9 +27,10 @@ import {
 const PEAS = '9991234567890';
 const OTHER = '99123451';
 
-const newProduct = (name: string, barcode: string | null = null) =>
+const newProduct = (name: string, barcode: string | null = null, brand: string | null = null) =>
 	createProduct({
 		name,
+		brand,
 		note: null,
 		shape: 'bag',
 		barcode,
@@ -91,6 +94,7 @@ describe('products and their packs', () => {
 		eatPack(bread.id);
 		updateProduct(bread.id, {
 			name: 'Bread',
+			brand: null,
 			note: 'sliced',
 			shape: 'bag',
 			category: 'other',
@@ -198,8 +202,8 @@ describe('products in the settings', () => {
 		addPacks(peas.id, { bestBefore: null, dateMonth: false, location: 'freezer', count: 3 });
 		eatPack(peas.id);
 		expect(productOverview()).toEqual([
-			{ id: peas.id, name: 'Peas', barcode: PEAS, packs: 2, eaten: 1 },
-			{ id: rolls.id, name: 'rolls', barcode: null, packs: 0, eaten: 0 }
+			{ id: peas.id, name: 'Peas', brand: null, barcode: PEAS, packs: 2, eaten: 1 },
+			{ id: rolls.id, name: 'rolls', brand: null, barcode: null, packs: 0, eaten: 0 }
 		]);
 		deleteProduct(rolls.id);
 		deleteProduct(peas.id);
@@ -279,5 +283,51 @@ describe('deleting all products', () => {
 		// the container is still there
 		expect(openTyped('GH78')?.id).toBe(box.id);
 		deleteContainer(box.id);
+	});
+});
+
+describe('brands', () => {
+	const values = (name: string, brand: string | null) => ({
+		name,
+		brand,
+		note: null,
+		shape: 'jar' as const,
+		category: 'other' as const,
+		icon: null
+	});
+	const brands = () => productOverview().map((p) => [p.name, p.brand]);
+
+	it('one maker keeps one spelling; capitals throughout are softened', () => {
+		deleteAllProducts();
+		newProduct('Chili', null, 'QUIXO FOODS');
+		newProduct('Curry', null, 'quixo foods');
+		newProduct('Stew', null, '  ');
+		expect(brands()).toEqual([
+			['Chili', 'Quixo Foods'],
+			['Curry', 'Quixo Foods'],
+			['Stew', null]
+		]);
+	});
+
+	it('spelling a brand anew changes it for every product of that maker', () => {
+		const curry = productOverview().find((p) => p.name === 'Curry')!;
+		updateProduct(curry.id, values('Curry', 'Quixo foods'));
+		expect(brands().slice(0, 2)).toEqual([
+			['Chili', 'Quixo foods'],
+			['Curry', 'Quixo foods']
+		]);
+		// Another maker, typed like a known one: takes its spelling
+		const stew = productOverview().find((p) => p.name === 'Stew')!;
+		updateProduct(stew.id, values('Stew', 'QUIXO FOODS'));
+		expect(brands()[2]).toEqual(['Stew', 'Quixo foods']);
+	});
+
+	it('brings spellings stored before into line', () => {
+		getDb().update(products).set({ brand: 'BRÜMLI' }).run();
+		const chili = productOverview().find((p) => p.name === 'Chili')!;
+		getDb().update(products).set({ brand: 'Brümli' }).where(eq(products.id, chili.id)).run();
+		unifyBrands();
+		expect(new Set(brands().map(([, brand]) => brand))).toEqual(new Set(['Brümli']));
+		deleteAllProducts();
 	});
 });

@@ -81,6 +81,9 @@ export const de = {
 								: `seit ${-days} Tagen abgelaufen`,
 		expired: 'abgelaufen',
 		// Small marks above the list
+		showOnly: 'Nur diese zeigen',
+		showAll: 'Wieder alle zeigen',
+		brandOnly: (brand: string) => `Nur ${brand} zeigen`,
 		marks: {
 			expired: (n: number) => `${n} abgelaufen`,
 			soon: (n: number) => `${n} bald`
@@ -216,6 +219,10 @@ export const de = {
 	},
 
 	products: {
+		brand: 'Marke',
+		brands: 'Bekannte Marken',
+		brandStock: (brand: string) => `Alles von ${brand} im Vorrat`,
+		brandOptional: 'optional',
 		notFound: 'Dieses Produkt gibt es nicht (mehr).',
 		product: 'Produkt',
 		newTitle: 'Neues Produkt',

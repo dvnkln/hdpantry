@@ -546,14 +546,14 @@ body {
 	--flag: var(--flag-yellow);
 	--flag-ink: #3a2a00;
 }
-.scene li[data-level='expired'] a,
-.scene li[data-level='soon'] a {
+.scene li[data-level='expired'] .stock-card,
+.scene li[data-level='soon'] .stock-card {
 	position: relative;
 	padding-left: 1.25rem;
 	background: color-mix(in srgb, var(--flag) 10%, transparent);
 }
-.scene li[data-level='expired'] a::before,
-.scene li[data-level='soon'] a::before {
+.scene li[data-level='expired'] .stock-card::before,
+.scene li[data-level='soon'] .stock-card::before {
 	position: absolute;
 	top: 12px;
 	bottom: 12px;

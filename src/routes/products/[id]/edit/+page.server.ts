@@ -2,7 +2,13 @@ import { fail, redirect } from '@sveltejs/kit';
 import { readPackGroups, readProductForm } from '$lib/products';
 import { foodMemoryAll, learnFood } from '$lib/server/food';
 import { serverMessages } from '$lib/server/i18n';
-import { correctPacks, packGroups, productOf, updateProduct } from '$lib/server/products';
+import {
+	correctPacks,
+	knownBrands,
+	packGroups,
+	productOf,
+	updateProduct
+} from '$lib/server/products';
 import { soonDays } from '$lib/server/settings';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -12,12 +18,14 @@ export const load: PageServerLoad = ({ params, locals }) => {
 		product: {
 			id: p.id,
 			name: p.name,
+			brand: p.brand,
 			note: p.note,
 			shape: p.shape ?? null,
 			icon: p.icon,
 			category: p.category ?? ('other' as const),
 			location: p.location
 		},
+		brands: knownBrands(),
 		groups: packGroups(p.id),
 		soonDays: soonDays(),
 		memory: foodMemoryAll(),

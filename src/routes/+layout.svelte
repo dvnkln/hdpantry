@@ -9,7 +9,7 @@
 	import { m, setLocale } from '$lib/i18n/index.svelte';
 	import { readerAtHand, warmReader } from '$lib/reader/engine';
 	import { THEMES } from '$lib/themes';
-	import { Keyboard, LogOut, ScanLine, Search, Settings } from '@lucide/svelte';
+	import { Keyboard, ScanLine, Search, Settings } from '@lucide/svelte';
 	import { stockSearch } from '$lib/stockSearch.svelte';
 
 	let { data, children } = $props();
@@ -78,7 +78,7 @@
 			{/if}
 			<a
 				href="/settings"
-				class="rounded-lg p-2 transition-colors hover:bg-surface hover:text-text {section ===
+				class="-mr-2 rounded-lg p-2 transition-colors hover:bg-surface hover:text-text {section ===
 				'settings'
 					? 'text-text'
 					: 'text-muted'}"
@@ -88,16 +88,6 @@
 			>
 				<Settings size={20} />
 			</a>
-			<!-- -mr-2: the icon itself (not its hover area) lines up with the content edge -->
-			<form method="POST" action="/logout" class="-mr-2">
-				<button
-					class="rounded-lg p-2 text-muted transition-colors hover:bg-surface hover:text-text"
-					aria-label={m.common.logout}
-					title={m.common.logout}
-				>
-					<LogOut size={20} />
-				</button>
-			</form>
 		</div>
 	</header>
 

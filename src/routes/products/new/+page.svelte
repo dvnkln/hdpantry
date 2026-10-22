@@ -17,6 +17,8 @@
 		mode="new"
 		today={data.today}
 		name={data.name}
+		brand={data.brand}
+		brands={data.brands}
 		location={data.location}
 		memory={data.memory}
 		recent={data.recent}

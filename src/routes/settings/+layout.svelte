@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { m } from '$lib/i18n/index.svelte';
 	import { settingsGroups } from '$lib/settingsNav';
-	import { ChevronLeft } from '@lucide/svelte';
+	import { ChevronLeft, LogOut } from '@lucide/svelte';
 
 	let { children } = $props();
 
@@ -39,6 +39,14 @@
 					{/each}
 				</div>
 			{/each}
+			<!-- Logging out sits at the end of the settings, not in the header: seldom needed -->
+			<form method="POST" action="/logout" class="border-t border-line pt-3">
+				<button
+					class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-surface hover:text-text"
+				>
+					<LogOut size={18} class="shrink-0" />{m.common.logout}
+				</button>
+			</form>
 		</div>
 	</nav>
 

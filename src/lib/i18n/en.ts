@@ -79,6 +79,9 @@ export const en: Messages = {
 								? 'expired yesterday'
 								: `expired ${-days} days ago`,
 		expired: 'expired',
+		showOnly: 'Show only these',
+		showAll: 'Show all again',
+		brandOnly: (brand: string) => `Show only ${brand}`,
 		marks: {
 			expired: (n) => `${n} expired`,
 			soon: (n) => `${n} soon`
@@ -210,6 +213,10 @@ export const en: Messages = {
 	},
 
 	products: {
+		brand: 'Brand',
+		brands: 'Known brands',
+		brandStock: (brand: string) => `Everything by ${brand} in stock`,
+		brandOptional: 'optional',
 		notFound: 'This product does not exist (any more).',
 		product: 'Product',
 		newTitle: 'New product',

@@ -4,7 +4,14 @@ import { parseCode, parseProductCode } from '$lib/codes';
 import type { CodeSource } from '$lib/containers';
 import type { Locale } from '$lib/i18n/index.svelte';
 import type { ProductTile } from '$lib/picks';
-import type { PackGroup, PackValues, ProductValues } from '$lib/products';
+import {
+	brandKey,
+	oneSpelling,
+	tidyBrand,
+	type PackGroup,
+	type PackValues,
+	type ProductValues
+} from '$lib/products';
 import type { Location } from '$lib/items';
 import { findContainer } from './containers';
 import { getDb } from './db';
@@ -41,22 +48,70 @@ export function findProduct(barcode: string) {
 	return getDb().select().from(products).where(eq(products.barcode, barcode)).get();
 }
 
+// The brands in use, the most common first – to suggest when one is typed, and the spelling a
+// maker keeps (see tidyBrand)
+export function knownBrands() {
+	return getDb()
+		.select({ brand: products.brand })
+		.from(products)
+		.where(isNotNull(products.brand))
+		.groupBy(products.brand)
+		.orderBy(desc(sql`count(*)`), asc(sql`${products.brand} collate nocase`))
+		.all()
+		.map((row) => row.brand!);
+}
+
 export function createProduct(
 	values: ProductValues & { barcode: string | null; location: Location }
 ) {
-	return getDb().insert(products).values(values).returning().get();
+	const brand = tidyBrand(values.brand, knownBrands());
+	return getDb()
+		.insert(products)
+		.values({ ...values, brand })
+		.returning()
+		.get();
 }
 
-// Renames a product or changes its kind of food, symbol, note or packaging – its packs in stock
-// take the new name, kind and symbol, the ones eaten keep what they were called then.
+// Renames a product or changes its brand, kind of food, symbol, note or packaging – its packs
+// in stock take the new name, kind and symbol, the ones eaten keep what they were called then.
+// A brand spelled anew (only its case changed) is spelled so for every product of that maker.
 export function updateProduct(id: number, values: ProductValues) {
+	const before = getProduct(id);
+	const typed = tidyBrand(values.brand, []);
+	const respelled =
+		before?.brand && typed && typed !== before.brand && brandKey(typed) === brandKey(before.brand);
+	const brand = respelled ? typed : tidyBrand(values.brand, knownBrands());
 	getDb().transaction((tx) => {
-		tx.update(products).set(values).where(eq(products.id, id)).run();
+		tx.update(products)
+			.set({ ...values, brand })
+			.where(eq(products.id, id))
+			.run();
+		if (respelled) {
+			tx.update(products).set({ brand }).where(eq(products.brand, before.brand!)).run();
+		}
 		// The packs keep only what is shown with them; note and packaging belong to the product
 		tx.update(items)
 			.set({ name: values.name, category: values.category, icon: values.icon })
 			.where(and(eq(items.productId, id), isNull(items.removedAt)))
 			.run();
+	});
+}
+
+// One spelling per maker in what is stored already: old data, an imported file. Run at start
+// and after an import; changes nothing once the spellings agree.
+export function unifyBrands() {
+	const groups = new Map<string, string[]>();
+	for (const brand of knownBrands()) {
+		const key = brandKey(brand);
+		groups.set(key, [...(groups.get(key) ?? []), brand]);
+	}
+	getDb().transaction((tx) => {
+		for (const spellings of groups.values()) {
+			const one = oneSpelling(spellings);
+			for (const other of spellings.filter((s) => s !== one)) {
+				tx.update(products).set({ brand: one }).where(eq(products.brand, other)).run();
+			}
+		}
 	});
 }
 
@@ -207,6 +262,7 @@ export function productStock() {
 		return {
 			productId: product.id,
 			name: product.name,
+			brand: product.brand,
 			note: product.note,
 			shape: product.shape ?? ('box' as const),
 			category: product.category,
@@ -242,6 +298,7 @@ export function productOverview() {
 		.map((p) => ({
 			id: p.id,
 			name: p.name,
+			brand: p.brand,
 			barcode: p.barcode,
 			...(counts.get(p.id) ?? { packs: 0, eaten: 0 })
 		}));

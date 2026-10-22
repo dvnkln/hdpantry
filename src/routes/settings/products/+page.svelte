@@ -72,6 +72,7 @@
 							>
 								{product.name}
 							</a>
+							{#if product.brand}<span class="text-sm text-muted"> · {product.brand}</span>{/if}
 							<span class="block truncate text-sm text-muted">
 								{m.settings.productLine(product.barcode, product.packs, product.eaten)}
 							</span>

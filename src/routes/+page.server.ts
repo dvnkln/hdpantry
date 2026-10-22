@@ -11,6 +11,7 @@ export const load: PageServerLoad = () => {
 		kind: 'container' as const,
 		key: `c${item.id}`,
 		href: `/containers/${item.containerId}`,
+		brand: null,
 		dateMonth: false,
 		packs: 0,
 		shape: null,

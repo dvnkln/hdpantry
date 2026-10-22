@@ -68,6 +68,8 @@ export const products = sqliteTable('products', {
 	// EAN-13 / EAN-8 (see parseProductCode); empty = recorded without a code
 	barcode: text('barcode').unique(),
 	name: text('name').notNull(),
+	// Who makes it, one spelling per maker (see tidyBrand in $lib/products); empty = not known
+	brand: text('brand'),
 	// A note about the product (e.g. "for guests"), shown with it
 	note: text('note'),
 	// How it is packed (see PACK_SHAPES in $lib/products); empty = a box

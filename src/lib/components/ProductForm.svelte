@@ -13,6 +13,7 @@
 	import { m } from '$lib/i18n/index.svelte';
 	import { LOCATIONS, MAX_ITEM_NAME, MAX_ITEM_NOTE, matchNames, type Location } from '$lib/items';
 	import {
+		MAX_BRAND,
 		MAX_PACKS,
 		kindOf,
 		looksFrozen,
@@ -21,7 +22,7 @@
 		type PackGroup,
 		type PackShape
 	} from '$lib/products';
-	import { Minus, NotebookPen, Plus } from '@lucide/svelte';
+	import { Minus, NotebookPen, Plus, Tag } from '@lucide/svelte';
 
 	type Memory = Record<string, { category: Category; icon: string | null }>;
 
@@ -43,6 +44,8 @@
 		found = null,
 		fromDatabase = false,
 		lookupOff = false,
+		brand: initialBrand = null,
+		brands = [],
 		note: initialNote = null,
 		shape: initialShape = null,
 		submitLabel,
@@ -66,6 +69,9 @@
 		// the name the form starts with came from it
 		found?: Lookup | null;
 		fromDatabase?: boolean;
+		// Who makes it, and the brands in use (offered while typing one)
+		brand?: string | null;
+		brands?: string[];
 		note?: string | null;
 		// How it is packed; none yet: suggested from what is known
 		shape?: PackShape | null;
@@ -112,6 +118,11 @@
 
 	// svelte-ignore state_referenced_locally
 	let note = $state(initialNote ?? '');
+	// svelte-ignore state_referenced_locally
+	let brand = $state(initialBrand ?? '');
+	// Known brands, offered while the field is in use
+	let brandOpen = $state(false);
+	let brandOffered = $derived(brandOpen ? matchNames(brands, brand, 12) : []);
 	// The name the form started with, if it came from the product database
 	// svelte-ignore state_referenced_locally
 	const suggested = fromDatabase ? initialName : '';
@@ -193,21 +204,52 @@
 >
 	{#if mode !== 'pack'}
 		<div class="flex flex-col gap-1">
-			<label for="name" class="text-sm font-medium">{m.item.name}</label>
-			<!-- svelte-ignore a11y_autofocus -->
-			<input
-				id="name"
-				name="name"
-				bind:value={name}
-				oninput={() => step === 2 && guess()}
-				maxlength={MAX_ITEM_NAME}
-				placeholder={m.item.namePlaceholder(exampleName)}
-				autocomplete="off"
-				enterkeyhint={step === 1 ? 'next' : undefined}
-				required
-				autofocus={step === 1}
-				class={step === 1 ? 'py-4 text-lg' : ''}
-			/>
+			<!-- Once the name is in, the brand sits next to it: tag and a quiet "optional" at its
+			     heading, so it is clear that it may stay empty -->
+			<div
+				class={step === 2
+					? 'grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-x-2 gap-y-1'
+					: 'flex flex-col gap-1'}
+			>
+				<label for="name" class="text-sm font-medium">{m.item.name}</label>
+				{#if step === 2}
+					<label
+						for="brand"
+						class="flex min-w-0 items-center gap-1 text-sm font-medium whitespace-nowrap"
+					>
+						<Tag size={14} class="shrink-0 text-muted" />{m.products.brand}
+						<span class="truncate text-[13px] font-normal text-muted">
+							{m.products.brandOptional}
+						</span>
+					</label>
+				{/if}
+				<!-- svelte-ignore a11y_autofocus -->
+				<input
+					id="name"
+					name="name"
+					bind:value={name}
+					oninput={() => step === 2 && guess()}
+					maxlength={MAX_ITEM_NAME}
+					placeholder={m.item.namePlaceholder(exampleName)}
+					autocomplete="off"
+					enterkeyhint={step === 1 ? 'next' : undefined}
+					required
+					autofocus={step === 1}
+					class="w-full min-w-0 {step === 1 ? 'py-4 text-lg' : ''}"
+				/>
+				{#if step === 2}
+					<input
+						id="brand"
+						name="brand"
+						bind:value={brand}
+						onfocus={() => (brandOpen = true)}
+						onblur={() => (brandOpen = false)}
+						maxlength={MAX_BRAND}
+						autocomplete="off"
+						class="w-full min-w-0"
+					/>
+				{/if}
+			</div>
 			{#if suggested && name === suggested}
 				<!-- Where the name came from; it can be changed like any other -->
 				<p class="text-xs text-muted">{m.products.fromDatabase}</p>
@@ -218,7 +260,19 @@
 				</p>
 			{/if}
 			{#if step === 2}
-				<!-- The note: a quiet line right under the name, as for the content of a container -->
+				<!-- Known brands while the brand is typed. Tapping one must not take the focus away
+				     first, or the row would be gone. The note: a quiet line, as with a container. -->
+				<div role="presentation" onmousedown={(e) => e.preventDefault()}>
+					<NameChips
+						names={brandOffered}
+						label={m.products.brands}
+						onpick={(entry) => {
+							brand = entry;
+							brandOpen = false;
+							(document.activeElement as HTMLElement | null)?.blur();
+						}}
+					/>
+				</div>
 				<label class="note-line">
 					<NotebookPen size={16} class="shrink-0" />
 					<input

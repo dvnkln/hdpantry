@@ -1,5 +1,6 @@
 // The stock list: what is about to expire, and in which order things are shown.
 import { LOCATIONS, type Location } from './items';
+import { brandKey } from './products';
 
 // "Expires soon" means: within this many days from today
 export const SOON_DAYS = 3;
@@ -60,9 +61,19 @@ export function sortStock<T extends Sortable>(
 }
 
 // Whether an entry fits what is typed into the search of the stock: every word typed is found
-// in its name or note. Upper and lower case do not matter; nothing typed: everything fits.
-export function matchesSearch(item: { name: string; note?: string | null }, typed: string) {
+// in its name, brand or note. Upper and lower case do not matter; nothing typed: everything fits.
+export function matchesSearch(
+	item: { name: string; note?: string | null; brand?: string | null },
+	typed: string
+) {
 	const words = typed.toLowerCase().split(/\s+/).filter(Boolean);
-	const text = `${item.name} ${item.note ?? ''}`.toLowerCase();
+	const text = `${item.name} ${item.brand ?? ''} ${item.note ?? ''}`.toLowerCase();
 	return words.every((word) => text.includes(word));
+}
+
+// Whether an entry is of the brand tapped in the list (?brand=); none chosen: everything fits.
+// Upper and lower case do not matter, as one brand has one spelling anyway.
+export function ofBrand(item: { brand?: string | null }, chosen: string | null) {
+	if (!chosen) return true;
+	return !!item.brand && brandKey(item.brand) === brandKey(chosen);
 }

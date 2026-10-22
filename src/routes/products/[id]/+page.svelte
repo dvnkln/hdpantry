@@ -7,7 +7,7 @@
 	import { formatDate, formatPackDate, m } from '$lib/i18n/index.svelte';
 	import { LOCATION_ICONS } from '$lib/locations';
 	import { expiry, type ExpiryLevel } from '$lib/stock';
-	import { Pencil, Plus } from '@lucide/svelte';
+	import { Pencil, Plus, Tag } from '@lucide/svelte';
 
 	let { data } = $props();
 	let product = $derived(data.product);
@@ -42,12 +42,33 @@
 
 <!-- pb-32 keeps the content clear of the buttons at the lower edge -->
 <main class="mx-auto max-w-md px-4 py-6 pb-32 lg:pb-6">
+	<!-- Name and brand side by side with the symbol, never taller than it: with a brand the name
+	     keeps to one line (all of it on hover and in the form), without one it may take two -->
 	<div class="flex items-center gap-3">
 		<FoodIcon
 			icon={product.icon ?? suggestIcon(product.name, product.category ?? 'other')}
-			size={40}
+			size={52}
 		/>
-		<h1 class="min-w-0 flex-1 text-2xl font-bold break-words">{product.name}</h1>
+		<div class="flex min-w-0 flex-1 flex-col items-start gap-1">
+			<h1
+				class="max-w-full text-[22px] leading-[26px] font-bold break-words {product.brand
+					? 'truncate'
+					: 'line-clamp-2'}"
+				title={product.name}
+			>
+				{product.name}
+			</h1>
+			{#if product.brand}
+				<!-- A tap shows everything of this brand in the stock -->
+				<a
+					href="/?brand={encodeURIComponent(product.brand)}"
+					title={m.products.brandStock(product.brand)}
+					class="flex max-w-full items-center gap-1 rounded-full border border-line px-2 text-[13px] leading-5 text-muted transition-colors hover:border-accent hover:text-text"
+				>
+					<Tag size={13} class="shrink-0" /><span class="truncate">{product.brand}</span>
+				</a>
+			{/if}
+		</div>
 		<a
 			href="/products/{product.id}/edit"
 			class="rounded-lg p-2 text-muted transition-colors hover:bg-surface hover:text-text"

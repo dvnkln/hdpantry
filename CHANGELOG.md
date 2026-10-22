@@ -11,8 +11,15 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 
 ## Upcoming release
 
+### ✨ New
+
+- **Brands** – a product has its maker in a field of its own, next to the name. In the stock list it is a small tag: tap it to see only that brand. The search finds brands too. One maker keeps one spelling: "QUIXO" and "Quixo" become the same brand, and capitals throughout are softened. Products looked up before get their brand out of the name by themselves
+
 ### 🔧 Improved
 
+- **Calmer cards** – the place of storage is shown by its symbol only (as in the filters above); its name appears when you point at it. The table on wide screens keeps the name
+- **Expired and soon** – tap "2 expired" or "1 soon" above the stock list to see only those; tap again for everything
+- **Quieter header** – "Log out" moved to the end of the settings
 - **Date of a pack** – day, month and year side by side: the day may stay at "–", the year starts at the current one, and a month already past moves to next year
 - **Date hints** – shorter, right below the date: "A guide value, not a guarantee – always check", with a small sign that leads to the sources
 - **Installed app on Android** – the bar at the bottom of the screen (and the start screen) takes the background of your colour scheme instead of sage green; with "System" it is dark. Android takes this over the next time it checks the app, usually within a day

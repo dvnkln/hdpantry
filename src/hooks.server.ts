@@ -9,6 +9,7 @@ import {
 } from '$lib/server/auth';
 import { getSecret } from '$lib/server/config';
 import { runMigrations } from '$lib/server/db';
+import { unifyBrands } from '$lib/server/products';
 import { startScheduler } from '$lib/server/scheduler';
 import { localeFor } from '$lib/server/i18n';
 import { allowedOrigins, isAllowedOrigin, isHttps } from '$lib/server/origins';
@@ -23,6 +24,7 @@ export const init: ServerInit = () => {
 	}
 	runMigrations();
 	console.log('Database migrations applied');
+	unifyBrands();
 	deleteExpiredSessions();
 	startScheduler();
 };

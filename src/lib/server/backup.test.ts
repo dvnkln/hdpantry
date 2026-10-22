@@ -56,6 +56,7 @@ describe('export and import', () => {
 		// a product with three packs, one of them eaten, and one without a barcode
 		const peas = createProduct({
 			name: 'Peas',
+			brand: 'Quixo',
 			note: 'for guests',
 			shape: 'bag',
 			barcode: '9991234567890',
@@ -67,6 +68,7 @@ describe('export and import', () => {
 		eatPack(peas.id);
 		createProduct({
 			name: 'Rolls',
+			brand: null,
 			note: null,
 			shape: 'box',
 			barcode: null,
@@ -160,6 +162,7 @@ describe('reading an export file', () => {
 		const product = {
 			barcode: '9991234567890',
 			name: 'Peas',
+			brand: null,
 			note: null,
 			shape: null,
 			category: null,

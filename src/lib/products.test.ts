@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { suggestCategory, suggestIcon } from './food/dictionary';
+import { MAX_ITEM_NAME } from './items';
 import {
 	endOfMonth,
 	kindOf,
@@ -10,6 +11,9 @@ import {
 	readProductForm,
 	shapeFromDatabase,
 	suggestedName,
+	tidyBrand,
+	oneSpelling,
+	MAX_BRAND,
 	suggestShape
 } from './products';
 
@@ -86,10 +90,17 @@ describe('the product form', () => {
 	it('needs a name; an unknown kind of food becomes "other"', () => {
 		expect(readProductForm(form({ name: '  ' })).problem).toBe('name');
 		expect(
-			readProductForm(form({ name: ' Pea  soup ', category: 'nonsense', note: ' for  guests ' }))
-				.values
+			readProductForm(
+				form({
+					name: ' Pea  soup ',
+					brand: ' QUIXO ',
+					category: 'nonsense',
+					note: ' for  guests '
+				})
+			).values
 		).toEqual({
 			name: 'Pea soup',
+			brand: 'QUIXO',
 			note: 'for guests',
 			shape: 'box',
 			category: 'other',
@@ -159,15 +170,39 @@ describe('the suggested name', () => {
 		frozen: false,
 		shape: null
 	});
-	it('the food first, the maker behind it – once', () => {
-		expect(suggestedName(lookup('Nut mix hot', 'Quixo'))).toBe('Nut mix hot (Quixo)');
-		expect(suggestedName(lookup('Quixo nut mix', 'quixo'))).toBe('Quixo nut mix');
-		expect(suggestedName(lookup('Nut mix', null))).toBe('Nut mix');
+	it('is the name only – the maker has its own field', () => {
+		expect(suggestedName(lookup('Nut mix hot', 'Quixo'))).toBe('Nut mix hot');
+		expect(suggestedName(lookup(' Nut mix ', null))).toBe('Nut mix');
 		expect(suggestedName(lookup(null, 'Quixo'))).toBeNull();
 		expect(suggestedName(null)).toBeNull();
 	});
 	it('stays within the length of a name', () => {
-		expect(suggestedName(lookup('x'.repeat(78), 'Quixo'))).toBe('x'.repeat(78));
+		expect(suggestedName(lookup('x'.repeat(90), null))).toBe('x'.repeat(MAX_ITEM_NAME));
+	});
+});
+
+describe('the spelling of a brand', () => {
+	it('keeps the spelling of a maker known already, whatever the case', () => {
+		expect(tidyBrand('QUIXO', ['Quixo'])).toBe('Quixo');
+		expect(tidyBrand('quixo', ['Quixo', 'Brümli'])).toBe('Quixo');
+		expect(tidyBrand('BRÜMLI', ['Quixo', 'Brümli'])).toBe('Brümli');
+	});
+	it('softens capitals throughout in a new one, but not short ones', () => {
+		expect(tidyBrand('QUIXO', [])).toBe('Quixo');
+		expect(tidyBrand('ÖKO-HOF BRÜMLI', [])).toBe('Öko-Hof Brümli');
+		expect(tidyBrand('XL', [])).toBe('XL');
+		expect(tidyBrand('Quixo', [])).toBe('Quixo');
+		expect(tidyBrand('quixo', [])).toBe('quixo');
+	});
+	it('tidies spaces and treats empty as no brand', () => {
+		expect(tidyBrand('  Quixo   Foods ', [])).toBe('Quixo Foods');
+		expect(tidyBrand('   ', [])).toBeNull();
+		expect(tidyBrand(null, [])).toBeNull();
+		expect(tidyBrand('x'.repeat(50), [])).toHaveLength(MAX_BRAND);
+	});
+	it('picks one spelling for several', () => {
+		expect(oneSpelling(['QUIXO', 'Quixo', 'quixo'])).toBe('Quixo');
+		expect(oneSpelling(['QUIXO'])).toBe('Quixo');
 	});
 });
 

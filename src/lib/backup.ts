@@ -2,7 +2,7 @@
 // the corrections the app learned (name → kind of food). No account, no logins, no settings. Read and checked here
 // for browser (preview before importing) and server (the check that counts) alike.
 import { parseProductCode } from './codes';
-import { isPackShape, type PackShape } from './products';
+import { MAX_BRAND, isPackShape, type PackShape } from './products';
 import { CODE_SOURCES, type CodeSource } from './containers';
 import { isCategory, type Category } from './food/categories';
 import { isIcon } from './food/icons';
@@ -24,7 +24,8 @@ export const BACKUP_APP = 'hdpantry';
 // Raised whenever the file changes shape; older files must stay readable
 // 2: contents may carry `storedOn` (files of format 1 have none)
 // 3: products with their packs; contents may carry `dateMonth` (older files have neither)
-export const BACKUP_FORMAT = 3;
+// 4: products may carry `brand`
+export const BACKUP_FORMAT = 4;
 // Larger files are refused (start.js allows uploads a bit above this)
 export const MAX_BACKUP_BYTES = 10 * 1024 * 1024;
 const MAX_TEXT = 2000;
@@ -64,6 +65,7 @@ export type BackupContainer = {
 export type BackupProduct = {
 	barcode: string | null;
 	name: string;
+	brand: string | null;
 	note: string | null;
 	shape: PackShape | null;
 	category: Category | null;
@@ -193,6 +195,7 @@ function readProduct(value: unknown, where: string): BackupProduct {
 	return {
 		barcode,
 		name: text(value.name, `${where}.name`, MAX_ITEM_NAME),
+		brand: optionalText(value.brand, `${where}.brand`, MAX_BRAND),
 		note: optionalText(value.note, `${where}.note`, MAX_ITEM_NOTE),
 		// A shape this version does not know becomes a box
 		shape: isPackShape(value.shape) ? value.shape : null,

@@ -1,12 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { parseProductCode } from '$lib/codes';
 import { MAX_ITEM_NAME, oneLine } from '$lib/items';
-import { readPackForm, readProductForm, suggestedName } from '$lib/products';
+import { readPackForm, readProductForm, suggestedName, tidyBrand } from '$lib/products';
 import { foodMemoryAll, learnFood } from '$lib/server/food';
 import { serverMessages } from '$lib/server/i18n';
 import { lastLocation, recentNames } from '$lib/server/items';
 import { lookupOn, lookupProduct } from '$lib/server/lookup';
-import { addPacks, createProduct, findProduct } from '$lib/server/products';
+import { addPacks, createProduct, findProduct, knownBrands } from '$lib/server/products';
 import type { Actions, PageServerLoad } from './$types';
 
 // Today in the time zone of the server (TZ)
@@ -28,10 +28,14 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	// product – nothing to type, the name can still be changed there.
 	const found = barcode ? await lookupProduct(barcode, locals.locale) : null;
 	const suggested = suggestedName(found);
+	const brands = knownBrands();
 	return {
 		barcode,
 		found,
 		fromDatabase: !!suggested,
+		// The maker the database names, spelled as known already
+		brand: tidyBrand(found?.brand ?? null, brands),
+		brands,
 		lookupOn: lookupOn(),
 		name: suggested ?? oneLine(url.searchParams.get('name'), MAX_ITEM_NAME),
 		example: Math.random(),

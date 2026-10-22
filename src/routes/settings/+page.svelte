@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { m } from '$lib/i18n/index.svelte';
 	import { FIRST_SETTINGS_PAGE, settingsGroups } from '$lib/settingsNav';
-	import { ChevronRight } from '@lucide/svelte';
+	import { ChevronRight, LogOut } from '@lucide/svelte';
 
 	let groups = $derived(settingsGroups());
 
@@ -44,4 +44,12 @@
 			</ul>
 		</div>
 	{/each}
+	<!-- Logging out: at the very end, apart from the areas -->
+	<form method="POST" action="/logout">
+		<button
+			class="flex w-full items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-medium transition-colors hover:bg-bg"
+		>
+			<LogOut size={20} class="shrink-0 text-muted" />{m.common.logout}
+		</button>
+	</form>
 </div>
