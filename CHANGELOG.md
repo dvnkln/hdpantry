@@ -9,7 +9,9 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
      This comment spells no heading out with its "#" signs on purpose: a search for the heading
      must not land in here (it did, and a release section ended up hidden inside the comment). -->
 
-## Upcoming release
+## 0.4.0 – 2026-10-22
+
+Products get their brand in a field of its own, and the stock list gets quicker to narrow down: tap a brand, or tap "expired" or "soon", to see only those.
 
 ### ✨ New
 
@@ -23,6 +25,12 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 - **Date of a pack** – day, month and year side by side: the day may stay at "–", the year starts at the current one, and a month already past moves to next year
 - **Date hints** – shorter, right below the date: "A guide value, not a guarantee – always check", with a small sign that leads to the sources
 - **Installed app on Android** – the bar at the bottom of the screen (and the start screen) takes the background of your colour scheme instead of sage green; with "System" it is dark. Android takes this over the next time it checks the app, usually within a day
+
+### ⬆️ Updating
+
+- `docker compose pull`, then `docker compose up -d` – see [Updating](https://github.com/dvnkln/hdpantry/wiki/Updating).
+- On the first start, products looked up before get their brand moved out of the name into the new field; nothing else changes.
+- Exports now carry the brand; files of older versions still load.
 
 ## 0.3.0 – 2026-10-18
 
