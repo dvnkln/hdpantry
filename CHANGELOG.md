@@ -15,6 +15,7 @@ All notable changes to hdpantry. Each version is also published as a [GitHub rel
 
 - **Date of a pack** – day, month and year side by side: the day may stay at "–", the year starts at the current one, and a month already past moves to next year
 - **Date hints** – shorter, right below the date: "A guide value, not a guarantee – always check", with a small sign that leads to the sources
+- **Installed app on Android** – the bar at the bottom of the screen (and the start screen) takes the background of your colour scheme instead of sage green; with "System" it is dark. Android takes this over the next time it checks the app, usually within a day
 
 ## 0.3.0 – 2026-10-18
 

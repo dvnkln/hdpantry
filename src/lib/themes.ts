@@ -16,3 +16,11 @@ export const DEFAULT_THEME: Theme = 'system';
 export function isTheme(value: unknown): value is Theme {
 	return typeof value === 'string' && Object.hasOwn(THEMES, value);
 }
+
+// Colour of the installed app's bars that the page cannot set itself (on Android the
+// navigation bar at the bottom; also the screen while the app starts). It comes from the app
+// manifest, which knows one colour only, not one for light and one for dark devices – so
+// "system" uses the dark one.
+export function appColor(theme: Theme) {
+	return theme === 'light' ? THEMES.light.bar[0] : THEMES.dark.bar[0];
+}

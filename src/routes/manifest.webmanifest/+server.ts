@@ -1,14 +1,17 @@
 import { serverMessages } from '$lib/server/i18n';
+import { getSetting } from '$lib/server/settings';
+import { appColor, isTheme } from '$lib/themes';
 import type { RequestHandler } from './$types';
-
-// Colour of the logo: shown while the installed app starts, before the page and its own
-// colour scheme are there. Fits light and dark devices alike.
-const BRAND = '#647f55';
 
 // Tells the browser how to install hdpantry as an app. Reachable without being logged in
 // (see PUBLIC_PATHS in hooks.server.ts): the browser fetches it without the login cookie.
 export const GET: RequestHandler = ({ locals }) => {
 	const t = serverMessages(locals.locale).app;
+	// The background of the chosen colour scheme: the bar at the bottom of the installed app
+	// (and its start screen) match the page. A browser takes a change over when it next checks
+	// the manifest, not at once.
+	const stored = getSetting('theme');
+	const color = appColor(isTheme(stored) ? stored : 'system');
 	const manifest = {
 		id: '/',
 		name: 'hdpantry',
@@ -18,8 +21,8 @@ export const GET: RequestHandler = ({ locals }) => {
 		start_url: '/',
 		scope: '/',
 		display: 'standalone',
-		background_color: BRAND,
-		theme_color: BRAND,
+		background_color: color,
+		theme_color: color,
 		icons: [
 			{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
 			{ src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
